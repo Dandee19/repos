@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bloodline Gene Crossing</title>
+<style>
+  :root {
+    --bg: #0f0d14; --panel: #1a1722; --panel2: #231f2e; --text: #ece8f4; --muted: #9b94ad; --line: #332d42;
+    --pure: #ffd23f; --co: #4fd06b; --partial: #3fc6c6; --masked: #7b8cff; --latent: #6b6478;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { margin: 0 0 4px; font-size: 28px; }
+  h2 { font-size: 18px; margin: 0 0 10px; }
+  h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin: 14px 0 8px; }
+  .sub { color: var(--muted); margin: 0 0 20px; }
+  a { color: #ff7a8a; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+  .top { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 860px) { .top { grid-template-columns: 1fr; } }
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  button { font: inherit; font-weight: 700; border: 0; border-radius: 10px; padding: 10px 16px; cursor: pointer; background: var(--panel2); color: var(--text); border: 1px solid var(--line); }
+  button.primary { background: linear-gradient(135deg, #d4363f, #8e1d3a); color: #fff; border: 0; padding: 12px 20px; }
+  button:disabled { opacity: .6; cursor: wait; }
+  button.small { padding: 5px 10px; font-size: 13px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+  /* Parents + Punnett */
+  .parents { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .parent { background: var(--panel2); border-radius: 10px; padding: 10px; text-align: center; }
+  .parent .lbl { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+  .alleles { display: flex; justify-content: center; gap: 6px; margin-top: 6px; }
+  .allele { min-width: 48px; padding: 6px 8px; border-radius: 8px; font-weight: 800; border: 2px solid currentColor; background: #0005; }
+  .punnett { display: grid; grid-template-columns: 56px 1fr 1fr; gap: 4px; margin-top: 12px; }
+  .punnett > div { background: var(--panel2); border-radius: 8px; padding: 10px 4px; text-align: center; min-height: 44px; font-weight: 700; }
+  .punnett .hd { background: transparent; color: var(--muted); }
+  .punnett .cell.win { outline: 3px solid #fff; transform: scale(1.04); }
+  .punnett .cell.flash { outline: 2px dashed #fff8; }
+
+  /* Result */
+  .result .geno { font-size: 30px; font-weight: 900; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; border: 1px solid currentColor; }
+  .gene { background: var(--panel2); border-radius: 10px; padding: 10px 12px; margin-top: 8px; border-left: 4px solid var(--c, #666); }
+  .gene .n { font-weight: 800; }
+  .gene .bonus { white-space: pre-wrap; margin-top: 4px; }
+  .gene .none { color: var(--muted); font-style: italic; font-size: 14px; margin-top: 4px; }
+  .empty { color: var(--muted); }
+
+  /* Crossing matrix */
+  .matrix-wrap { overflow: auto; max-height: 72vh; border-radius: 10px; border: 1px solid var(--line); }
+  table.matrix { border-collapse: separate; border-spacing: 0; font-size: 12px; }
+  .matrix th, .matrix td { padding: 0; }
+  .matrix thead th { position: sticky; top: 0; z-index: 2; background: var(--panel); }
+  .matrix th.rowh { position: sticky; left: 0; z-index: 1; background: var(--panel); text-align: left; padding: 0 8px; white-space: nowrap; }
+  .matrix thead th.corner { left: 0; z-index: 3; }
+  .matrix th.colh { min-width: 46px; padding: 6px 2px; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; font-weight: 700; }
+  .matrix td .x { width: 46px; height: 34px; display: grid; place-items: center; cursor: pointer; border: 1px solid #0f0d14; font-weight: 700; color: #0f0d14; }
+  .matrix td .x:hover { filter: brightness(1.25); }
+  .matrix td .x.hit { outline: 3px solid #fff; outline-offset: -3px; animation: blink .5s 4; position: relative; z-index: 1; }
+  @keyframes blink { 50% { filter: brightness(1.8); } }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); margin: 10px 0; }
+  .legend span::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: var(--k); margin-right: 6px; vertical-align: -2px; }
+
+  /* Editor */
+  .ed-wrap { overflow-x: auto; }
+  table.ed { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 980px; }
+  .ed th { text-align: left; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; padding: 6px; border-bottom: 1px solid var(--line); }
+  .ed td { padding: 5px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  input, select, textarea { font: inherit; color: var(--text); background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; width: 100%; }
+  textarea { resize: vertical; min-height: 36px; }
+  .w-code { width: 70px; } .w-sel { width: 125px; }
+  .rates { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .rate { background: var(--panel2); border-radius: 10px; padding: 8px 10px; }
+  .rate input { margin-top: 4px; }
+  .hist { display: grid; gap: 4px; max-height: 200px; overflow: auto; font-size: 14px; }
+  .hist div { display: flex; justify-content: space-between; gap: 8px; padding: 4px 8px; background: var(--panel2); border-radius: 6px; cursor: pointer; }
+  .note { color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🧬 Bloodline Gene Crossing</h1>
+  <p class="sub">Every race, lineage and extraordinary genetic factor, crossed against each other. Spin to roll two parents, cross them in a Punnett square and inherit a genotype. Fill in your own bonuses in the editor below — they save automatically in this browser. <a href="index.html">← Family Roll</a></p>
+
+  <div class="top">
+    <div class="panel">
+      <h2>Spin a Bloodline</h2>
+      <div class="parents">
+        <div class="parent"><div class="lbl">Parent A</div><div class="alleles" id="pA"><span class="allele">?</span><span class="allele">?</span></div></div>
+        <div class="parent"><div class="lbl">Parent B</div><div class="alleles" id="pB"><span class="allele">?</span><span class="allele">?</span></div></div>
+      </div>
+      <div class="punnett" id="punnett"></div>
+      <div class="row" style="margin-top:14px">
+        <button class="primary" id="spinBtn" style="flex:1">🎲 Spin Genes</button>
+        <button id="autoBtn">Auto-spin until</button><select id="autoTarget" style="width:auto"></select><span class="note">or better</span>
+      </div>
+      <div class="note" id="counter" style="margin-top:8px">Spins: 0</div>
+      <h3>History</h3>
+      <div class="hist" id="hist"><span class="empty">No spins yet.</span></div>
+    </div>
+
+    <div class="panel result" id="result">
+      <h2>Offspring</h2>
+      <p class="empty">Spin, or click any square in the crossing table, to see what that genotype gives.</p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Gene Crossing Table</h2>
+    <div class="legend">
+      <span style="--k:var(--pure)">Pure — same gene twice (homozygous)</span>
+      <span style="--k:var(--co)">Co-expressed — both genes active</span>
+      <span style="--k:var(--partial)">Partial — codominant unlocks a recessive at half strength</span>
+      <span style="--k:var(--masked)">Masked — dominant hides recessive (carrier)</span>
+      <span style="--k:var(--latent)">Latent — two different recessives, both dormant</span>
+    </div>
+    <div class="matrix-wrap"><table class="matrix" id="matrix"></table></div>
+  </div>
+
+  <div class="panel">
+    <h2>Rarity Weights</h2>
+    <p class="note">Each allele rolls a rarity first, then a gene of that rarity. Higher weight = more common.</p>
+    <div class="rates" id="rates"></div>
+  </div>
+
+  <div class="panel">
+    <div class="row" style="justify-content:space-between">
+      <h2 style="margin:0">Factor Editor</h2>
+      <div class="row">
+        <button class="small" id="addBtn">+ Add factor</button>
+        <button class="small" id="exportBtn">Export JSON</button>
+        <button class="small" id="importBtn">Import JSON</button>
+        <input type="file" id="importFile" accept=".json,application/json" hidden>
+        <button class="small" id="resetBtn">Reset to defaults</button>
+      </div>
+    </div>
+    <p class="note">Write anything in the bonus boxes, e.g. “+15% Strength, regen 2 HP/s”. <b>Bonus</b> applies when the gene is expressed; <b>Pure bonus</b> applies when the offspring has two copies of it.</p>
+    <div class="ed-wrap"><table class="ed" id="editor"></table></div>
+  </div>
+
+  <div class="panel">
+    <div class="row" style="justify-content:space-between">
+      <h2 style="margin:0">Special Combinations</h2>
+      <button class="small" id="addCombo">+ Add combination</button>
+    </div>
+    <p class="note">Extra bonuses for a specific pair of genes (either order), e.g. Human × Demon → Hybrid.</p>
+    <div class="ed-wrap"><table class="ed" id="combos" style="min-width:720px"></table></div>
+  </div>
+</div>
+
+<script>
+const STORE_KEY = "bloodline-gene-crossing-v1";
+const DOMINANCE = ["Dominant", "Codominant", "Recessive"];
+const CATEGORIES = ["Race", "Lineage", "Mutation", "Blood", "Technique Gene"];
+const TYPE_COLOR = { pure: "var(--pure)", co: "var(--co)", partial: "var(--partial)", masked: "var(--masked)", latent: "var(--latent)" };
+const TYPE_NAME = { pure: "Pure", co: "Co-expressed", partial: "Partial", masked: "Masked", latent: "Latent" };
+
+const F = (code, name, category, rarity, dominance) => ({ code, name, category, rarity, dominance, bonus: "", pureBonus: "" });
+const DEFAULTS = {
+  rarities: [
+    { name: "Common", color: "#b8b8b8", weight: 50 },
+    { name: "Uncommon", color: "#4fd06b", weight: 28 },
+    { name: "Rare", color: "#3fa0ff", weight: 15 },
+    { name: "Legendary", color: "#ffb52e", weight: 6 },
+    { name: "Mythical", color: "#ff4f8b", weight: 1 },
+  ],
+  factors: [
+    // Common
+    F("Hu", "Human", "Race", "Common", "Dominant"),
+    F("Hs", "Hardy Stock", "Lineage", "Common", "Codominant"),
+    F("Ke", "Keen Eyes", "Mutation", "Common", "Recessive"),
+    F("Lb", "Long Breath", "Mutation", "Common", "Recessive"),
+    // Uncommon
+    F("Sn", "Enhanced Smell", "Mutation", "Uncommon", "Recessive"),
+    F("Ea", "Enhanced Hearing", "Mutation", "Uncommon", "Recessive"),
+    F("Ts", "Enhanced Touch", "Mutation", "Uncommon", "Recessive"),
+    F("Sh", "Shinobi Blood", "Lineage", "Uncommon", "Dominant"),
+    F("Ic", "Iron Constitution", "Lineage", "Uncommon", "Codominant"),
+    F("Fj", "Flexible Joints", "Mutation", "Uncommon", "Recessive"),
+    // Rare
+    F("De", "Demon", "Race", "Rare", "Dominant"),
+    F("Mr", "Marechi Blood", "Blood", "Rare", "Recessive"),
+    F("Dm", "Dense Muscle Fibers", "Mutation", "Rare", "Codominant"),
+    F("Dc", "Demon Consumption", "Mutation", "Rare", "Recessive"),
+    F("Pt", "Poison Tolerance", "Blood", "Rare", "Codominant"),
+    F("Bp", "Breathing Prodigy", "Lineage", "Rare", "Codominant"),
+    // Legendary
+    F("Kz", "Twelve Kizuki Blood", "Race", "Legendary", "Dominant"),
+    F("Sm", "Slayer Mark Gene", "Technique Gene", "Legendary", "Recessive"),
+    F("Tw", "Transparent World", "Technique Gene", "Legendary", "Recessive"),
+    F("Ub", "Ubuyashiki Bloodline", "Lineage", "Legendary", "Recessive"),
+    F("Fl", "Flame Lineage", "Lineage", "Legendary", "Codominant"),
+    // Mythical
+    F("Su", "Sun Lineage", "Lineage", "Mythical", "Codominant"),
+    F("Pg", "Progenitor Cells", "Race", "Mythical", "Dominant"),
+    F("Sc", "Sun-Conquering Demon", "Race", "Mythical", "Recessive"),
+  ],
+  combos: [
+    { a: "Hu", b: "De", name: "Demon-Human Hybrid", bonus: "" },
+    { a: "Sm", b: "Tw", name: "Awakened Slayer", bonus: "" },
+  ],
+};
+
+let uid = 0;
+const newId = () => "g" + Date.now().toString(36) + (uid++);
+
+function fromDefaults() {
+  const s = JSON.parse(JSON.stringify(DEFAULTS));
+  s.factors.forEach(f => f.id = newId());
+  const byCode = Object.fromEntries(s.factors.map(f => [f.code, f.id]));
+  s.combos = s.combos.map(c => ({ a: byCode[c.a], b: byCode[c.b], name: c.name, bonus: c.bonus }));
+  return s;
+}
+
+let state;
+try { state = JSON.parse(localStorage.getItem(STORE_KEY)); } catch (e) { state = null; }
+if (!state || !Array.isArray(state.factors) || !Array.isArray(state.rarities)) state = fromDefaults();
+state.combos = state.combos || [];
+state.factors.forEach(f => { if (!f.id) f.id = newId(); });
+
+function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} }
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const rarityIdx = name => Math.max(0, state.rarities.findIndex(r => r.name === name));
+const rarityOf = f => state.rarities[rarityIdx(f.rarity)];
+const byId = id => state.factors.find(f => f.id === id);
+const sorted = () => [...state.factors].sort((a, b) => rarityIdx(a.rarity) - rarityIdx(b.rarity));
+const tag = f => `<span class="mono" style="color:${rarityOf(f).color}">${esc(f.code)}</span>`;
+
+// ---------- genetics ----------
+function cross(a, b) {
+  if (a.id === b.id) return { type: "pure", genes: [{ f: a, status: "Pure" }] };
+  const ra = a.dominance === "Recessive", rb = b.dominance === "Recessive";
+  if (ra && rb) return { type: "latent", genes: [{ f: a, status: "Carrier" }, { f: b, status: "Carrier" }] };
+  if (!ra && !rb) return { type: "co", genes: [{ f: a, status: "Expressed" }, { f: b, status: "Expressed" }] };
+  const [dom, rec] = ra ? [b, a] : [a, b];
+  if (dom.dominance === "Codominant") return { type: "partial", genes: [{ f: dom, status: "Expressed" }, { f: rec, status: "Partial" }] };
+  return { type: "masked", genes: [{ f: dom, status: "Expressed" }, { f: rec, status: "Carrier" }] };
+}
+
+function rollAllele() {
+  const live = state.rarities.filter(r => r.weight > 0 && state.factors.some(f => f.rarity === r.name));
+  if (!live.length) return pick(state.factors);
+  const total = live.reduce((s, r) => s + Number(r.weight), 0);
+  let n = Math.random() * total;
+  for (const r of live) { n -= r.weight; if (n < 0) return pick(state.factors.filter(f => f.rarity === r.name)); }
+  return pick(state.factors.filter(f => f.rarity === live[0].name));
+}
+
+function offspringRarity(c) {
+  const active = c.genes.filter(g => g.status !== "Carrier");
+  const pool = active.length ? active : c.genes;
+  return pool.reduce((best, g) => rarityIdx(g.f.rarity) > rarityIdx(best.rarity) ? g.f : best, pool[0].f).rarity;
+}
+
+// ---------- rendering ----------
+function showResult(a, b, fromSpin) {
+  const c = cross(a, b);
+  const r = state.rarities[rarityIdx(offspringRarity(c))];
+  const combo = state.combos.find(k => (k.a === a.id && k.b === b.id) || (k.a === b.id && k.b === a.id));
+  const statusColor = { Pure: "var(--pure)", Expressed: "var(--co)", Partial: "var(--partial)", Carrier: "var(--latent)" };
+  const genes = c.genes.map(({ f, status }) => {
+    let body;
+    if (status === "Carrier") body = `<div class="none">Dormant — carried and can pass to the next generation, but gives no bonus.</div>`;
+    else {
+      const parts = [];
+      if (f.bonus) parts.push(`<div class="bonus">${esc(f.bonus)}${status === "Partial" ? " <i>(half strength)</i>" : ""}</div>`);
+      if (status === "Pure" && f.pureBonus) parts.push(`<div class="bonus"><b>Pure:</b> ${esc(f.pureBonus)}</div>`);
+      body = parts.join("") || `<div class="none">No bonus set yet — add one in the Factor Editor.</div>`;
+    }
+    return `<div class="gene" style="--c:${rarityOf(f).color}">
+      <div class="row" style="justify-content:space-between"><span class="n">${esc(f.name)} ${tag(f)}</span>
+      <span class="badge" style="color:${statusColor[status]}">${status}${status === "Pure" ? " ×2" : ""}</span></div>
+      <div class="note">${esc(f.category)} · ${esc(f.dominance)} · ${esc(f.rarity)}</div>${body}</div>`;
+  }).join("");
+  const comboHtml = combo ? `<div class="gene" style="--c:#fff"><div class="row" style="justify-content:space-between"><span class="n">✦ ${esc(combo.name || "Special Combination")}</span><span class="badge" style="color:#fff">Combo</span></div>
+    ${combo.bonus ? `<div class="bonus">${esc(combo.bonus)}</div>` : `<div class="none">No bonus set yet.</div>`}</div>` : "";
+  $("result").innerHTML = `<h2>Offspring ${fromSpin ? "" : '<span class="note">(preview)</span>'}</h2>
+    <div class="geno mono">${tag(a)} / ${tag(b)}</div>
+    <div class="row" style="margin:6px 0 4px">
+      <span class="badge" style="color:${r.color}">${esc(r.name)}</span>
+      <span class="badge" style="color:${TYPE_COLOR[c.type]}">${TYPE_NAME[c.type]}</span></div>
+    ${genes}${comboHtml}`;
+  highlightMatrix(a, b);
+}
+
+function renderMatrix() {
+  const fs = sorted();
+  let h = `<thead><tr><th class="corner rowh">♀ \\ ♂</th>${fs.map(f =>
+    `<th class="colh" style="color:${rarityOf(f).color}" title="${esc(f.name)}">${esc(f.code)} · ${esc(f.name)}</th>`).join("")}</tr></thead><tbody>`;
+  for (const a of fs) {
+    h += `<tr><th class="rowh" style="color:${rarityOf(a).color}"><span class="mono">${esc(a.code)}</span> ${esc(a.name)}</th>`;
+    for (const b of fs) {
+      const c = cross(a, b);
+      h += `<td><div class="x mono" data-a="${a.id}" data-b="${b.id}" style="background:${TYPE_COLOR[c.type]}"
+        title="${esc(a.name)} × ${esc(b.name)} — ${TYPE_NAME[c.type]}">${esc(a.code)}${esc(b.code)}</div></td>`;
+    }
+    h += "</tr>";
+  }
+  $("matrix").innerHTML = h + "</tbody>";
+}
+
+function highlightMatrix(a, b) {
+  document.querySelectorAll(".matrix .x.hit").forEach(e => e.classList.remove("hit"));
+  const el = document.querySelector(`.matrix .x[data-a="${a.id}"][data-b="${b.id}"]`);
+  if (el) {
+    el.classList.add("hit");
+    const wrap = document.querySelector(".matrix-wrap");
+    const er = el.getBoundingClientRect(), wr = wrap.getBoundingClientRect();
+    wrap.scrollBy({ left: er.left - wr.left - wr.width / 2, top: er.top - wr.top - wr.height / 2, behavior: "smooth" });
+  }
+}
+
+$("matrix").addEventListener("click", e => {
+  const x = e.target.closest(".x"); if (!x) return;
+  showResult(byId(x.dataset.a), byId(x.dataset.b), false);
+});
+
+function renderRates() {
+  $("rates").innerHTML = state.rarities.map((r, i) => {
+    const n = state.factors.filter(f => f.rarity === r.name).length;
+    return `<div class="rate"><b style="color:${r.color}">${esc(r.name)}</b> <span class="note">(${n} genes)</span>
+      <input type="number" min="0" step="0.1" value="${r.weight}" data-ri="${i}"></div>`;
+  }).join("");
+  $("autoTarget").innerHTML = state.rarities.map((r, i) => `<option value="${i}" ${i === 3 ? "selected" : ""}>${esc(r.name)}</option>`).join("");
+}
+$("rates").addEventListener("input", e => {
+  const i = e.target.dataset.ri; if (i === undefined) return;
+  state.rarities[i].weight = Math.max(0, Number(e.target.value) || 0); save();
+});
+
+function opts(list, cur) { return list.map(v => `<option ${v === cur ? "selected" : ""}>${esc(v)}</option>`).join(""); }
+
+function renderEditor() {
+  const rn = state.rarities.map(r => r.name);
+  $("editor").innerHTML = `<tr><th>Code</th><th>Name</th><th>Category</th><th>Rarity</th><th>Dominance</th><th>Bonus (expressed)</th><th>Pure bonus (×2)</th><th></th></tr>` +
+    sorted().map(f => `<tr data-id="${f.id}">
+      <td><input class="w-code mono" data-k="code" value="${esc(f.code)}" maxlength="4"></td>
+      <td><input data-k="name" value="${esc(f.name)}"></td>
+      <td><select class="w-sel" data-k="category">${opts([...new Set([...CATEGORIES, f.category])], f.category)}</select></td>
+      <td><select class="w-sel" data-k="rarity" style="color:${rarityOf(f).color}">${opts(rn, f.rarity)}</select></td>
+      <td><select class="w-sel" data-k="dominance">${opts(DOMINANCE, f.dominance)}</select></td>
+      <td><textarea data-k="bonus" placeholder="e.g. +10% Strength">${esc(f.bonus)}</textarea></td>
+      <td><textarea data-k="pureBonus" placeholder="e.g. +25% Strength">${esc(f.pureBonus)}</textarea></td>
+      <td><button class="small" data-del title="Remove">✕</button></td></tr>`).join("");
+}
+
+let mTimer;
+function refreshSoon() { clearTimeout(mTimer); mTimer = setTimeout(() => { renderMatrix(); renderCombos(); }, 300); }
+
+$("editor").addEventListener("input", e => {
+  const tr = e.target.closest("tr[data-id]"), k = e.target.dataset.k; if (!tr || !k) return;
+  byId(tr.dataset.id)[k] = e.target.value; save();
+  if (k !== "bonus" && k !== "pureBonus") refreshSoon();
+});
+$("editor").addEventListener("change", e => {
+  if (e.target.dataset.k === "rarity") { renderEditor(); renderRates(); renderMatrix(); }
+});
+$("editor").addEventListener("click", e => {
+  if (!e.target.hasAttribute("data-del")) return;
+  if (state.factors.length <= 1) return alert("You need at least one factor.");
+  const id = e.target.closest("tr").dataset.id;
+  const f = byId(id);
+  if (!confirm(`Remove "${f.name}"?`)) return;
+  state.factors = state.factors.filter(x => x.id !== id);
+  state.combos = state.combos.filter(c => c.a !== id && c.b !== id);
+  save(); renderAll();
+});
+$("addBtn").onclick = () => {
+  state.factors.push({ id: newId(), code: "Nw", name: "New Factor", category: "Mutation", rarity: state.rarities[0].name, dominance: "Recessive", bonus: "", pureBonus: "" });
+  save(); renderAll();
+  const rows = $("editor").querySelectorAll("tr[data-id]"); rows[0] && rows[0].scrollIntoView({ block: "center" });
+};
+
+function renderCombos() {
+  const fopts = cur => sorted().map(f => `<option value="${f.id}" ${f.id === cur ? "selected" : ""}>${esc(f.code)} · ${esc(f.name)}</option>`).join("");
+  $("combos").innerHTML = `<tr><th>Gene A</th><th>Gene B</th><th>Combo name</th><th>Bonus</th><th></th></tr>` +
+    (state.combos.length ? state.combos.map((c, i) => `<tr data-ci="${i}">
+      <td><select data-k="a">${fopts(c.a)}</select></td><td><select data-k="b">${fopts(c.b)}</select></td>
+      <td><input data-k="name" value="${esc(c.name)}"></td>
+      <td><textarea data-k="bonus" placeholder="e.g. Regenerate limbs, immune to sunlight">${esc(c.bonus)}</textarea></td>
+      <td><button class="small" data-del>✕</button></td></tr>`).join("")
+    : `<tr><td colspan="5" class="note">No special combinations yet.</td></tr>`);
+}
+$("combos").addEventListener("input", e => {
+  const tr = e.target.closest("tr[data-ci]"), k = e.target.dataset.k; if (!tr || !k) return;
+  state.combos[tr.dataset.ci][k] = e.target.value; save();
+});
+$("combos").addEventListener("click", e => {
+  if (!e.target.hasAttribute("data-del")) return;
+  state.combos.splice(e.target.closest("tr").dataset.ci, 1); save(); renderCombos();
+});
+$("addCombo").onclick = () => {
+  const fs = sorted();
+  state.combos.push({ a: fs[0].id, b: fs[Math.min(1, fs.length - 1)].id, name: "", bonus: "" }); save(); renderCombos();
+};
+
+$("exportBtn").onclick = () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "bloodline-genes.json"; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+$("importBtn").onclick = () => $("importFile").click();
+$("importFile").onchange = async e => {
+  const file = e.target.files[0]; if (!file) return;
+  try {
+    const s = JSON.parse(await file.text());
+    if (!Array.isArray(s.factors) || !Array.isArray(s.rarities) || !s.factors.length) throw new Error("bad file");
+    s.combos = s.combos || []; s.factors.forEach(f => { if (!f.id) f.id = newId(); });
+    state = s; save(); renderAll();
+  } catch (err) { alert("That file doesn't look like an exported gene table."); }
+  e.target.value = "";
+};
+$("resetBtn").onclick = () => {
+  if (!confirm("Reset everything to the default genes? Your bonuses will be erased.")) return;
+  state = fromDefaults(); save(); renderAll();
+};
+
+// ---------- spinning ----------
+const alleleHtml = f => `<span class="allele mono" style="color:${rarityOf(f).color}" title="${esc(f.name)}">${esc(f.code)}</span>`;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+let spins = 0; const history = [];
+
+function renderPunnett(A, B, cells) {
+  const cell = (i, j) => {
+    if (!cells) return `<div class="cell"></div>`;
+    const c = cross(A[i], B[j]);
+    return `<div class="cell mono" data-c="${i}${j}" style="color:${TYPE_COLOR[c.type]}">${esc(A[i].code)}/${esc(B[j].code)}</div>`;
+  };
+  $("punnett").innerHTML = `<div class="hd">A \\ B</div><div class="hd">${B ? alleleHtml(B[0]) : ""}</div><div class="hd">${B ? alleleHtml(B[1]) : ""}</div>
+    <div class="hd">${A ? alleleHtml(A[0]) : ""}</div>${cell(0, 0)}${cell(0, 1)}
+    <div class="hd">${A ? alleleHtml(A[1]) : ""}</div>${cell(1, 0)}${cell(1, 1)}`;
+}
+
+async function spin() {
+  $("spinBtn").disabled = true;
+  const A = [rollAllele(), rollAllele()], B = [rollAllele(), rollAllele()];
+  renderPunnett(null, null, false);
+  for (let t = 0; t < 14; t++) {
+    $("pA").innerHTML = alleleHtml(pick(state.factors)) + alleleHtml(pick(state.factors));
+    $("pB").innerHTML = alleleHtml(pick(state.factors)) + alleleHtml(pick(state.factors));
+    await sleep(55);
+  }
+  $("pA").innerHTML = A.map(alleleHtml).join(""); $("pB").innerHTML = B.map(alleleHtml).join("");
+  renderPunnett(A, B, true);
+  const keys = ["00", "01", "10", "11"], win = pick(keys);
+  for (let t = 0; t < 10; t++) {
+    document.querySelectorAll(".punnett .cell").forEach(c => c.classList.toggle("flash", c.dataset.c === keys[t % 4]));
+    await sleep(70 + t * 12);
+  }
+  document.querySelectorAll(".punnett .cell").forEach(c => { c.classList.remove("flash"); c.classList.toggle("win", c.dataset.c === win); });
+  const a = A[+win[0]], b = B[+win[1]];
+  showResult(a, b, true);
+  const rName = offspringRarity(cross(a, b));
+  spins++; $("counter").textContent = `Spins: ${spins}`;
+  history.unshift({ a, b, rName }); if (history.length > 50) history.pop();
+  $("hist").innerHTML = history.map((h, i) => `<div data-h="${i}"><span class="mono">${esc(h.a.code)} / ${esc(h.b.code)} <span class="note">${esc(h.a.name)} × ${esc(h.b.name)}</span></span>
+    <b style="color:${state.rarities[rarityIdx(h.rName)].color}">${esc(h.rName)}</b></div>`).join("");
+  $("spinBtn").disabled = false;
+  return rName;
+}
+$("hist").addEventListener("click", e => {
+  const d = e.target.closest("[data-h]"); if (!d) return;
+  const h = history[d.dataset.h]; if (byId(h.a.id) && byId(h.b.id)) showResult(byId(h.a.id), byId(h.b.id), true);
+});
+$("spinBtn").onclick = spin;
+
+let auto = false;
+$("autoBtn").onclick = async () => {
+  if (auto) { auto = false; return; }
+  auto = true; $("autoBtn").textContent = "⏹ Stop";
+  const target = Number($("autoTarget").value);
+  let guard = 0;
+  while (auto && guard++ < 500) { if (rarityIdx(await spin()) >= target) break; }
+  auto = false; $("autoBtn").textContent = "Auto-spin until";
+};
+
+function renderAll() { renderRates(); renderMatrix(); renderEditor(); renderCombos(); renderPunnett(null, null, false); }
+renderAll();
+</script>
+</body>
+</html>
