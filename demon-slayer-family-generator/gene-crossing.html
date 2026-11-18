@@ -157,7 +157,7 @@ const CATEGORIES = ["Race", "Lineage", "Mutation", "Blood", "Technique Gene"];
 const TYPE_COLOR = { pure: "var(--pure)", co: "var(--co)", partial: "var(--partial)", masked: "var(--masked)", latent: "var(--latent)" };
 const TYPE_NAME = { pure: "Pure", co: "Co-expressed", partial: "Partial", masked: "Masked", latent: "Latent" };
 
-const F = (code, name, category, rarity, dominance) => ({ code, name, category, rarity, dominance, bonus: "", pureBonus: "" });
+const F = (code, name, category, rarity, dominance, bonus = "", pureBonus = "") => ({ code, name, category, rarity, dominance, bonus, pureBonus });
 const DEFAULTS = {
   rarities: [
     { name: "Common", color: "#b8b8b8", weight: 50 },
@@ -166,40 +166,143 @@ const DEFAULTS = {
     { name: "Legendary", color: "#ffb52e", weight: 6 },
     { name: "Mythical", color: "#ff4f8b", weight: 1 },
   ],
+  version: 2,
   factors: [
-    // Common
-    F("Hu", "Human", "Race", "Common", "Dominant"),
-    F("Hs", "Hardy Stock", "Lineage", "Common", "Codominant"),
-    F("Ke", "Keen Eyes", "Mutation", "Common", "Recessive"),
-    F("Lb", "Long Breath", "Mutation", "Common", "Recessive"),
-    // Uncommon
-    F("Sn", "Enhanced Smell", "Mutation", "Uncommon", "Recessive"),
-    F("Ea", "Enhanced Hearing", "Mutation", "Uncommon", "Recessive"),
-    F("Ts", "Enhanced Touch", "Mutation", "Uncommon", "Recessive"),
-    F("Sh", "Shinobi Blood", "Lineage", "Uncommon", "Dominant"),
-    F("Ic", "Iron Constitution", "Lineage", "Uncommon", "Codominant"),
-    F("Fj", "Flexible Joints", "Mutation", "Uncommon", "Recessive"),
-    // Rare
-    F("De", "Demon", "Race", "Rare", "Dominant"),
-    F("Mr", "Marechi Blood", "Blood", "Rare", "Recessive"),
-    F("Dm", "Dense Muscle Fibers", "Mutation", "Rare", "Codominant"),
-    F("Dc", "Demon Consumption", "Mutation", "Rare", "Recessive"),
-    F("Pt", "Poison Tolerance", "Blood", "Rare", "Codominant"),
-    F("Bp", "Breathing Prodigy", "Lineage", "Rare", "Codominant"),
-    // Legendary
-    F("Kz", "Twelve Kizuki Blood", "Race", "Legendary", "Dominant"),
-    F("Sm", "Slayer Mark Gene", "Technique Gene", "Legendary", "Recessive"),
-    F("Tw", "Transparent World", "Technique Gene", "Legendary", "Recessive"),
-    F("Ub", "Ubuyashiki Bloodline", "Lineage", "Legendary", "Recessive"),
-    F("Fl", "Flame Lineage", "Lineage", "Legendary", "Codominant"),
-    // Mythical
-    F("Su", "Sun Lineage", "Lineage", "Mythical", "Codominant"),
-    F("Pg", "Progenitor Cells", "Race", "Mythical", "Dominant"),
-    F("Sc", "Sun-Conquering Demon", "Race", "Mythical", "Recessive"),
+    // ───────── Common ─────────
+    F("Hu", "Human", "Race", "Common", "Dominant",
+      "+5% Health, +5% Stamina\nCan learn any Breathing Style\nUnaffected by sunlight",
+      "+10% Health, +10% Stamina\nIndomitable Will: survive one lethal hit at 1 HP (once per fight)"),
+    F("Hs", "Hardy Stock", "Lineage", "Common", "Codominant",
+      "+6% Durability\n-10% stun duration",
+      "+12% Durability, +5% Health\nCan't be knocked down by normal attacks"),
+    F("Ke", "Keen Eyes", "Mutation", "Common", "Recessive",
+      "+5% Critical Chance\nSee enemy attack wind-ups slightly earlier",
+      "+10% Critical Chance\nSpot hidden or camouflaged demons"),
+    F("Lb", "Long Breath", "Mutation", "Common", "Recessive",
+      "+8% Breath Control\n+5% breath regen",
+      "+15% Breath Control\nTotal Concentration lasts 50% longer"),
+    F("Fb", "Farmer's Back", "Lineage", "Common", "Dominant",
+      "+5% Strength, +5% Stamina\nGrabs and shoves are 10% stronger",
+      "+10% Strength, +8% Stamina\nCan grab and throw lower-rank demons"),
+    F("Mb", "Mountain-Born", "Lineage", "Common", "Codominant",
+      "+4% Stamina, +5% Speed on rough terrain\nResist cold and thin air",
+      "+10% Stamina\nNo stamina drain from climbing, snow or water"),
+    F("Sw", "Swordsmith Blood", "Lineage", "Common", "Recessive",
+      "+5% Sword Mastery\nNichirin blade durability +20%",
+      "+10% Sword Mastery\nRepair a broken blade mid-fight (once per fight)"),
+
+    // ───────── Uncommon ─────────
+    F("Sn", "Enhanced Smell", "Mutation", "Uncommon", "Recessive",
+      "+8% Critical Chance vs demons\nSmell demons through walls and sense emotions (fear, lies, killing intent)",
+      "Track any demon you've smelled across the map\nSmell the Opening Thread: next hit is a guaranteed crit (every 30s)"),
+    F("Ea", "Enhanced Hearing", "Mutation", "Uncommon", "Recessive",
+      "+6% dodge chance\nHear heartbeats: see enemy HP and intent",
+      "+12% dodge chance\nHear attacks from behind: auto-parry once every 30s"),
+    F("Ts", "Enhanced Touch", "Mutation", "Uncommon", "Recessive",
+      "+6% Speed\nSense movement through air vibrations; immune to blindness",
+      "+10% Speed\nAuto-dodge the first ranged attack each fight"),
+    F("Sh", "Shinobi Blood", "Lineage", "Uncommon", "Dominant",
+      "+8% Speed\nPoison resistance 50%\n+10% damage from stealth",
+      "+15% Speed\nFull poison immunity\nUnlocks explosive kunai / beads skill"),
+    F("Ic", "Iron Constitution", "Lineage", "Uncommon", "Codominant",
+      "+8% Durability, +6% Health",
+      "+15% Durability, +12% Health\nBones don't break: immune to cripple effects"),
+    F("Fj", "Flexible Joints", "Mutation", "Uncommon", "Recessive",
+      "+8% dodge chance\nAttacks from odd angles: +5% Critical Chance",
+      "+15% dodge chance\nSlip out of grabs and restraints instantly"),
+    F("Wm", "Wild Mountain Blood", "Lineage", "Uncommon", "Dominant",
+      "+8% Strength, +5% Speed\nCan dual-wield blades\n⚠ -10% Breath Control",
+      "+15% Strength, +10% Speed\nBeast Rage: +20% damage for 8s after taking a heavy hit"),
+    F("Wk", "Wisteria Keeper", "Lineage", "Uncommon", "Codominant",
+      "+5% Health\nWisteria scent: low-rank demons near you deal 15% less damage",
+      "+10% Health\nWisteria aura repels low-rank demons; allies near you heal 1% HP/s"),
+    F("Cb", "Crow Bond", "Lineage", "Uncommon", "Recessive",
+      "Kasugai crow scouts: reveals nearby enemies\n+5% Speed while tracking",
+      "Crow dives at enemies: interrupt a demon's skill once per fight"),
+
+    // ───────── Rare ─────────
+    F("De", "Demon", "Race", "Rare", "Dominant",
+      "+15% Strength, +10% Health\nRegenerate 2% HP/s\nCan learn a Blood Demon Art\n⚠ Burns in sunlight; can't use Breathing",
+      "+25% Strength, +20% Health\nRegenerate 4% HP/s and regrow limbs\n⚠ Sunlight kills instantly"),
+    F("Mr", "Marechi Blood", "Blood", "Rare", "Recessive",
+      "+10% Health\nDemons that smell your blood are dazed: -20% accuracy for 5s",
+      "Demons that bite you become Intoxicated for 10s (-30% damage)\nDemons hunt you more often (more drops)"),
+    F("Dm", "Dense Muscle Fibers", "Mutation", "Rare", "Codominant",
+      "+12% Strength, +5% Speed\nHeavy weapons don't slow you down",
+      "+25% Strength\nWield a whip-blade or heavy blade at full speed\nUnarmed hits deal sword-level damage"),
+    F("Dc", "Demon Consumption", "Mutation", "Rare", "Recessive",
+      "Eat demon flesh: regen 1.5% HP/s for 20s\nCan wield firearms",
+      "Partial demonization for 30s: +20% Strength, regen 3% HP/s\n⚠ Sunlight cancels the effect"),
+    F("Pt", "Poison Tolerance", "Blood", "Rare", "Codominant",
+      "Poison damage -40%\nCoat blade in wisteria poison: +8% damage to demons",
+      "Poison immunity\nWisteria Body: demons that bite you take 5% max HP per second"),
+    F("Bp", "Breathing Prodigy", "Lineage", "Rare", "Codominant",
+      "+12% Breath Control\nLearn Breathing forms 50% faster\nTotal Concentration: Constant unlocked early",
+      "+20% Breath Control\nCreate your own Breathing Style (custom final form)"),
+    F("Ms", "Mist Blood", "Lineage", "Rare", "Recessive",
+      "+10% Speed\nAttacks leave mist: enemies get -10% accuracy",
+      "+20% Speed\nObscuring Clouds: become untargetable for 2s after a dodge"),
+    F("If", "Iron Faith", "Lineage", "Rare", "Codominant",
+      "+10% Strength, +8% Durability\nMastery of chains, flails and axes",
+      "+20% Strength, +12% Durability\nMeditate: heal 5% HP after standing still for 3s"),
+
+    // ───────── Legendary ─────────
+    F("Kz", "Twelve Kizuki Blood", "Race", "Legendary", "Dominant",
+      "+25% Strength, +20% Health\nRegenerate 4% HP/s\nTwo Blood Demon Art slots\n⚠ Burns in sunlight; can't use Breathing",
+      "+35% Strength, +30% Health\nRegenerate 6% HP/s; survive one beheading per fight\n⚠ Sunlight kills instantly"),
+    F("Sm", "Slayer Mark Gene", "Technique Gene", "Legendary", "Recessive",
+      "Mark awakens below 40% HP: +25% Strength, +20% Speed for 20s\n⚠ Awakening costs 10% current HP",
+      "Awaken the Mark at will (60s cooldown)\nRed Blade: hits stop demon regen for 5s"),
+    F("Tw", "Transparent World", "Technique Gene", "Legendary", "Recessive",
+      "+20% Critical Chance\nSee demon weak points: +15% neck-cut damage",
+      "Selfless State: enemies can't sense you\nFirst hit always crits and ignores 30% defense"),
+    F("Ub", "Ubuyashiki Bloodline", "Lineage", "Legendary", "Recessive",
+      "Calming Voice: allies nearby deal +15% damage\nForesight: +10% dodge chance\n⚠ -15% Health (family curse)",
+      "Command: stun all nearby enemies for 3s (once per fight)\nForesight: +20% dodge chance\n⚠ -25% Health"),
+    F("Fl", "Flame Lineage", "Lineage", "Legendary", "Codominant",
+      "+15% Strength\nAttacks Burn for 2% HP/s\nFlame Breathing forms +20% damage",
+      "+25% Strength\nSet Your Heart Ablaze: +30% damage below 30% HP and can't be staggered"),
+    F("Tc", "Thunder Clan", "Lineage", "Legendary", "Recessive",
+      "+20% Speed\nFirst Form deals 2× damage\nDashes have invincibility frames",
+      "+30% Speed\nGodspeed: one dash hits up to 7 enemies"),
+    F("Wl", "Still Water Lineage", "Lineage", "Legendary", "Codominant",
+      "+15% Durability\nBlocked damage -25%; Water Breathing counters +20%",
+      "+25% Durability\nDead Calm: negate all damage for 2s after a perfect block"),
+
+    // ───────── Mythical ─────────
+    F("Su", "Sun Lineage", "Lineage", "Mythical", "Codominant",
+      "+30% Breathing damage\nAccess to Sun Breathing\nHits stop demon regen for 5s",
+      "Origin of All Breaths: learn every Breathing Style\nBorn with the Slayer Mark, with no HP cost"),
+    F("Pg", "Progenitor Cells", "Race", "Mythical", "Dominant",
+      "+40% Strength, +40% Health\nRegenerate 8% HP/s; multiple hearts and brains\nCan turn humans into demons\n⚠ Burns in sunlight",
+      "Shape-shift at will\nScatter into cells: survive one death per fight\n⚠ Sunlight kills instantly"),
+    F("Sc", "Sun-Conquering Demon", "Race", "Mythical", "Recessive",
+      "+25% Strength, regenerate 5% HP/s\nImmune to sunlight\nBlood Demon Art: Exploding Blood\nNever needs to eat humans",
+      "+40% Strength\nSize-shift (grow or shrink)\nCan use Breathing as a demon"),
+    F("Hk", "Hinokami Dancer", "Lineage", "Mythical", "Codominant",
+      "Hinokami Kagura: chain forms without stopping\n+20% Stamina, +25% breath regen",
+      "Endless Dance: each chained form adds +5% damage (max +60%)"),
+    F("Hb", "Heavenly Body", "Mutation", "Mythical", "Recessive",
+      "+25% Speed, +25% Sword Mastery\nBorn able to see the Transparent World",
+      "Perfect Form: +50% damage and no stamina cost for 10s after landing 5 hits"),
   ],
   combos: [
-    { a: "Hu", b: "De", name: "Demon-Human Hybrid", bonus: "" },
-    { a: "Sm", b: "Tw", name: "Awakened Slayer", bonus: "" },
+    { a: "Hu", b: "De", name: "Demon-Human Hybrid", bonus: "Use Breathing AND a Blood Demon Art\nRegenerate 1.5% HP/s\nSunlight halves regen instead of burning you" },
+    { a: "Sm", b: "Tw", name: "Awakened Slayer", bonus: "Red Blade + Transparent World: +30% neck-cut damage; demons can't regenerate while marked" },
+    { a: "Su", b: "Hk", name: "Thirteenth Form", bonus: "Chain all Sun Breathing forms into one endless loop: +25% damage, no breath cost" },
+    { a: "Sn", b: "Su", name: "Scent of the Sun", bonus: "Smell the Opening Thread every 20s (guaranteed crit)" },
+    { a: "Sc", b: "Hu", name: "Path Back to Humanity", bonus: "Can return to human form; keep +10% to all stats" },
+    { a: "De", b: "Mr", name: "Blood Frenzy", bonus: "+30% damage while Intoxicated\n⚠ 20% chance to attack allies while frenzied" },
+    { a: "Dc", b: "De", name: "Demon Eater", bonus: "Copy a weaker version of a devoured demon's Blood Demon Art for 30s" },
+    { a: "Kz", b: "Pg", name: "Favored of the Progenitor", bonus: "+20% to all stats\nUpper-rank demons won't attack you\n⚠ Sunlight kills instantly" },
+    { a: "Fl", b: "Bp", name: "Flame Hashira Legacy", bonus: "Ninth Form unlocked early; Flame forms +15% damage" },
+    { a: "Sh", b: "Ea", name: "Sound of Battle", bonus: "Musical Score: after 3 hits, +20% Critical Chance and dodge for 10s" },
+    { a: "Wm", b: "Ts", name: "Beast Sense", bonus: "+15% Speed; sense enemies up to 50m away" },
+    { a: "Ms", b: "Bp", name: "Prodigy of the Mist", bonus: "Master any Breathing Style in half the time; +10% Speed" },
+    { a: "If", b: "Dm", name: "Stone Pillar", bonus: "+20% Strength, +15% Durability; heavy-weapon hits can't be blocked" },
+    { a: "Pt", b: "Fj", name: "Butterfly Dance", bonus: "+15% dodge chance; each dodge stacks poison on nearby demons" },
+    { a: "Tc", b: "Tw", name: "Flash of Thunder", bonus: "First Form crits are 3× damage" },
+    { a: "Wl", b: "Hs", name: "Unshakable Calm", bonus: "Perfect blocks reflect 30% of the damage" },
   ],
 };
 
@@ -219,6 +322,28 @@ try { state = JSON.parse(localStorage.getItem(STORE_KEY)); } catch (e) { state =
 if (!state || !Array.isArray(state.factors) || !Array.isArray(state.rarities)) state = fromDefaults();
 state.combos = state.combos || [];
 state.factors.forEach(f => { if (!f.id) f.id = newId(); });
+
+// Bring older saves up to date: add new default genes and fill in bonuses that were left empty.
+// Anything you already typed is kept.
+if ((state.version || 1) < DEFAULTS.version) {
+  const d = fromDefaults();
+  const byCode = c => state.factors.find(f => f.code === c);
+  for (const df of d.factors) {
+    const cur = byCode(df.code);
+    if (!cur) state.factors.push(df);
+    else { if (!cur.bonus) cur.bonus = df.bonus; if (!cur.pureBonus) cur.pureBonus = df.pureBonus; }
+  }
+  const code = id => (d.factors.find(f => f.id === id) || {}).code;
+  for (const dc of d.combos) {
+    const a = byCode(code(dc.a)), b = byCode(code(dc.b));
+    if (!a || !b) continue;
+    const cur = state.combos.find(c => (c.a === a.id && c.b === b.id) || (c.a === b.id && c.b === a.id));
+    if (!cur) state.combos.push({ a: a.id, b: b.id, name: dc.name, bonus: dc.bonus });
+    else { if (!cur.bonus) cur.bonus = dc.bonus; if (!cur.name) cur.name = dc.name; }
+  }
+  state.version = DEFAULTS.version;
+  save();
+}
 
 function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} }
 
