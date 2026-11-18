@@ -3,301 +3,2696 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Slayer Family Roll</title>
+<title>Slayer Bloodline Roll</title>
 <style>
   :root {
-    --bg: #0f0d14; --panel: #1a1722; --panel2: #231f2e; --text: #ece8f4; --muted: #9b94ad; --line: #332d42;
-    --common: #b8b8b8; --uncommon: #4fd06b; --rare: #3fa0ff; --legendary: #ffb52e; --mythical: #ff4f8b;
+    --bg: #0d0a12; --panel: #17121f; --panel2: #211a2c; --text: #efe9f6; --muted: #a197b3; --line: #33294a;
+    --accent: #c9304a; --wisteria: #b48cff;
+    --pure: #ffd23f; --co: #4fd06b; --awakened: #3fc6c6; --suppressed: #7b8cff; --hidden: #c08bff;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
-  .wrap { max-width: 980px; margin: 0 auto; padding: 24px 16px 48px; }
-  h1 { margin: 0 0 4px; font-size: 28px; letter-spacing: .5px; }
-  .sub { color: var(--muted); margin: 0 0 20px; }
-  .grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }
-  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
-  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
-  .card { min-height: 360px; position: relative; overflow: hidden; }
-  .card.glow-legendary { box-shadow: 0 0 28px -6px var(--legendary); }
-  .card.glow-mythical { box-shadow: 0 0 36px -4px var(--mythical); animation: pulse 2s infinite; }
-  @keyframes pulse { 50% { box-shadow: 0 0 52px 0 var(--mythical); } }
-  .rarity { display: inline-block; font-weight: 800; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; border: 1px solid currentColor; }
-  .fname { font-size: 34px; font-weight: 800; margin: 10px 0 2px; }
-  .kanji { color: var(--muted); font-size: 15px; margin-bottom: 8px; }
-  .lore { color: var(--muted); font-style: italic; margin: 0 0 14px; }
-  h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin: 16px 0 8px; }
-  .stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
-  .stat { background: var(--panel2); border-radius: 10px; padding: 8px 10px; display: flex; justify-content: space-between; }
-  .stat b { color: var(--uncommon); }
-  .list { display: grid; gap: 8px; }
-  .item { background: var(--panel2); border-radius: 10px; padding: 9px 12px; border-left: 3px solid var(--accent, #666); }
-  .item .n { font-weight: 700; }
-  .item .d { color: var(--muted); font-size: 14px; margin-top: 2px; }
-  .empty { color: var(--muted); font-size: 14px; }
-  .btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
-  button { font: inherit; font-weight: 700; border: 0; border-radius: 10px; padding: 12px 18px; cursor: pointer; }
-  .spin { background: linear-gradient(135deg, #d4363f, #8e1d3a); color: #fff; flex: 1; min-width: 140px; }
-  .spin:disabled { opacity: .6; cursor: wait; }
-  .ghost { background: var(--panel2); color: var(--text); border: 1px solid var(--line); }
-  .counter { color: var(--muted); font-size: 14px; margin-top: 10px; }
-  .rates { display: grid; gap: 6px; }
-  .rate { display: flex; justify-content: space-between; font-size: 14px; }
-  .hist { display: grid; gap: 4px; max-height: 260px; overflow: auto; font-size: 14px; }
-  .hist div { display: flex; justify-content: space-between; padding: 4px 6px; border-radius: 6px; background: var(--panel2); }
-  .index { margin-top: 16px; }
-  .index details { border-top: 1px solid var(--line); padding: 8px 0; }
-  .index summary { cursor: pointer; font-weight: 700; }
-  .index .fam { padding: 4px 0 4px 12px; font-size: 14px; color: var(--muted); }
+  body { margin: 0; color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: radial-gradient(1000px 460px at 15% -160px, #3a1222 0%, transparent 70%) fixed, radial-gradient(900px 420px at 95% -200px, #2a1d4d 0%, transparent 70%) fixed, var(--bg); }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { margin: 0 0 4px; font-size: 30px; letter-spacing: .5px; font-family: Georgia, "Times New Roman", serif; }
+  h1 span { color: var(--accent); }
+  h1 small { font-size: 16px; color: var(--wisteria); margin-left: 8px; letter-spacing: 3px; }
+  h2 { font-size: 18px; margin: 0 0 10px; font-family: Georgia, serif; }
+  h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin: 14px 0 8px; }
+  .sub { color: var(--muted); margin: 0 0 16px; }
+  .note { color: var(--muted); font-size: 13px; }
+  .empty { color: var(--muted); }
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+  .top { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; }
+  @media (max-width: 860px) { .top { grid-template-columns: 1fr; } }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  button { font: inherit; font-weight: 700; border-radius: 10px; padding: 10px 16px; cursor: pointer; background: var(--panel2); color: var(--text); border: 1px solid var(--line); }
+  button.primary { background: linear-gradient(135deg, #d4363f, #7e1a36); color: #fff; border: 0; padding: 12px 20px; flex: 1; min-width: 150px; }
+  button.keep { background: #2a2140; border-color: #5a4590; }
+  button:disabled { opacity: .6; cursor: wait; }
+  button.small { padding: 5px 10px; font-size: 13px; }
+  input, select, textarea { font: inherit; color: var(--text); background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; width: 100%; }
+  select.auto { width: auto; }
+  textarea { resize: vertical; min-height: 38px; }
+
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tabs button { border-radius: 999px; }
+  .tabs button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* sheet */
+  .sheet { display: grid; grid-template-columns: 1.1fr 1fr 1fr 1fr; gap: 12px; }
+  @media (max-width: 1000px) { .sheet { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 600px) { .sheet { grid-template-columns: 1fr; } }
+  .slot { background: var(--panel2); border-radius: 10px; padding: 10px 12px; }
+  .slot h3 { margin: 0 0 6px; display: flex; justify-content: space-between; }
+  .pick { border-left: 3px solid var(--c, #666); padding: 4px 8px; margin-top: 6px; }
+  .pick .t { display: flex; justify-content: space-between; gap: 6px; font-weight: 800; }
+  .pick .d { white-space: pre-wrap; font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .x-btn { background: none; border: 0; color: var(--muted); padding: 0 4px; font-size: 14px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .chip { background: #0006; border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px; font-size: 13px; }
+  .chip b { color: var(--co); }
+
+  /* spin cards */
+  .card { min-height: 320px; position: relative; overflow: hidden; }
+  .card.g3 { box-shadow: 0 0 26px -6px var(--glow); }
+  .card.g4 { box-shadow: 0 0 34px -4px var(--glow); animation: pulseA 2s infinite; }
+  .card.g5 { box-shadow: 0 0 42px -2px var(--glow); animation: pulseB 1.6s infinite; border-color: var(--glow); }
+  @keyframes pulseA { 50% { box-shadow: 0 0 52px 0 var(--glow); } }
+  @keyframes pulseB { 50% { box-shadow: 0 0 64px 4px var(--glow); } }
   .shake { animation: shake .08s linear infinite; }
   @keyframes shake { 0%{transform:translateX(0)} 50%{transform:translateX(2px)} 100%{transform:translateX(-2px)} }
+  .badge { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; border: 1px solid currentColor; }
+  .big { font-size: 34px; font-weight: 900; margin: 10px 0 2px; line-height: 1.1; font-family: Georgia, serif; }
+  .kanji { color: var(--muted); font-size: 15px; margin-bottom: 6px; }
+  .lore { color: var(--muted); font-style: italic; margin: 0 0 10px; }
+  .who { color: var(--muted); margin-bottom: 10px; }
+  .effect { background: var(--panel2); border-radius: 10px; padding: 12px 14px; white-space: pre-wrap; line-height: 1.5; border-left: 4px solid var(--c, #666); }
+  .stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .stat { background: var(--panel2); border-radius: 10px; padding: 8px 10px; display: flex; justify-content: space-between; }
+  .stat b { color: var(--co); }
+  .list { display: grid; gap: 8px; }
+  .item { background: var(--panel2); border-radius: 10px; padding: 9px 12px; border-left: 3px solid var(--c, #666); }
+  .item .n { font-weight: 700; display: flex; justify-content: space-between; gap: 6px; }
+  .item .d { color: var(--muted); font-size: 14px; margin-top: 2px; }
+  .rates { display: grid; gap: 6px; }
+  .rate { display: flex; justify-content: space-between; font-size: 14px; gap: 8px; }
+  .hist { display: grid; gap: 4px; max-height: 260px; overflow: auto; font-size: 14px; }
+  .hist div { display: flex; justify-content: space-between; gap: 8px; padding: 5px 8px; background: var(--panel2); border-radius: 6px; cursor: pointer; }
+  .hist div:hover { filter: brightness(1.2); }
+  .tag { font-size: 11px; color: var(--muted); font-weight: 600; margin-left: 6px; }
+  .choose { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); }
+  .choose select { flex: 1; min-width: 160px; }
+
+  table.log { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .log th { text-align: left; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; padding: 6px; border-bottom: 1px solid var(--line); }
+  .log td { padding: 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .log tr[data-hi] { cursor: pointer; }
+  .log tr[data-hi]:hover td { background: var(--panel2); }
+  .ed-wrap { overflow-x: auto; }
+  table.ed { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 860px; }
+  .ed th { text-align: left; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; padding: 6px; border-bottom: 1px solid var(--line); }
+  .ed td { padding: 5px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .w-code { width: 64px; } .w-sel { width: 140px; } .w-name { width: 200px; } .w-who { width: 110px; }
+
+  /* genes */
+  .parents { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .parent { background: var(--panel2); border-radius: 10px; padding: 10px; text-align: center; }
+  .parent .lbl { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+  .alleles { display: flex; justify-content: center; gap: 6px; margin-top: 6px; }
+  .allele { min-width: 48px; padding: 6px 8px; border-radius: 8px; font-weight: 800; border: 2px solid currentColor; background: #0006; }
+  .punnett { display: grid; grid-template-columns: 56px 1fr 1fr; gap: 4px; margin-top: 12px; }
+  .punnett > div { background: var(--panel2); border-radius: 8px; padding: 10px 4px; text-align: center; min-height: 44px; font-weight: 700; }
+  .punnett .hd { background: transparent; color: var(--muted); }
+  .punnett .cell.win { outline: 3px solid #fff; }
+  .punnett .cell.flash { outline: 2px dashed #fff8; }
+  .gene { background: var(--panel2); border-radius: 10px; padding: 10px 12px; margin-top: 8px; border-left: 4px solid var(--c, #666); }
+  .gene .n { font-weight: 800; }
+  .gene .bonus { white-space: pre-wrap; margin-top: 4px; }
+  .gene .none { color: var(--muted); font-style: italic; font-size: 14px; margin-top: 4px; }
+  .geno { font-size: 30px; font-weight: 900; }
+  .matrix-wrap { overflow: auto; max-height: 72vh; border-radius: 10px; border: 1px solid var(--line); }
+  table.matrix { border-collapse: separate; border-spacing: 0; font-size: 12px; }
+  .matrix th, .matrix td { padding: 0; }
+  .matrix thead th { position: sticky; top: 0; z-index: 2; background: var(--panel); }
+  .matrix th.rowh { position: sticky; left: 0; z-index: 1; background: var(--panel); text-align: left; padding: 0 8px; white-space: nowrap; }
+  .matrix thead th.corner { left: 0; z-index: 3; }
+  .matrix th.colh { min-width: 46px; padding: 6px 2px; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; font-weight: 700; }
+  .matrix td .x { width: 46px; height: 34px; display: grid; place-items: center; cursor: pointer; border: 1px solid var(--bg); font-weight: 700; color: #0d0a12; position: relative; }
+  .matrix td .x.combo::after { content: "✦"; position: absolute; top: 0; right: 2px; font-size: 9px; }
+  .matrix td .x:hover { filter: brightness(1.25); }
+  .matrix td .x.hit { outline: 3px solid #fff; outline-offset: -3px; animation: blink .5s 4; z-index: 1; }
+  @keyframes blink { 50% { filter: brightness(1.8); } }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); margin: 10px 0; }
+  .legend span::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: var(--k); margin-right: 6px; vertical-align: -2px; }
+  .wgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+  .wbox { background: var(--panel2); border-radius: 10px; padding: 8px 10px; display: grid; gap: 4px; }
+  .wbox label { font-size: 12px; color: var(--muted); display: grid; grid-template-columns: 90px 1fr; align-items: center; gap: 6px; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>⚔️ Slayer Family Roll</h1>
-  <p class="sub"><a href="gene-crossing.html" style="color:#ff7a8a">🧬 Gene Crossing Table →</a><br>Spin for your bloodline in your homebrew D&amp;D 5e campaign. Higher rarity = bigger ability score increases, more traits and more passives (max 3 each). Ability scores still cap at 20 unless your DM says otherwise.</p>
+  <h1>⚔️ Slayer <span>Bloodline</span> Roll<small>鬼殺隊</small></h1>
+  <p class="sub">A D&amp;D 5e Demon Slayer roller. Spin or choose your <b>Family</b>, <b>Traits</b>, <b>Passives</b> and <b>Genes</b>, press <b>📌 Keep</b> to build your slayer, and look back at every roll in <b>History</b>. Everything is editable and saves in this browser.</p>
 
-  <div class="grid">
-    <div class="panel card" id="card">
-      <div id="result"><p class="empty">Press <b>Spin Family</b> to roll your bloodline.</p></div>
-      <div class="btns">
-        <button class="spin" id="spinBtn">🎲 Spin Family</button>
-        <button class="ghost" id="lockBtn" title="Keep spinning until Legendary or better">Auto-spin → Legendary+</button>
-      </div>
-      <div class="counter" id="counter">Spins: 0</div>
+  <div class="panel">
+    <div class="row" style="justify-content:space-between;margin-bottom:8px">
+      <h2 style="margin:0">🗡️ My Slayer</h2>
+      <div class="row"><button class="small" id="sheetCopy">📋 Copy as text</button><button class="small" id="sheetClear">Clear slayer</button></div>
     </div>
+    <div class="sheet" id="sheet"></div>
+  </div>
 
-    <div>
+  <div class="tabs" id="tabs">
+    <button data-tab="families" class="on">🏯 Families</button>
+    <button data-tab="traits">✨ Traits</button>
+    <button data-tab="passives">🌀 Passives</button>
+    <button data-tab="genes">🧬 Genes</button>
+    <button data-tab="history">🕑 History</button>
+    <button data-tab="settings">⚙️ Rarities &amp; Save</button>
+  </div>
+
+  <section id="tab-families"></section>
+  <section id="tab-traits" hidden></section>
+  <section id="tab-passives" hidden></section>
+
+  <section id="tab-genes" hidden>
+    <div class="top">
       <div class="panel">
-        <h3 style="margin-top:0">Drop Rates</h3>
-        <div class="rates" id="rates"></div>
+        <h2>Spin Your Bloodline</h2>
+        <div class="parents">
+          <div class="parent"><div class="lbl">Parent A</div><div class="alleles" id="pA"><span class="allele">?</span><span class="allele">?</span></div></div>
+          <div class="parent"><div class="lbl">Parent B</div><div class="alleles" id="pB"><span class="allele">?</span><span class="allele">?</span></div></div>
+        </div>
+        <div class="punnett" id="punnett"></div>
+        <div class="row" style="margin-top:14px">
+          <button class="primary" id="g-spin">🎲 Spin Genes</button>
+          <button id="g-auto">Auto-spin until</button><select class="auto" id="g-target"></select><span class="note">or better</span>
+        </div>
+        <div class="note" id="g-count" style="margin-top:8px">Spins this session: 0</div>
+        <div class="row choose">
+          <span class="note" style="width:100%">Or choose exactly which two genes you get:</span>
+          <select id="g-chooseA"></select><select id="g-chooseB"></select>
+          <button id="g-take">✅ Take these genes</button>
+        </div>
+        <h3>Previous gene rolls</h3>
+        <div class="hist" id="g-hist"></div>
       </div>
-      <div class="panel" style="margin-top:16px">
-        <h3 style="margin-top:0">Spin History</h3>
-        <div class="hist" id="hist"><span class="empty">No spins yet.</span></div>
+      <div class="panel" id="g-result">
+        <h2>Offspring</h2>
+        <p class="empty">Spin, choose, or click any square in the crossing table to see what that bloodline gives.</p>
       </div>
     </div>
-  </div>
 
-  <div class="panel index">
-    <h3 style="margin-top:0">Family Index</h3>
-    <div id="index"></div>
-  </div>
+    <div class="panel">
+      <h2>Gene Crossing Table</h2>
+      <div class="legend">
+        <span style="--k:var(--pure)">Pure — same gene twice: full bonus + pure bonus</span>
+        <span style="--k:var(--co)">Co-expressed — both genes give their full bonus</span>
+        <span style="--k:var(--awakened)">Awakened — codominant fully awakens a recessive</span>
+        <span style="--k:var(--suppressed)">Suppressed — dominant is full; recessive gives its first line</span>
+        <span style="--k:var(--hidden)">Hidden Pair — two recessives: each gives its first line</span>
+        <span style="--k:transparent">✦ = special combo</span>
+      </div>
+      <div class="matrix-wrap"><table class="matrix" id="matrix"></table></div>
+    </div>
+
+    <div class="panel">
+      <div class="row" style="justify-content:space-between">
+        <h2 style="margin:0">Gene Editor</h2>
+        <button class="small" id="g-add">+ Add gene</button>
+      </div>
+      <p class="note"><b>Bonus</b> applies whenever you have the gene (a weakened gene gives its first line only). <b>Pure bonus</b> is added when you have two copies.</p>
+      <div class="ed-wrap"><table class="ed" id="g-ed" style="min-width:1000px"></table></div>
+    </div>
+
+    <div class="panel">
+      <div class="row" style="justify-content:space-between">
+        <h2 style="margin:0">Bloodline Combos</h2>
+        <button class="small" id="c-add">+ Add combo</button>
+      </div>
+      <p class="note">Extra bonus when a specific pair of genes meets (either order).</p>
+      <div class="ed-wrap"><table class="ed" id="c-ed" style="min-width:720px"></table></div>
+    </div>
+  </section>
+
+  <section id="tab-history" hidden>
+    <div class="panel">
+      <div class="row" style="justify-content:space-between">
+        <h2 style="margin:0">🕑 Everything You've Rolled</h2>
+        <div class="row">
+          <select class="auto" id="h-filter"><option value="">All</option><option value="families">Families</option><option value="traits">Traits</option><option value="passives">Passives</option><option value="genes">Genes</option></select>
+          <button class="small" id="h-clear">Clear history</button>
+        </div>
+      </div>
+      <p class="note">Saved in this browser (last 300 rolls). Click a row to open that exact result again.</p>
+      <div class="ed-wrap"><table class="log" id="h-log"></table></div>
+    </div>
+  </section>
+
+  <section id="tab-settings" hidden>
+    <div class="panel">
+      <h2>Rarities</h2>
+      <p class="note"><b>Weight</b>: higher = more common (shared by every tab). <b>Ability scores</b>: the increases a family of that rarity grants, e.g. “2,1,1”. <b>Traits / Passives</b>: how many a family roll gives (min–max, up to 3).</p>
+      <div class="wgrid" id="weights"></div>
+    </div>
+    <div class="panel">
+      <h2>Save &amp; Share</h2>
+      <p class="note">Lists, your slayer and history all save in this browser. Export a file to back up or share.</p>
+      <div class="row">
+        <button id="exportBtn">Export JSON</button>
+        <button id="importBtn">Import JSON</button>
+        <input type="file" id="importFile" accept=".json,application/json" hidden>
+        <button id="resetBtn">Reset lists to defaults</button>
+      </div>
+    </div>
+  </section>
 </div>
 
 <script>
-const RARITIES = {
-  Common:    { weight: 50, color: "var(--common)",    asi: [1], traits: [1, 1], passives: [1, 1] },
-  Uncommon:  { weight: 28, color: "var(--uncommon)",  asi: [1, 1], traits: [1, 2], passives: [1, 2] },
-  Rare:      { weight: 15, color: "var(--rare)",      asi: [2, 1], traits: [2, 2], passives: [2, 2] },
-  Legendary: { weight: 6,  color: "var(--legendary)", asi: [2, 1, 1], traits: [2, 3], passives: [2, 3] },
-  Mythical:  { weight: 1,  color: "var(--mythical)",  asi: [2, 2, 1], traits: [3, 3], passives: [3, 3] },
-};
-
+const STORE_KEY = "demon-slayer-bloodline-v1";
+const OLD_GENE_KEY = "bloodline-gene-crossing-v1";
 const STATS = ["Strength", "Dexterity", "Constitution", "Intelligence", "Wisdom", "Charisma"];
+const DOMINANCE = ["Dominant", "Codominant", "Recessive"];
+const CATEGORIES = ["Race", "Lineage", "Mutation", "Blood", "Technique Gene"];
+const TYPE_COLOR = { pure: "var(--pure)", co: "var(--co)", awakened: "var(--awakened)", suppressed: "var(--suppressed)", hidden: "var(--hidden)" };
+const TYPE_NAME = { pure: "Pure", co: "Co-expressed", awakened: "Awakened", suppressed: "Suppressed", hidden: "Hidden Pair" };
+const MAX = { traits: 3, passives: 3 };
 
-// Each family has a signature trait + passive pool it can roll from.
-const FAMILIES = {
-  Common: [
-    { name: "Tanaka",   kanji: "田中", lore: "Farmers who picked up blades when the night grew dangerous." },
-    { name: "Sato",     kanji: "佐藤", lore: "A sprawling family of village guards and lantern keepers." },
-    { name: "Suzuki",   kanji: "鈴木", lore: "Bell-ringers who warn the town of demons at dusk." },
-    { name: "Nakamura", kanji: "中村", lore: "Ordinary folk with an unusual stubborn streak." },
-    { name: "Kobayashi",kanji: "小林", lore: "Woodcutters who know the forests demons hide in." },
-    { name: "Yamada",   kanji: "山田", lore: "Mountain villagers hardened by long winters." },
-  ],
-  Uncommon: [
-    { name: "Hashibira", kanji: "嘴平", lore: "Wild mountain-raised fighters with keen senses." },
-    { name: "Kanzaki",   kanji: "神崎", lore: "Healers who tend to slayers between missions." },
-    { name: "Murata",    kanji: "村田", lore: "Reliable corps members who always survive somehow." },
-    { name: "Shinazugawa", kanji: "不死川", lore: "Scarred brawlers whose blood unsettles demons." },
-    { name: "Haganezuka", kanji: "鋼鐵塚", lore: "Swordsmiths obsessed with the perfect edge." },
-  ],
-  Rare: [
-    { name: "Agatsuma",  kanji: "我妻", lore: "One-form specialists with lightning-fast draws." },
-    { name: "Kocho",     kanji: "胡蝶", lore: "Butterfly-graceful slayers who master poisons." },
-    { name: "Tomioka",   kanji: "冨岡", lore: "Calm, quiet water users with unshakable focus." },
-    { name: "Kanroji",   kanji: "甘露寺", lore: "Gifted with unusually dense, flexible muscles." },
-    { name: "Iguro",     kanji: "伊黒", lore: "Serpent-like swordsmen with winding strikes." },
-  ],
-  Legendary: [
-    { name: "Rengoku",   kanji: "煉獄", lore: "Generations of flame-breathing Hashira." },
-    { name: "Tokito",    kanji: "時透", lore: "Prodigies who reach mastery in mere months." },
-    { name: "Uzui",      kanji: "宇髄", lore: "A flamboyant shinobi bloodline trained in poison resistance." },
-    { name: "Himejima",  kanji: "悲鳴嶼", lore: "Towering, devout warriors of immense strength." },
-  ],
-  Mythical: [
-    { name: "Tsugikuni", kanji: "継国", lore: "The bloodline of the first breath and the burning sun." },
-    { name: "Kamado",    kanji: "竈門", lore: "Charcoal burners who preserved the Hinokami Kagura dance." },
-    { name: "Ubuyashiki", kanji: "産屋敷", lore: "Leaders of the Corps with a voice that calms any heart." },
-  ],
-};
-
-// Traits = innate characteristics. Tiered so stronger families get stronger ones. (D&D 5e)
-const TRAITS = {
-  Common: [
-    ["Hard Worker", "Proficiency in one skill of your choice"],
-    ["Light Sleeper", "You wake instantly and can't be surprised while sleeping"],
-    ["Thick Skin", "Your HP maximum increases by 2"],
-    ["Quick Learner", "Proficiency with one tool or language of your choice"],
-  ],
-  Uncommon: [
-    ["Keen Nose", "Advantage on Perception checks using smell; sense demons within 30 ft"],
-    ["Iron Stomach", "Advantage on saves against poison"],
-    ["Wild Instinct", "+1 AC while you're below half HP"],
-    ["Steady Hands", "+1 to damage rolls with swords"],
-  ],
-  Rare: [
-    ["Enhanced Hearing", "You can't be surprised; hear heartbeats through walls within 30 ft"],
-    ["Dense Muscles", "Count as one size larger for carrying, pushing and grappling"],
-    ["Poison Blood", "A demon that bites you takes 2d6 poison damage"],
-    ["Total Concentration Talent", "Start with Total Concentration Breathing unlocked"],
-  ],
-  Legendary: [
-    ["Slayer Mark (Dormant)", "When you drop below half HP, gain +2 to attack rolls and +10 ft speed for 1 minute (1/long rest)"],
-    ["Prodigy", "Learn new Breathing Forms one level earlier"],
-    ["Marechi Blood", "A demon that tastes your blood must pass a DC 14 CON save or be poisoned for 1 minute"],
-    ["Flame Heart", "Resistance to fire damage; advantage on saves against being frightened"],
-  ],
-  Mythical: [
-    ["See-Through World", "Your weapon attacks score a critical hit on a roll of 19–20"],
-    ["Born Slayer Mark", "You permanently bear the Mark: +10 ft speed and +1 to attack rolls"],
-    ["Sun Lineage", "Access to Sun Breathing; demons you hit can't regenerate until the start of your next turn"],
-    ["Red Nichirin Affinity", "Your blade turns crimson: +1d6 radiant damage against demons"],
-  ],
-};
-
-// Passives = always-on combat effects. (D&D 5e)
-const PASSIVES = {
-  Common: [
-    ["Second Wind", "Bonus action: regain 1d10 + your level in HP (1/long rest)"],
-    ["Footwork", "+5 ft walking speed"],
-    ["Grit", "Advantage on saves against exhaustion"],
-  ],
-  Uncommon: [
-    ["Counter Stance", "Reaction: when a creature misses you with a melee attack, make one melee attack against it (1/short rest)"],
-    ["Breath Recovery", "Regain one expended Breathing Form use when you finish a short rest"],
-    ["Adrenaline", "+2 to damage rolls while you're below half HP"],
-  ],
-  Rare: [
-    ["Thunderclap", "Your first attack in each combat has advantage and deals +2d6 damage"],
-    ["Butterfly Dance", "After you take the Dodge action, your next attack has advantage"],
-    ["Still Water", "Reaction: reduce the damage from one melee attack by 1d10 + your DEX modifier"],
-  ],
-  Legendary: [
-    ["Set Your Heart Ablaze", "While below half HP, you have advantage on attack rolls and can't be frightened"],
-    ["Mist Veil", "After you use a Breathing Form, attacks against you have disadvantage until the start of your next turn"],
-    ["Sound Score", "After you hit the same creature 3 times, you crit it on 19–20 for 1 minute"],
-  ],
-  Mythical: [
-    ["Hinokami Kagura", "Chain two Breathing Forms in a single action (1/short rest)"],
-    ["Transparent World", "Your attacks ignore resistance to slashing damage"],
-    ["Sunlight Will", "Demons you hit can't regenerate for 1 minute"],
-  ],
-};
-
-const ORDER = ["Common", "Uncommon", "Rare", "Legendary", "Mythical"];
-const $ = (id) => document.getElementById(id);
-const randInt = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
-const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
-const shuffle = (arr) => arr.map(v => [Math.random(), v]).sort((a, b) => a[0] - b[0]).map(v => v[1]);
-
-function rollRarity() {
-  const total = ORDER.reduce((s, r) => s + RARITIES[r].weight, 0);
-  let n = Math.random() * total;
-  for (const r of ORDER) { n -= RARITIES[r].weight; if (n < 0) return r; }
-  return "Common";
-}
-
-// Pull from this tier plus one tier below for variety; always lead with the tier's own pool.
-function rollPool(pools, rarity, count) {
-  const i = ORDER.indexOf(rarity);
-  const own = shuffle(pools[rarity]).map(x => ({ v: x, tier: rarity }));
-  const lower = i > 0 ? shuffle(pools[ORDER[i - 1]]).map(x => ({ v: x, tier: ORDER[i - 1] })) : [];
-  return [own[0], ...shuffle([...own.slice(1), ...lower])].slice(0, Math.min(count, 3));
-}
-
-function generate() {
-  const rarity = rollRarity();
-  const cfg = RARITIES[rarity];
-  const fam = pick(FAMILIES[rarity]);
-  const stats = shuffle(STATS).slice(0, cfg.asi.length).map((s, i) => ({ s, v: cfg.asi[i] }));
-  const traits = rollPool(TRAITS, rarity, randInt(...cfg.traits));
-  const passives = rollPool(PASSIVES, rarity, randInt(...cfg.passives));
-  return { rarity, fam, stats, traits, passives };
-}
-
-function render(r) {
-  const cfg = RARITIES[r.rarity];
-  const list = (items) => items.length ? items.map(({ v, tier }) =>
-    `<div class="item" style="--accent:${RARITIES[tier].color}"><div class="n">${v[0]}</div><div class="d">${v[1]}</div></div>`
-  ).join("") : `<div class="empty">None</div>`;
-  $("result").innerHTML = `
-    <span class="rarity" style="color:${cfg.color}">${r.rarity}</span>
-    <div class="fname" style="color:${cfg.color}">${r.fam.name}</div>
-    <div class="kanji">${r.fam.kanji} Family</div>
-    <p class="lore">${r.fam.lore}</p>
-    <h3>Ability Score Increases</h3>
-    <div class="stats">${r.stats.map(x => `<div class="stat"><span>${x.s}</span><b>+${x.v}</b></div>`).join("")}</div>
-    <h3>Traits (${r.traits.length}/3)</h3><div class="list">${list(r.traits)}</div>
-    <h3>Passives (${r.passives.length}/3)</h3><div class="list">${list(r.passives)}</div>`;
-  const card = $("card");
-  card.className = "panel card" + (r.rarity === "Legendary" ? " glow-legendary" : r.rarity === "Mythical" ? " glow-mythical" : "");
-}
-
-let spins = 0;
-const history = [];
-function record(r) {
-  spins++;
-  $("counter").textContent = `Spins: ${spins}`;
-  history.unshift(r);
-  if (history.length > 50) history.pop();
-  $("hist").innerHTML = history.map(h =>
-    `<div><span>${h.fam.name}</span><span style="color:${RARITIES[h.rarity].color};font-weight:700">${h.rarity}</span></div>`).join("");
-}
-
-function spinOnce() {
-  return new Promise(resolve => {
-    const btn = $("spinBtn");
-    btn.disabled = true;
-    $("card").classList.add("shake");
-    let ticks = 0;
-    const iv = setInterval(() => {
-      const fake = pick(ORDER);
-      $("result").innerHTML = `<span class="rarity" style="color:${RARITIES[fake].color}">${fake}</span>
-        <div class="fname" style="color:${RARITIES[fake].color}">${pick(FAMILIES[fake]).name}</div>`;
-      if (++ticks > 12) {
-        clearInterval(iv);
-        $("card").classList.remove("shake");
-        const r = generate();
-        render(r); record(r);
-        btn.disabled = false;
-        resolve(r);
-      }
-    }, 60);
-  });
-}
-
-$("spinBtn").onclick = spinOnce;
-let auto = false;
-$("lockBtn").onclick = async () => {
-  if (auto) { auto = false; $("lockBtn").textContent = "Auto-spin → Legendary+"; return; }
-  auto = true; $("lockBtn").textContent = "⏹ Stop auto-spin";
-  while (auto) {
-    const r = await spinOnce();
-    if (r.rarity === "Legendary" || r.rarity === "Mythical") break;
+const DEFAULTS = {
+ "version": 1,
+ "rarities": [
+  {
+   "name": "Common",
+   "color": "#b8b8b8",
+   "weight": 50,
+   "asi": [
+    1
+   ],
+   "traits": [
+    1,
+    1
+   ],
+   "passives": [
+    1,
+    1
+   ]
+  },
+  {
+   "name": "Uncommon",
+   "color": "#4fd06b",
+   "weight": 28,
+   "asi": [
+    1,
+    1
+   ],
+   "traits": [
+    1,
+    2
+   ],
+   "passives": [
+    1,
+    2
+   ]
+  },
+  {
+   "name": "Rare",
+   "color": "#3fa0ff",
+   "weight": 15,
+   "asi": [
+    2,
+    1
+   ],
+   "traits": [
+    2,
+    2
+   ],
+   "passives": [
+    2,
+    2
+   ]
+  },
+  {
+   "name": "Legendary",
+   "color": "#ffb52e",
+   "weight": 6,
+   "asi": [
+    2,
+    1,
+    1
+   ],
+   "traits": [
+    2,
+    3
+   ],
+   "passives": [
+    2,
+    3
+   ]
+  },
+  {
+   "name": "Mythical",
+   "color": "#ff4f8b",
+   "weight": 1,
+   "asi": [
+    2,
+    2,
+    1
+   ],
+   "traits": [
+    3,
+    3
+   ],
+   "passives": [
+    3,
+    3
+   ]
   }
-  auto = false; $("lockBtn").textContent = "Auto-spin → Legendary+";
+ ],
+ "families": [
+  {
+   "name": "Tanaka",
+   "rarity": "Common",
+   "who": "田中",
+   "effect": "Farmers who picked up blades when the night grew dangerous."
+  },
+  {
+   "name": "Sato",
+   "rarity": "Common",
+   "who": "佐藤",
+   "effect": "A sprawling family of village guards and lantern keepers."
+  },
+  {
+   "name": "Suzuki",
+   "rarity": "Common",
+   "who": "鈴木",
+   "effect": "Bell-ringers who warn the town of demons at dusk."
+  },
+  {
+   "name": "Nakamura",
+   "rarity": "Common",
+   "who": "中村",
+   "effect": "Ordinary folk with an unusual stubborn streak."
+  },
+  {
+   "name": "Kobayashi",
+   "rarity": "Common",
+   "who": "小林",
+   "effect": "Woodcutters who know the forests demons hide in."
+  },
+  {
+   "name": "Yamada",
+   "rarity": "Common",
+   "who": "山田",
+   "effect": "Mountain villagers hardened by long winters."
+  },
+  {
+   "name": "Watanabe",
+   "rarity": "Common",
+   "who": "渡辺",
+   "effect": "Ferrymen who row slayers across rivers in the dead of night."
+  },
+  {
+   "name": "Ito",
+   "rarity": "Common",
+   "who": "伊藤",
+   "effect": "Silk weavers whose threads bind the Corps' uniforms."
+  },
+  {
+   "name": "Takahashi",
+   "rarity": "Common",
+   "who": "高橋",
+   "effect": "Bridge builders who know every crossing a demon might use."
+  },
+  {
+   "name": "Kato",
+   "rarity": "Common",
+   "who": "加藤",
+   "effect": "Tea-house keepers who hear every rumour of missing travellers."
+  },
+  {
+   "name": "Yoshida",
+   "rarity": "Common",
+   "who": "吉田",
+   "effect": "Rice farmers whose fields border the haunted woods."
+  },
+  {
+   "name": "Yamamoto",
+   "rarity": "Common",
+   "who": "山本",
+   "effect": "Charcoal haulers who walk the mountain roads before dawn."
+  },
+  {
+   "name": "Mori",
+   "rarity": "Common",
+   "who": "森",
+   "effect": "Forest wardens who mark the trees where demons have fed."
+  },
+  {
+   "name": "Hashibira",
+   "rarity": "Uncommon",
+   "who": "嘴平",
+   "effect": "Wild mountain-raised fighters with keen senses."
+  },
+  {
+   "name": "Kanzaki",
+   "rarity": "Uncommon",
+   "who": "神崎",
+   "effect": "Healers who tend to slayers between missions."
+  },
+  {
+   "name": "Murata",
+   "rarity": "Uncommon",
+   "who": "村田",
+   "effect": "Reliable corps members who always survive somehow."
+  },
+  {
+   "name": "Shinazugawa",
+   "rarity": "Uncommon",
+   "who": "不死川",
+   "effect": "Scarred brawlers whose blood unsettles demons."
+  },
+  {
+   "name": "Haganezuka",
+   "rarity": "Uncommon",
+   "who": "鋼鐵塚",
+   "effect": "Swordsmiths obsessed with the perfect edge."
+  },
+  {
+   "name": "Goto",
+   "rarity": "Uncommon",
+   "who": "後藤",
+   "effect": "Generations of Kakushi who clean up after every battle."
+  },
+  {
+   "name": "Ozaki",
+   "rarity": "Uncommon",
+   "who": "尾崎",
+   "effect": "Steady corps swordsmen known for never abandoning a post."
+  },
+  {
+   "name": "Kasugai",
+   "rarity": "Uncommon",
+   "who": "鎹",
+   "effect": "Keepers who raise and train the Corps' messenger crows."
+  },
+  {
+   "name": "Shimizu",
+   "rarity": "Uncommon",
+   "who": "清水",
+   "effect": "Shrine keepers who purify the ground where demons died."
+  },
+  {
+   "name": "Fujiwara",
+   "rarity": "Uncommon",
+   "who": "藤原",
+   "effect": "Growers who tend the wisteria that rings the Final Selection."
+  },
+  {
+   "name": "Agatsuma",
+   "rarity": "Rare",
+   "who": "我妻",
+   "effect": "One-form specialists with lightning-fast draws."
+  },
+  {
+   "name": "Kocho",
+   "rarity": "Rare",
+   "who": "胡蝶",
+   "effect": "Butterfly-graceful slayers who master poisons."
+  },
+  {
+   "name": "Tomioka",
+   "rarity": "Rare",
+   "who": "冨岡",
+   "effect": "Calm, quiet water users with unshakable focus."
+  },
+  {
+   "name": "Kanroji",
+   "rarity": "Rare",
+   "who": "甘露寺",
+   "effect": "Gifted with unusually dense, flexible muscles."
+  },
+  {
+   "name": "Iguro",
+   "rarity": "Rare",
+   "who": "伊黒",
+   "effect": "Serpent-like swordsmen with winding strikes."
+  },
+  {
+   "name": "Urokodaki",
+   "rarity": "Rare",
+   "who": "鱗滝",
+   "effect": "Masked mentors who forge Water Breathing users on Mount Sagiri."
+  },
+  {
+   "name": "Kuwajima",
+   "rarity": "Rare",
+   "who": "桑島",
+   "effect": "Strict teachers who pass down Thunder Breathing through pain and pride."
+  },
+  {
+   "name": "Shirakawa",
+   "rarity": "Rare",
+   "who": "白川",
+   "effect": "White River swordsmen whose blades never stop moving."
+  },
+  {
+   "name": "Tsukishima",
+   "rarity": "Rare",
+   "who": "月島",
+   "effect": "Moon-gazers who track demons by the phases of the night."
+  },
+  {
+   "name": "Rengoku",
+   "rarity": "Legendary",
+   "who": "煉獄",
+   "effect": "Generations of flame-breathing Hashira."
+  },
+  {
+   "name": "Tokito",
+   "rarity": "Legendary",
+   "who": "時透",
+   "effect": "Prodigies who reach mastery in mere months."
+  },
+  {
+   "name": "Uzui",
+   "rarity": "Legendary",
+   "who": "宇髄",
+   "effect": "A flamboyant shinobi bloodline trained in poison resistance."
+  },
+  {
+   "name": "Himejima",
+   "rarity": "Legendary",
+   "who": "悲鳴嶼",
+   "effect": "Towering, devout warriors of immense strength."
+  },
+  {
+   "name": "Hino",
+   "rarity": "Legendary",
+   "who": "日野",
+   "effect": "Keepers of a sun shrine whose fire has burned for four hundred years."
+  },
+  {
+   "name": "Kagura",
+   "rarity": "Legendary",
+   "who": "神楽",
+   "effect": "Ritual dancers whose steps hide a forgotten breathing rhythm."
+  },
+  {
+   "name": "Utagawa",
+   "rarity": "Legendary",
+   "who": "歌川",
+   "effect": "Painters whose scrolls record every Upper Moon ever seen."
+  },
+  {
+   "name": "Tsugikuni",
+   "rarity": "Mythical",
+   "who": "継国",
+   "effect": "The bloodline of the first breath and the burning sun."
+  },
+  {
+   "name": "Kamado",
+   "rarity": "Mythical",
+   "who": "竈門",
+   "effect": "Charcoal burners who preserved the Hinokami Kagura dance."
+  },
+  {
+   "name": "Ubuyashiki",
+   "rarity": "Mythical",
+   "who": "産屋敷",
+   "effect": "Leaders of the Corps with a voice that calms any heart."
+  },
+  {
+   "name": "Hinokami",
+   "rarity": "Mythical",
+   "who": "火之神",
+   "effect": "A house said to descend from the god of fire itself."
+  },
+  {
+   "name": "Kibutsuji",
+   "rarity": "Mythical",
+   "who": "鬼舞辻",
+   "effect": "The cursed bloodline that once birthed the Demon King. Its children are watched closely."
+  }
+ ],
+ "traits": [
+  {
+   "name": "Hard Worker",
+   "rarity": "Common",
+   "who": "",
+   "effect": "Proficiency in one skill of your choice"
+  },
+  {
+   "name": "Light Sleeper",
+   "rarity": "Common",
+   "who": "",
+   "effect": "You wake instantly and can't be surprised while sleeping"
+  },
+  {
+   "name": "Thick Skin",
+   "rarity": "Common",
+   "who": "",
+   "effect": "Your HP maximum increases by 2"
+  },
+  {
+   "name": "Quick Learner",
+   "rarity": "Common",
+   "who": "",
+   "effect": "Proficiency with one tool or language of your choice"
+  },
+  {
+   "name": "Charcoal Burner's Lungs",
+   "rarity": "Common",
+   "who": "",
+   "effect": "Advantage on saves against smoke, ash and suffocation."
+  },
+  {
+   "name": "Farmhand's Grip",
+   "rarity": "Common",
+   "who": "",
+   "effect": "Advantage on checks and saves to keep hold of your weapon."
+  },
+  {
+   "name": "Wisteria Upbringing",
+   "rarity": "Common",
+   "who": "",
+   "effect": "Proficiency in Nature; you can identify any poison or herb by smell."
+  },
+  {
+   "name": "Night Watch",
+   "rarity": "Common",
+   "who": "",
+   "effect": "Dim light doesn't impose disadvantage on your Perception checks."
+  },
+  {
+   "name": "Kakushi Training",
+   "rarity": "Common",
+   "who": "",
+   "effect": "Proficiency in Stealth or Medicine (your choice)."
+  },
+  {
+   "name": "Crow's Friend",
+   "rarity": "Common",
+   "who": "",
+   "effect": "+1 to initiative while your Kasugai crow is nearby."
+  },
+  {
+   "name": "Mountain Runner",
+   "rarity": "Common",
+   "who": "",
+   "effect": "Rough ground and slopes don't slow you down."
+  },
+  {
+   "name": "Hard Head",
+   "rarity": "Common",
+   "who": "",
+   "effect": "Advantage on saves against being stunned. Your headbutt deals 1d4 + STR bludgeoning."
+  },
+  {
+   "name": "Big Appetite",
+   "rarity": "Common",
+   "who": "",
+   "effect": "Regain 1 extra HP for each Hit Die you spend on a short rest."
+  },
+  {
+   "name": "Calm Breather",
+   "rarity": "Common",
+   "who": "",
+   "effect": "Advantage on Constitution saves to keep concentration."
+  },
+  {
+   "name": "Village Healer",
+   "rarity": "Common",
+   "who": "",
+   "effect": "Proficiency with the herbalism kit."
+  },
+  {
+   "name": "Honest Face",
+   "rarity": "Common",
+   "who": "",
+   "effect": "Advantage on Persuasion checks with ordinary townsfolk."
+  },
+  {
+   "name": "Keen Nose",
+   "rarity": "Uncommon",
+   "who": "",
+   "effect": "Advantage on Perception checks using smell; sense demons within 30 ft"
+  },
+  {
+   "name": "Iron Stomach",
+   "rarity": "Uncommon",
+   "who": "",
+   "effect": "Advantage on saves against poison"
+  },
+  {
+   "name": "Wild Instinct",
+   "rarity": "Uncommon",
+   "who": "",
+   "effect": "+1 AC while you're below half HP"
+  },
+  {
+   "name": "Steady Hands",
+   "rarity": "Uncommon",
+   "who": "",
+   "effect": "+1 to damage rolls with swords"
+  },
+  {
+   "name": "Fox Mask Student",
+   "rarity": "Uncommon",
+   "who": "",
+   "effect": "+1 to attack rolls with your first Breathing Form each combat."
+  },
+  {
+   "name": "Boar's Hide",
+   "rarity": "Uncommon",
+   "who": "",
+   "effect": "+1 AC while not wearing armor."
+  },
+  {
+   "name": "Final Selection Survivor",
+   "rarity": "Uncommon",
+   "who": "",
+   "effect": "Advantage on saves against being frightened by demons."
+  },
+  {
+   "name": "Thread Sense",
+   "rarity": "Uncommon",
+   "who": "",
+   "effect": "Advantage on checks to notice threads, webs and traps."
+  },
+  {
+   "name": "Musical Ear",
+   "rarity": "Uncommon",
+   "who": "",
+   "effect": "Advantage on Insight checks when you can hear the target's voice or heartbeat."
+  },
+  {
+   "name": "Lightning Reflexes",
+   "rarity": "Uncommon",
+   "who": "",
+   "effect": "+2 to initiative."
+  },
+  {
+   "name": "Swordsmith's Favor",
+   "rarity": "Uncommon",
+   "who": "",
+   "effect": "Your Nichirin blade is finely honed: +1 to damage rolls with it."
+  },
+  {
+   "name": "Scar Tissue",
+   "rarity": "Uncommon",
+   "who": "",
+   "effect": "When you take a critical hit, reduce the damage by 1d6."
+  },
+  {
+   "name": "Planted Feet",
+   "rarity": "Uncommon",
+   "who": "",
+   "effect": "Advantage on saves against being shoved or knocked prone."
+  },
+  {
+   "name": "Kakushi Legs",
+   "rarity": "Uncommon",
+   "who": "",
+   "effect": "Dash as a bonus action once per short rest."
+  },
+  {
+   "name": "Enhanced Hearing",
+   "rarity": "Rare",
+   "who": "",
+   "effect": "You can't be surprised; hear heartbeats through walls within 30 ft"
+  },
+  {
+   "name": "Dense Muscles",
+   "rarity": "Rare",
+   "who": "",
+   "effect": "Count as one size larger for carrying, pushing and grappling"
+  },
+  {
+   "name": "Poison Blood",
+   "rarity": "Rare",
+   "who": "",
+   "effect": "A demon that bites you takes 2d6 poison damage"
+  },
+  {
+   "name": "Total Concentration Talent",
+   "rarity": "Rare",
+   "who": "",
+   "effect": "Start with Total Concentration Breathing unlocked"
+  },
+  {
+   "name": "Coloured Blade",
+   "rarity": "Rare",
+   "who": "",
+   "effect": "Your Nichirin blade changed colour for you. Once per turn, add 1d4 damage of your Breathing's element."
+  },
+  {
+   "name": "Hashira Candidate",
+   "rarity": "Rare",
+   "who": "",
+   "effect": "+1 to your Breathing Form save DCs."
+  },
+  {
+   "name": "Shinobi Upbringing",
+   "rarity": "Rare",
+   "who": "",
+   "effect": "Resistance to poison damage; proficiency with explosives and thieves' tools."
+  },
+  {
+   "name": "Iron Body",
+   "rarity": "Rare",
+   "who": "",
+   "effect": "Your HP maximum increases by 1 per level, and you have advantage on Strength saves."
+  },
+  {
+   "name": "Spatial Awareness",
+   "rarity": "Rare",
+   "who": "",
+   "effect": "Creatures can't gain advantage on you from flanking or being unseen within 10 ft."
+  },
+  {
+   "name": "Demon Eater",
+   "rarity": "Rare",
+   "who": "",
+   "effect": "Once per long rest, eat demon flesh to gain 2d10 temporary HP and darkvision 60 ft for 1 hour."
+  },
+  {
+   "name": "Swordsmith Village Bond",
+   "rarity": "Rare",
+   "who": "",
+   "effect": "Once per long rest, a swordsmith repairs or improves your blade instantly (+1 to hit for 1 hour)."
+  },
+  {
+   "name": "Wisteria Veins",
+   "rarity": "Rare",
+   "who": "",
+   "effect": "Demons that bite you take 1d8 poison damage."
+  },
+  {
+   "name": "Slayer Mark (Dormant)",
+   "rarity": "Legendary",
+   "who": "",
+   "effect": "When you drop below half HP, gain +2 to attack rolls and +10 ft speed for 1 minute (1/long rest)"
+  },
+  {
+   "name": "Prodigy",
+   "rarity": "Legendary",
+   "who": "",
+   "effect": "Learn new Breathing Forms one level earlier"
+  },
+  {
+   "name": "Marechi Blood",
+   "rarity": "Legendary",
+   "who": "",
+   "effect": "A demon that tastes your blood must pass a DC 14 CON save or be poisoned for 1 minute"
+  },
+  {
+   "name": "Flame Heart",
+   "rarity": "Legendary",
+   "who": "",
+   "effect": "Resistance to fire damage; advantage on saves against being frightened"
+  },
+  {
+   "name": "Total Concentration: Constant",
+   "rarity": "Legendary",
+   "who": "",
+   "effect": "You breathe correctly even while asleep: advantage on saves against exhaustion, and regain 1 extra Hit Die on a short rest."
+  },
+  {
+   "name": "Slayer Mark (Awakened)",
+   "rarity": "Legendary",
+   "who": "",
+   "effect": "Below half HP the Mark appears for 1 minute: +10 ft speed, +2 to attacks, and regain 1d6 HP each turn (1/long rest)."
+  },
+  {
+   "name": "Selfless State",
+   "rarity": "Legendary",
+   "who": "",
+   "effect": "Demons can't sense your killing intent. Your first attack each combat has advantage and can't be reacted to."
+  },
+  {
+   "name": "Hashira Pedigree",
+   "rarity": "Legendary",
+   "who": "",
+   "effect": "+1 to two ability scores. Hashira treat you as a promising junior."
+  },
+  {
+   "name": "Exploding Blood",
+   "rarity": "Legendary",
+   "who": "",
+   "effect": "Once per short rest, ignite your own blood: 2d8 fire damage to demons within 10 ft. It never burns humans."
+  },
+  {
+   "name": "Upper Moon Survivor",
+   "rarity": "Legendary",
+   "who": "",
+   "effect": "Advantage on saving throws against Blood Demon Arts."
+  },
+  {
+   "name": "See-Through World",
+   "rarity": "Mythical",
+   "who": "",
+   "effect": "Your weapon attacks score a critical hit on a roll of 19–20"
+  },
+  {
+   "name": "Born Slayer Mark",
+   "rarity": "Mythical",
+   "who": "",
+   "effect": "You permanently bear the Mark: +10 ft speed and +1 to attack rolls"
+  },
+  {
+   "name": "Sun Lineage",
+   "rarity": "Mythical",
+   "who": "",
+   "effect": "Access to Sun Breathing; demons you hit can't regenerate until the start of your next turn"
+  },
+  {
+   "name": "Red Nichirin Affinity",
+   "rarity": "Mythical",
+   "who": "",
+   "effect": "Your blade turns crimson: +1d6 radiant damage against demons"
+  },
+  {
+   "name": "Thirteen Forms Memory",
+   "rarity": "Mythical",
+   "who": "",
+   "effect": "Once per long rest, use any Breathing Form you have ever seen, as if you knew it."
+  },
+  {
+   "name": "Crimson Will",
+   "rarity": "Mythical",
+   "who": "",
+   "effect": "Turn your blade red at will. Demons you hit can't regenerate for 1 minute."
+  },
+  {
+   "name": "Demon King's Bane",
+   "rarity": "Mythical",
+   "who": "",
+   "effect": "The first time a demon of CR 10+ sees you, it must pass a DC 17 WIS save or be frightened for 1 minute."
+  },
+  {
+   "name": "Heaven's Body",
+   "rarity": "Mythical",
+   "who": "",
+   "effect": "+2 Strength and +2 Dexterity (max 22), and you make one additional attack when you take the Attack action."
+  }
+ ],
+ "passives": [
+  {
+   "name": "Second Wind",
+   "rarity": "Common",
+   "who": "",
+   "effect": "Bonus action: regain 1d10 + your level in HP (1/long rest)"
+  },
+  {
+   "name": "Footwork",
+   "rarity": "Common",
+   "who": "",
+   "effect": "+5 ft walking speed"
+  },
+  {
+   "name": "Grit",
+   "rarity": "Common",
+   "who": "",
+   "effect": "Advantage on saves against exhaustion"
+  },
+  {
+   "name": "Steady Stance",
+   "rarity": "Common",
+   "who": "",
+   "effect": "+1 AC until your next turn if you didn't move this turn."
+  },
+  {
+   "name": "Quick Sheath",
+   "rarity": "Common",
+   "who": "",
+   "effect": "Drawing or sheathing your blade takes no action."
+  },
+  {
+   "name": "Battle Cry",
+   "rarity": "Common",
+   "who": "",
+   "effect": "Bonus action: allies within 30 ft gain +1 to their next saving throw (1/short rest)."
+  },
+  {
+   "name": "Patch Up",
+   "rarity": "Common",
+   "who": "",
+   "effect": "Stabilize a dying creature as a bonus action."
+  },
+  {
+   "name": "Deep Breath",
+   "rarity": "Common",
+   "who": "",
+   "effect": "Bonus action: regain 1d4 HP (1/short rest)."
+  },
+  {
+   "name": "Shoulder Check",
+   "rarity": "Common",
+   "who": "",
+   "effect": "Shove a creature as a bonus action after you hit it."
+  },
+  {
+   "name": "Scout's Eye",
+   "rarity": "Common",
+   "who": "",
+   "effect": "You can't be surprised in forests or mountains."
+  },
+  {
+   "name": "Low Stance",
+   "rarity": "Common",
+   "who": "",
+   "effect": "Ranged attacks against you have -1 to hit while you're crouched."
+  },
+  {
+   "name": "Night Runner",
+   "rarity": "Common",
+   "who": "",
+   "effect": "+5 ft speed between dusk and dawn."
+  },
+  {
+   "name": "Counter Stance",
+   "rarity": "Uncommon",
+   "who": "",
+   "effect": "Reaction: when a creature misses you with a melee attack, make one melee attack against it (1/short rest)"
+  },
+  {
+   "name": "Breath Recovery",
+   "rarity": "Uncommon",
+   "who": "",
+   "effect": "Regain one expended Breathing Form use when you finish a short rest"
+  },
+  {
+   "name": "Adrenaline",
+   "rarity": "Uncommon",
+   "who": "",
+   "effect": "+2 to damage rolls while you're below half HP"
+  },
+  {
+   "name": "Flowing Strike",
+   "rarity": "Uncommon",
+   "who": "",
+   "effect": "After you miss with a melee attack, your next attack gets +2."
+  },
+  {
+   "name": "Wind Blade",
+   "rarity": "Uncommon",
+   "who": "",
+   "effect": "Your first Breathing Form each turn has +5 ft reach."
+  },
+  {
+   "name": "Flame Momentum",
+   "rarity": "Uncommon",
+   "who": "",
+   "effect": "Each consecutive hit on the same target adds +1 damage (max +3)."
+  },
+  {
+   "name": "Constant Breathing",
+   "rarity": "Uncommon",
+   "who": "",
+   "effect": "The first level of exhaustion has no effect on you."
+  },
+  {
+   "name": "Moonlit Step",
+   "rarity": "Uncommon",
+   "who": "",
+   "effect": "+10 ft speed while in moonlight."
+  },
+  {
+   "name": "Twin Fang",
+   "rarity": "Uncommon",
+   "who": "",
+   "effect": "Add your ability modifier to off-hand damage when fighting with two blades."
+  },
+  {
+   "name": "Guard Break",
+   "rarity": "Uncommon",
+   "who": "",
+   "effect": "When you hit a blocking or shielded creature, it loses its reaction."
+  },
+  {
+   "name": "Water Wheel",
+   "rarity": "Uncommon",
+   "who": "",
+   "effect": "After you dodge an attack, move 10 ft without provoking opportunity attacks."
+  },
+  {
+   "name": "Thunderclap",
+   "rarity": "Rare",
+   "who": "",
+   "effect": "Your first attack in each combat has advantage and deals +2d6 damage"
+  },
+  {
+   "name": "Butterfly Dance",
+   "rarity": "Rare",
+   "who": "",
+   "effect": "After you take the Dodge action, your next attack has advantage"
+  },
+  {
+   "name": "Still Water",
+   "rarity": "Rare",
+   "who": "",
+   "effect": "Reaction: reduce the damage from one melee attack by 1d10 + your DEX modifier"
+  },
+  {
+   "name": "Dance of the Fire God",
+   "rarity": "Rare",
+   "who": "",
+   "effect": "When you roll initiative, your attacks deal +1d6 fire damage for 1 minute (1/long rest)."
+  },
+  {
+   "name": "Whirlpool Guard",
+   "rarity": "Rare",
+   "who": "",
+   "effect": "Reaction: when a projectile targets you, cut it down (no damage) once per round."
+  },
+  {
+   "name": "Mist Clouds",
+   "rarity": "Rare",
+   "who": "",
+   "effect": "After you use a Breathing Form, you're lightly obscured until your next turn."
+  },
+  {
+   "name": "Fang Ripper",
+   "rarity": "Rare",
+   "who": "",
+   "effect": "While wielding two blades, your critical hit range is 19–20."
+  },
+  {
+   "name": "Serpentine Strike",
+   "rarity": "Rare",
+   "who": "",
+   "effect": "Your attacks ignore half and three-quarters cover."
+  },
+  {
+   "name": "Whip Blade Reach",
+   "rarity": "Rare",
+   "who": "",
+   "effect": "Your flexible blade has 15 ft reach."
+  },
+  {
+   "name": "Insect Sting",
+   "rarity": "Rare",
+   "who": "",
+   "effect": "Your thrusts stack poison: each hit on a demon adds 1d4 poison damage at the start of its turn (max 3d4)."
+  },
+  {
+   "name": "Set Your Heart Ablaze",
+   "rarity": "Legendary",
+   "who": "",
+   "effect": "While below half HP, you have advantage on attack rolls and can't be frightened"
+  },
+  {
+   "name": "Mist Veil",
+   "rarity": "Legendary",
+   "who": "",
+   "effect": "After you use a Breathing Form, attacks against you have disadvantage until the start of your next turn"
+  },
+  {
+   "name": "Sound Score",
+   "rarity": "Legendary",
+   "who": "",
+   "effect": "After you hit the same creature 3 times, you crit it on 19–20 for 1 minute"
+  },
+  {
+   "name": "Ninth Form: Rengoku",
+   "rarity": "Legendary",
+   "who": "",
+   "effect": "Once per long rest, charge in a straight line up to 60 ft and deal an extra 8d10 fire damage to one creature."
+  },
+  {
+   "name": "Dead Calm",
+   "rarity": "Legendary",
+   "who": "",
+   "effect": "For 2 rounds, any melee attack that would hit you is cut down instead (1/long rest)."
+  },
+  {
+   "name": "Volcanic Rock Guard",
+   "rarity": "Legendary",
+   "who": "",
+   "effect": "While you're wielding a flail or heavy weapon, you have resistance to bludgeoning and slashing damage."
+  },
+  {
+   "name": "Idaten Typhoon",
+   "rarity": "Legendary",
+   "who": "",
+   "effect": "Once per short rest, leap and slash everything within 15 ft (Dex save, 6d8 slashing)."
+  },
+  {
+   "name": "Honoikazuchi no Kami",
+   "rarity": "Legendary",
+   "who": "",
+   "effect": "Once per long rest, a dragon of lightning: move 90 ft in a line and deal 10d6 lightning to one target."
+  },
+  {
+   "name": "Hinokami Kagura",
+   "rarity": "Mythical",
+   "who": "",
+   "effect": "Chain two Breathing Forms in a single action (1/short rest)"
+  },
+  {
+   "name": "Transparent World",
+   "rarity": "Mythical",
+   "who": "",
+   "effect": "Your attacks ignore resistance to slashing damage"
+  },
+  {
+   "name": "Sunlight Will",
+   "rarity": "Mythical",
+   "who": "",
+   "effect": "Demons you hit can't regenerate for 1 minute"
+  },
+  {
+   "name": "Sunflower Thrust",
+   "rarity": "Mythical",
+   "who": "",
+   "effect": "Your first attack each combat can't miss."
+  },
+  {
+   "name": "Dragon Sun Halo",
+   "rarity": "Mythical",
+   "who": "",
+   "effect": "Once per turn, a Breathing Form you use also hits every demon within 10 ft of the target."
+  },
+  {
+   "name": "Thirteenth Form",
+   "rarity": "Mythical",
+   "who": "",
+   "effect": "Once per long rest, chain every form you know into one action. A demon reduced to 0 HP this way can't be revived."
+  },
+  {
+   "name": "Beneficent Radiance",
+   "rarity": "Mythical",
+   "who": "",
+   "effect": "When you drop to 0 HP, roll a d20; on 10+ you drop to 1 HP instead and your next attack is a critical hit."
+  }
+ ],
+ "genes": {
+  "factors": [
+   {
+    "code": "Hu",
+    "name": "Human",
+    "category": "Race",
+    "rarity": "Common",
+    "dominance": "Dominant",
+    "bonus": "+1 to one ability score of your choice\nProficiency in one skill of your choice\nCan learn any Breathing Style",
+    "pureBonus": "+1 to two ability scores of your choice\nIndomitable Will: when you drop to 0 HP but aren't killed outright, drop to 1 HP instead (1/long rest)"
+   },
+   {
+    "code": "Hs",
+    "name": "Hardy Stock",
+    "category": "Lineage",
+    "rarity": "Common",
+    "dominance": "Codominant",
+    "bonus": "+1 Constitution\nAdvantage on saves against being knocked prone",
+    "pureBonus": "+1 Constitution; HP max +1 per level\nAdvantage on saves against prone and exhaustion"
+   },
+   {
+    "code": "Ke",
+    "name": "Keen Eyes",
+    "category": "Mutation",
+    "rarity": "Common",
+    "dominance": "Recessive",
+    "bonus": "Proficiency in Perception\n+1 to initiative",
+    "pureBonus": "Expertise in Perception\nAdvantage on checks to find hidden or invisible creatures"
+   },
+   {
+    "code": "Lb",
+    "name": "Long Breath",
+    "category": "Mutation",
+    "rarity": "Common",
+    "dominance": "Recessive",
+    "bonus": "+1 Constitution\nHold your breath 3× as long as normal",
+    "pureBonus": "Hold your breath for up to 1 hour\nRegain one expended Breathing Form use when you finish a short rest"
+   },
+   {
+    "code": "Fb",
+    "name": "Farmer's Back",
+    "category": "Lineage",
+    "rarity": "Common",
+    "dominance": "Dominant",
+    "bonus": "+1 Strength\nCarrying capacity doubled",
+    "pureBonus": "+1 Strength, +1 Constitution\nAdvantage on Athletics checks to grapple or shove"
+   },
+   {
+    "code": "Mb",
+    "name": "Mountain-Born",
+    "category": "Lineage",
+    "rarity": "Common",
+    "dominance": "Codominant",
+    "bonus": "+1 Constitution\nResistance to cold damage; acclimated to high altitude",
+    "pureBonus": "Climbing speed equal to your walking speed\nSnow, ice and rocky difficult terrain cost no extra movement"
+   },
+   {
+    "code": "Sw",
+    "name": "Swordsmith Blood",
+    "category": "Lineage",
+    "rarity": "Common",
+    "dominance": "Recessive",
+    "bonus": "Proficiency with smith's tools\nYour blade can't be broken by nonmagical means",
+    "pureBonus": "+1 to attack rolls with swords\nRepair a broken Nichirin blade during a short rest"
+   },
+   {
+    "code": "Sn",
+    "name": "Enhanced Smell",
+    "category": "Mutation",
+    "rarity": "Uncommon",
+    "dominance": "Recessive",
+    "bonus": "Proficiency in Insight; advantage on Insight checks to detect lies\nYou know the direction of any demon within 60 ft",
+    "pureBonus": "Blindsight 15 ft (scent)\nOpening Thread: once per short rest, your next melee hit against a demon is a critical hit"
+   },
+   {
+    "code": "Ea",
+    "name": "Enhanced Hearing",
+    "category": "Mutation",
+    "rarity": "Uncommon",
+    "dominance": "Recessive",
+    "bonus": "Advantage on Perception checks that rely on hearing\nYou can't be surprised while conscious",
+    "pureBonus": "+1 Dexterity\nHeartbeat Reading (bonus action): learn whether a creature within 30 ft is below half HP, and gain advantage on Insight checks against it"
+   },
+   {
+    "code": "Ts",
+    "name": "Enhanced Touch",
+    "category": "Mutation",
+    "rarity": "Uncommon",
+    "dominance": "Recessive",
+    "bonus": "+1 Dexterity\nTremorsense 10 ft",
+    "pureBonus": "Tremorsense 30 ft\nBeing blinded doesn't impose disadvantage on your attacks against creatures within 30 ft"
+   },
+   {
+    "code": "Sh",
+    "name": "Shinobi Blood",
+    "category": "Lineage",
+    "rarity": "Uncommon",
+    "dominance": "Dominant",
+    "bonus": "+1 Dexterity\nProficiency in Stealth\nResistance to poison damage",
+    "pureBonus": "+1 Dexterity, +1 Intelligence\nImmune to poison damage and the poisoned condition\nCraft 1d4 explosive kunai per long rest (2d6 fire, 10 ft radius, DC 13 DEX save for half)"
+   },
+   {
+    "code": "Ic",
+    "name": "Iron Constitution",
+    "category": "Lineage",
+    "rarity": "Uncommon",
+    "dominance": "Codominant",
+    "bonus": "+1 Constitution\nHP max +1 per level",
+    "pureBonus": "+2 Constitution\nAdvantage on saves against being stunned or knocked unconscious"
+   },
+   {
+    "code": "Fj",
+    "name": "Flexible Joints",
+    "category": "Mutation",
+    "rarity": "Uncommon",
+    "dominance": "Recessive",
+    "bonus": "+1 Dexterity\nProficiency in Acrobatics",
+    "pureBonus": "Expertise in Acrobatics\nAdvantage on checks to escape grapples and restraints; squeeze through spaces as if you were Small"
+   },
+   {
+    "code": "Wm",
+    "name": "Wild Mountain Blood",
+    "category": "Lineage",
+    "rarity": "Uncommon",
+    "dominance": "Dominant",
+    "bonus": "+1 Strength, +1 Dexterity\nAdd your ability modifier to off-hand attack damage when fighting with two weapons\n⚠ -1 Intelligence",
+    "pureBonus": "+2 Strength, +1 Dexterity\nBeast Rage: when a critical hit hits you, gain advantage on attack rolls until the end of your next turn"
+   },
+   {
+    "code": "Wk",
+    "name": "Wisteria Keeper",
+    "category": "Lineage",
+    "rarity": "Uncommon",
+    "dominance": "Codominant",
+    "bonus": "Proficiency with the herbalism kit\nDemons of CR 2 or lower have disadvantage on attack rolls against you",
+    "pureBonus": "Wisteria Aura: demons of CR 4 or lower must pass a DC 13 WIS save to willingly move within 10 ft of you\nAllies within 10 ft regain 1 extra HP per Hit Die they spend"
+   },
+   {
+    "code": "Cb",
+    "name": "Crow Bond",
+    "category": "Lineage",
+    "rarity": "Uncommon",
+    "dominance": "Recessive",
+    "bonus": "A Kasugai crow companion (raven stat block) that can speak and carry messages\nYou can see through its eyes as an action",
+    "pureBonus": "Your crow can use its reaction to impose disadvantage on one attack against a creature within 5 ft of it (1/short rest)"
+   },
+   {
+    "code": "De",
+    "name": "Demon",
+    "category": "Race",
+    "rarity": "Rare",
+    "dominance": "Dominant",
+    "bonus": "+2 Strength, +1 Constitution\nDarkvision 60 ft\nRegeneration: at the start of your turn, regain HP equal to your CON modifier if you have at least 1 HP\nLearn one Blood Demon Art\n⚠ Sunlight Hypersensitivity: take 10 radiant damage at the start of each turn in sunlight, and you can't regenerate there\n⚠ Can't use Breathing Styles",
+    "pureBonus": "+2 Strength, +2 Constitution\nDarkvision 120 ft\nRegeneration doubles, and severed limbs regrow over 1 minute\n⚠ Sunlight deals 20 radiant damage per turn and also lowers your HP max by that amount until a long rest"
+   },
+   {
+    "code": "Mr",
+    "name": "Marechi Blood",
+    "category": "Blood",
+    "rarity": "Rare",
+    "dominance": "Recessive",
+    "bonus": "+1 Constitution\nA demon that bites you or tastes your blood must pass a DC 13 CON save or be poisoned until the end of its next turn",
+    "pureBonus": "Intoxicating Blood: the save becomes DC 15, and the demon stays poisoned for 1 minute (it repeats the save at the end of each of its turns)\n⚠ Demons within 300 ft can smell you and will seek you out"
+   },
+   {
+    "code": "Dm",
+    "name": "Dense Muscle Fibers",
+    "category": "Mutation",
+    "rarity": "Rare",
+    "dominance": "Codominant",
+    "bonus": "+2 Strength\nCount as one size larger for carrying, pushing and grappling",
+    "pureBonus": "+2 Strength, +1 Constitution\nUnarmed strikes deal 1d8 + STR bludgeoning\nSmall characters can wield heavy weapons without disadvantage"
+   },
+   {
+    "code": "Dc",
+    "name": "Demon Consumption",
+    "category": "Mutation",
+    "rarity": "Rare",
+    "dominance": "Recessive",
+    "bonus": "Proficiency with firearms\nEat demon flesh (action): gain 2d10 temporary HP and regain 2 HP at the start of each turn for 1 minute (1/long rest)",
+    "pureBonus": "Partial Demonization: eating demon flesh also grants +2 Strength and darkvision 60 ft for 1 minute (2/long rest)\n⚠ While demonized, sunlight deals 5 radiant damage per turn"
+   },
+   {
+    "code": "Pt",
+    "name": "Poison Tolerance",
+    "category": "Blood",
+    "rarity": "Rare",
+    "dominance": "Codominant",
+    "bonus": "Resistance to poison damage; advantage on saves against poison\nWisteria Coating (bonus action): your weapon deals +1d6 poison damage to demons for 1 minute (proficiency bonus uses per long rest)",
+    "pureBonus": "Immune to poison damage and the poisoned condition\nWisteria Body: a demon that bites you or drinks your blood takes 4d6 poison damage"
+   },
+   {
+    "code": "Bp",
+    "name": "Breathing Prodigy",
+    "category": "Lineage",
+    "rarity": "Rare",
+    "dominance": "Codominant",
+    "bonus": "+1 Wisdom, +1 Constitution\nLearn new Breathing Forms one level earlier\n+1 to your Breathing Style save DC",
+    "pureBonus": "+2 Wisdom\nCreate your own Breathing Style: design one custom form with your DM\nTotal Concentration: Constant from level 1"
+   },
+   {
+    "code": "Ms",
+    "name": "Mist Blood",
+    "category": "Lineage",
+    "rarity": "Rare",
+    "dominance": "Recessive",
+    "bonus": "+1 Dexterity\nCast Fog Cloud centered on yourself as a bonus action, without a spell slot (1/short rest)",
+    "pureBonus": "+2 Dexterity\nYou can see through your own fog\nWhen you take the Dodge action, you become invisible until the start of your next turn"
+   },
+   {
+    "code": "If",
+    "name": "Iron Faith",
+    "category": "Lineage",
+    "rarity": "Rare",
+    "dominance": "Codominant",
+    "bonus": "+1 Strength, +1 Wisdom\nProficiency with flails, war picks and chain weapons",
+    "pureBonus": "+2 Strength, +1 Wisdom\nMeditation: if you don't move on your turn, regain 1d8 HP at the end of it"
+   },
+   {
+    "code": "Kz",
+    "name": "Twelve Kizuki Blood",
+    "category": "Race",
+    "rarity": "Legendary",
+    "dominance": "Dominant",
+    "bonus": "+2 Strength, +2 Constitution\nDarkvision 120 ft\nRegeneration: regain 10 HP at the start of each turn\nLearn two Blood Demon Arts\nLegendary Resistance (1/day)\n⚠ Sunlight Hypersensitivity: 20 radiant damage per turn in sunlight\n⚠ Can't use Breathing Styles",
+    "pureBonus": "+1 to any ability score (max 22)\nLegendary Resistance (2/day)\nOnly a Nichirin blade can kill you by beheading; otherwise your head regrows over 1 round\n⚠ Sunlight destroys you after one full round"
+   },
+   {
+    "code": "Sm",
+    "name": "Slayer Mark Gene",
+    "category": "Technique Gene",
+    "rarity": "Legendary",
+    "dominance": "Recessive",
+    "bonus": "Mark Awakening: when you drop below half HP, the Mark awakens for 1 minute: +10 ft speed, +2 to attack rolls, advantage on CON saves (1/long rest)\n⚠ Each awakening permanently lowers your HP max by 1",
+    "pureBonus": "Awaken the Mark at will as a bonus action (proficiency bonus uses per long rest)\nCrimson Blade: while awakened, demons you hit can't regenerate until the end of their next turn"
+   },
+   {
+    "code": "Tw",
+    "name": "Transparent World",
+    "category": "Technique Gene",
+    "rarity": "Legendary",
+    "dominance": "Recessive",
+    "bonus": "Your weapon attacks score a critical hit on a roll of 19–20\nBonus action: learn a creature's AC, current HP and vulnerabilities",
+    "pureBonus": "Critical hits on 18–20\nSelfless State: you have advantage on attack rolls against creatures that haven't taken a turn yet in this combat"
+   },
+   {
+    "code": "Ub",
+    "name": "Ubuyashiki Bloodline",
+    "category": "Lineage",
+    "rarity": "Legendary",
+    "dominance": "Recessive",
+    "bonus": "+2 Charisma\nCalming Voice (action): allies within 30 ft gain advantage on saves against being frightened or charmed for 1 minute\nForesight: you can't be surprised; +2 to initiative\n⚠ Family Curse: HP max reduced by 1 per level",
+    "pureBonus": "+1 Charisma, +1 Wisdom\nCast Command at 3rd level (1/long rest) and Augury (1/long rest) without spell slots\n⚠ Family Curse: HP max reduced by 2 per level"
+   },
+   {
+    "code": "Fl",
+    "name": "Flame Lineage",
+    "category": "Lineage",
+    "rarity": "Legendary",
+    "dominance": "Codominant",
+    "bonus": "+2 Strength\nResistance to fire damage\nYour Nichirin blade deals +1d6 fire damage",
+    "pureBonus": "+1 Strength, +1 Charisma\nSet Your Heart Ablaze: while below half HP, you have advantage on attack rolls and can't be frightened"
+   },
+   {
+    "code": "Tc",
+    "name": "Thunder Clan",
+    "category": "Lineage",
+    "rarity": "Legendary",
+    "dominance": "Recessive",
+    "bonus": "+2 Dexterity\n+10 ft walking speed\nYour first hit in each combat deals an extra 3d6 lightning damage",
+    "pureBonus": "+1 Dexterity; +20 ft walking speed in total\nGodspeed: dash up to 60 ft in a straight line and attack each creature you pass; this movement provokes no opportunity attacks (1/short rest)"
+   },
+   {
+    "code": "Wl",
+    "name": "Still Water Lineage",
+    "category": "Lineage",
+    "rarity": "Legendary",
+    "dominance": "Codominant",
+    "bonus": "+1 Dexterity, +1 Wisdom\nReaction: reduce the damage from one melee attack by 1d10 + your DEX modifier",
+    "pureBonus": "+2 Wisdom\nGain Evasion\nDead Calm (reaction): take no damage from one attack that hits you (1/short rest)"
+   },
+   {
+    "code": "Su",
+    "name": "Sun Lineage",
+    "category": "Lineage",
+    "rarity": "Mythical",
+    "dominance": "Codominant",
+    "bonus": "+2 to one ability score and +1 to another\nAccess to Sun Breathing\nYour weapon attacks deal +1d8 radiant damage; demons you hit can't regenerate until the start of your next turn",
+    "pureBonus": "Origin of All Breaths: you can learn forms from any Breathing Style\nBorn Marked: you always have the Slayer Mark's awakened benefits, at no HP cost"
+   },
+   {
+    "code": "Pg",
+    "name": "Progenitor Cells",
+    "category": "Race",
+    "rarity": "Mythical",
+    "dominance": "Dominant",
+    "bonus": "+3 Strength, +2 Constitution (max 22)\nRegeneration: regain 20 HP at the start of each turn\nMultiple hearts and brains: beheading can't kill you\nCan turn a willing or incapacitated human into a demon\n⚠ Sunlight Hypersensitivity: 20 radiant damage per turn and disadvantage on all rolls in sunlight",
+    "pureBonus": "Change your shape at will (as the Shapechange spell, no concentration)\nScatter: when you drop to 0 HP, burst into fragments and re-form 1d4 hours later (1/week)\n⚠ Sunlight destroys you after one full round"
+   },
+   {
+    "code": "Sc",
+    "name": "Sun-Conquering Demon",
+    "category": "Race",
+    "rarity": "Mythical",
+    "dominance": "Recessive",
+    "bonus": "+2 Strength, +1 Constitution\nRegeneration: regain 5 HP at the start of each turn\nImmune to sunlight; you never need to eat humans\nBlood Demon Art: Exploding Blood (bonus action, your blood ignites: 2d8 fire to demons within 10 ft)",
+    "pureBonus": "+2 Strength\nCast Enlarge/Reduce on yourself at will, without concentration\nYou can use Breathing Styles while a demon"
+   },
+   {
+    "code": "Hk",
+    "name": "Hinokami Dancer",
+    "category": "Lineage",
+    "rarity": "Mythical",
+    "dominance": "Codominant",
+    "bonus": "+1 Constitution, +1 Charisma\nAdvantage on saves against exhaustion\nOnce per short rest, after you use a Breathing Form, you can use a second form as part of the same action",
+    "pureBonus": "Endless Dance: each consecutive turn you use a Breathing Form, gain a cumulative +1 to attack and damage rolls (max +5); it resets if you skip a turn"
+   },
+   {
+    "code": "Hb",
+    "name": "Heavenly Body",
+    "category": "Mutation",
+    "rarity": "Mythical",
+    "dominance": "Recessive",
+    "bonus": "+2 Dexterity, +1 Strength\nBorn with Transparent World (critical hits on 19–20)\nYou make one additional attack when you take the Attack action",
+    "pureBonus": "Perfect Form: if every attack you make on your turn hits, you gain an extra action on your next turn (1/short rest)"
+   },
+   {
+    "code": "St",
+    "name": "Stout Heart",
+    "category": "Lineage",
+    "rarity": "Common",
+    "dominance": "Codominant",
+    "bonus": "HP max +1 per level",
+    "pureBonus": "Advantage on saves against being frightened"
+   },
+   {
+    "code": "Fh",
+    "name": "Fast Healer",
+    "category": "Mutation",
+    "rarity": "Common",
+    "dominance": "Dominant",
+    "bonus": "Regain 1 extra HP for each Hit Die you spend",
+    "pureBonus": "+1 Constitution"
+   },
+   {
+    "code": "Ne",
+    "name": "Night Eyes",
+    "category": "Mutation",
+    "rarity": "Common",
+    "dominance": "Recessive",
+    "bonus": "Darkvision 30 ft",
+    "pureBonus": "Darkvision 60 ft; advantage on Perception at night"
+   },
+   {
+    "code": "Qf",
+    "name": "Quick Feet",
+    "category": "Mutation",
+    "rarity": "Common",
+    "dominance": "Recessive",
+    "bonus": "+5 ft walking speed",
+    "pureBonus": "Dash as a bonus action once per short rest"
+   },
+   {
+    "code": "Ij",
+    "name": "Iron Skull",
+    "category": "Mutation",
+    "rarity": "Common",
+    "dominance": "Recessive",
+    "bonus": "Advantage on saves against being stunned",
+    "pureBonus": "Headbutt is a natural weapon: 1d6 + STR bludgeoning"
+   },
+   {
+    "code": "Wb",
+    "name": "Warm Blood",
+    "category": "Blood",
+    "rarity": "Common",
+    "dominance": "Codominant",
+    "bonus": "Resistance to cold damage",
+    "pureBonus": "Advantage on saves against exhaustion from cold or hunger"
+   },
+   {
+    "code": "Sd",
+    "name": "Steady Hands",
+    "category": "Lineage",
+    "rarity": "Common",
+    "dominance": "Dominant",
+    "bonus": "+1 to your first attack roll each combat",
+    "pureBonus": "Proficiency with one tool of your choice"
+   },
+   {
+    "code": "Tt",
+    "name": "Thread Sense",
+    "category": "Mutation",
+    "rarity": "Uncommon",
+    "dominance": "Recessive",
+    "bonus": "Advantage on checks to notice threads, webs and traps",
+    "pureBonus": "You see demon threads clearly; cutting one costs no action"
+   },
+   {
+    "code": "Wa",
+    "name": "Water Affinity",
+    "category": "Technique Gene",
+    "rarity": "Uncommon",
+    "dominance": "Codominant",
+    "bonus": "+1 to attack rolls with Water Breathing; swim speed 20 ft",
+    "pureBonus": "Water forms deal +1d4 damage"
+   },
+   {
+    "code": "Wi",
+    "name": "Wind Affinity",
+    "category": "Technique Gene",
+    "rarity": "Uncommon",
+    "dominance": "Codominant",
+    "bonus": "+1 to attack rolls with Wind Breathing; +5 ft speed",
+    "pureBonus": "Wind forms push the target 10 ft"
+   },
+   {
+    "code": "So",
+    "name": "Stone Affinity",
+    "category": "Technique Gene",
+    "rarity": "Uncommon",
+    "dominance": "Codominant",
+    "bonus": "+1 AC while wielding a heavy weapon",
+    "pureBonus": "Stone forms knock targets prone on a failed Strength save"
+   },
+   {
+    "code": "Td",
+    "name": "Thunder Affinity",
+    "category": "Technique Gene",
+    "rarity": "Uncommon",
+    "dominance": "Recessive",
+    "bonus": "+2 to initiative",
+    "pureBonus": "Your first attack each combat deals +1d6 lightning"
+   },
+   {
+    "code": "Bi",
+    "name": "Beast Instinct",
+    "category": "Mutation",
+    "rarity": "Uncommon",
+    "dominance": "Dominant",
+    "bonus": "You can't be surprised in the wild",
+    "pureBonus": "Advantage on attacks against creatures that haven't acted yet"
+   },
+   {
+    "code": "Kk",
+    "name": "Kakushi Blood",
+    "category": "Lineage",
+    "rarity": "Uncommon",
+    "dominance": "Recessive",
+    "bonus": "Proficiency in Stealth",
+    "pureBonus": "Hide as a bonus action"
+   },
+   {
+    "code": "Bg",
+    "name": "Butterfly Grace",
+    "category": "Lineage",
+    "rarity": "Rare",
+    "dominance": "Recessive",
+    "bonus": "+1 Dexterity; advantage on Acrobatics checks",
+    "pureBonus": "After you take the Dodge action, your next attack has advantage"
+   },
+   {
+    "code": "Sv",
+    "name": "Serpent Spine",
+    "category": "Mutation",
+    "rarity": "Rare",
+    "dominance": "Codominant",
+    "bonus": "Your attacks ignore half cover",
+    "pureBonus": "Your attacks ignore three-quarters cover too"
+   },
+   {
+    "code": "Bn",
+    "name": "Blind Insight",
+    "category": "Mutation",
+    "rarity": "Rare",
+    "dominance": "Recessive",
+    "bonus": "Blindsight 10 ft",
+    "pureBonus": "Blindsight 30 ft; you can't be blinded"
+   },
+   {
+    "code": "Sp",
+    "name": "Sound Pulse",
+    "category": "Mutation",
+    "rarity": "Rare",
+    "dominance": "Codominant",
+    "bonus": "Advantage on hearing-based Perception; you can't be surprised",
+    "pureBonus": "Musical Score: after you hit the same creature 3 times, you have advantage on attacks against it"
+   },
+   {
+    "code": "Lm",
+    "name": "Lower Moon Blood",
+    "category": "Race",
+    "rarity": "Rare",
+    "dominance": "Dominant",
+    "bonus": "+1 Strength, +1 Constitution\nDarkvision 60 ft; regain 2 HP at the start of each turn\n⚠ Sunlight deals 5 radiant damage per turn; can't use Breathing",
+    "pureBonus": "Learn one Blood Demon Art; regeneration becomes 4 HP per turn"
+   },
+   {
+    "code": "Hl",
+    "name": "Healer's Blood",
+    "category": "Blood",
+    "rarity": "Rare",
+    "dominance": "Recessive",
+    "bonus": "Proficiency in Medicine; your healer's kit restores +1d4 HP",
+    "pureBonus": "Once per long rest, brew a drug that gives an injected demon disadvantage on attacks for 1 minute"
+   },
+   {
+    "code": "Um",
+    "name": "Upper Moon Blood",
+    "category": "Race",
+    "rarity": "Legendary",
+    "dominance": "Dominant",
+    "bonus": "+2 Strength, +2 Constitution, +1 Dexterity\nDarkvision 120 ft; regain 15 HP at the start of each turn\nTwo Blood Demon Arts\n⚠ Sunlight deals 25 radiant per turn; can't use Breathing",
+    "pureBonus": "Legendary Resistance (2/day)\n⚠ Sunlight destroys you after one full round"
+   },
+   {
+    "code": "Hr",
+    "name": "Hashira Blood",
+    "category": "Lineage",
+    "rarity": "Legendary",
+    "dominance": "Codominant",
+    "bonus": "+1 to two ability scores\n+1 to your Breathing Form save DC",
+    "pureBonus": "Once per long rest, reroll a failed saving throw"
+   },
+   {
+    "code": "Cr",
+    "name": "Crimson Blade Gene",
+    "category": "Technique Gene",
+    "rarity": "Legendary",
+    "dominance": "Recessive",
+    "bonus": "Once per long rest, your blade turns red for 1 minute: demons you hit can't regenerate until the end of their next turn",
+    "pureBonus": "Turn your blade red as a bonus action (proficiency bonus uses per long rest)"
+   },
+   {
+    "code": "Mn",
+    "name": "Moon Lineage",
+    "category": "Lineage",
+    "rarity": "Legendary",
+    "dominance": "Codominant",
+    "bonus": "Moon Breathing: your slashes throw crescent blades (+1d6 slashing to one extra creature within 5 ft of the target)",
+    "pureBonus": "Moon forms gain 10 ft of reach"
+   },
+   {
+    "code": "Ba",
+    "name": "Blood Art Prodigy",
+    "category": "Blood",
+    "rarity": "Legendary",
+    "dominance": "Recessive",
+    "bonus": "Demon: learn one extra Blood Demon Art. Human: resistance to damage from Blood Demon Arts",
+    "pureBonus": "Demon: your Blood Demon Art save DCs +2. Human: advantage on saves against Blood Demon Arts"
+   },
+   {
+    "code": "Ob",
+    "name": "Origin Breath",
+    "category": "Technique Gene",
+    "rarity": "Mythical",
+    "dominance": "Recessive",
+    "bonus": "You can learn forms from every Breathing Style",
+    "pureBonus": "Once per long rest, use any Breathing Form you have ever seen"
+   },
+   {
+    "code": "Sl",
+    "name": "Sun Halo",
+    "category": "Technique Gene",
+    "rarity": "Mythical",
+    "dominance": "Codominant",
+    "bonus": "Your Breathing Forms deal +1d8 radiant damage to demons",
+    "pureBonus": "Once per turn, a form also hits every demon within 10 ft of the target"
+   },
+   {
+    "code": "Mk",
+    "name": "Moon Demon",
+    "category": "Race",
+    "rarity": "Mythical",
+    "dominance": "Dominant",
+    "bonus": "+3 Strength, +2 Constitution (max 22)\nRegain 20 HP at the start of each turn\nYou can use Breathing Styles AND Blood Demon Arts\n⚠ Sunlight destroys you after one full round",
+    "pureBonus": "Six Eyes: critical hits on 19–20, and you can't be surprised"
+   },
+   {
+    "code": "Bv",
+    "name": "Blue Spider Lily Blood",
+    "category": "Blood",
+    "rarity": "Mythical",
+    "dominance": "Recessive",
+    "bonus": "Demon: immune to sunlight. Human: demons that drink your blood are poisoned for 1 minute",
+    "pureBonus": "Perfect Being: regain 10 HP at the start of each turn, and you no longer age"
+   }
+  ],
+  "combos": [
+   {
+    "a": "Hu",
+    "b": "De",
+    "name": "Demon-Human Hybrid",
+    "bonus": "Use Breathing Styles AND a Blood Demon Art\nRegain 2 HP at the start of each turn\nSunlight only stops your regeneration instead of damaging you"
+   },
+   {
+    "a": "Sm",
+    "b": "Tw",
+    "name": "Awakened Slayer",
+    "bonus": "While the Mark is awakened, you score critical hits on 17–20 and demons you hit can't regenerate"
+   },
+   {
+    "a": "Su",
+    "b": "Hk",
+    "name": "Thirteenth Form",
+    "bonus": "Once per long rest, as one action, attack once with every Sun Breathing form you know. Demons slain this way can't be revived"
+   },
+   {
+    "a": "Sn",
+    "b": "Su",
+    "name": "Scent of the Sun",
+    "bonus": "Opening Thread recharges on a roll of 5–6 at the start of each of your turns"
+   },
+   {
+    "a": "Sc",
+    "b": "Hu",
+    "name": "Path Back to Humanity",
+    "bonus": "Through a ritual (DM's call), you can return to being human and keep +1 to every ability score"
+   },
+   {
+    "a": "De",
+    "b": "Mr",
+    "name": "Blood Frenzy",
+    "bonus": "+2 to damage rolls while poisoned by Marechi blood\n⚠ While frenzied, pass a DC 13 WIS save each turn or attack the nearest creature"
+   },
+   {
+    "a": "Dc",
+    "b": "De",
+    "name": "Demon Eater",
+    "bonus": "After eating a demon's flesh, use a weaker version of its Blood Demon Art for 1 minute (DM's call)"
+   },
+   {
+    "a": "Kz",
+    "b": "Pg",
+    "name": "Favored of the Progenitor",
+    "bonus": "+2 to every ability score (max 22)\nDemons of CR 10 or lower won't attack you\n⚠ Sunlight destroys you after one full round"
+   },
+   {
+    "a": "Fl",
+    "b": "Bp",
+    "name": "Flame Hashira Legacy",
+    "bonus": "Learn Flame Breathing's Ninth Form 2 levels early; your Flame forms deal +1d6 fire damage"
+   },
+   {
+    "a": "Sh",
+    "b": "Ea",
+    "name": "Sound of Battle",
+    "bonus": "Musical Score: after you hit the same creature 3 times, you have advantage on attacks against it and it has disadvantage against you for 1 minute"
+   },
+   {
+    "a": "Wm",
+    "b": "Ts",
+    "name": "Beast Sense",
+    "bonus": "+10 ft speed; tremorsense 60 ft"
+   },
+   {
+    "a": "Ms",
+    "b": "Bp",
+    "name": "Prodigy of the Mist",
+    "bonus": "+1 Dexterity; learn forms of any Breathing Style one level earlier"
+   },
+   {
+    "a": "If",
+    "b": "Dm",
+    "name": "Stone Pillar",
+    "bonus": "Your heavy weapon hits push the target 10 ft, and their damage can't be reduced"
+   },
+   {
+    "a": "Pt",
+    "b": "Fj",
+    "name": "Butterfly Dance",
+    "bonus": "When a creature misses you with a melee attack, it takes 1d6 poison damage (2d6 if it's a demon)"
+   },
+   {
+    "a": "Tc",
+    "b": "Tw",
+    "name": "Flash of Thunder",
+    "bonus": "Your first-hit bonus becomes 6d6 lightning, and that hit is always a critical hit"
+   },
+   {
+    "a": "Wl",
+    "b": "Hs",
+    "name": "Unshakable Calm",
+    "bonus": "When your Still Water reaction reduces damage to 0, the attacker takes the damage you prevented"
+   },
+   {
+    "a": "Kz",
+    "b": "Bv",
+    "name": "Perfect Demon",
+    "bonus": "Immune to sunlight, and you regain 20 HP at the start of each turn"
+   },
+   {
+    "a": "Mn",
+    "b": "Sm",
+    "name": "Moon Mark",
+    "bonus": "Your Mark never fades and costs no HP; Moon forms deal +2d6 damage"
+   },
+   {
+    "a": "Sc",
+    "b": "Bv",
+    "name": "Conquered Sun",
+    "bonus": "Your Exploding Blood deals double damage in daylight"
+   },
+   {
+    "a": "Ob",
+    "b": "Su",
+    "name": "The First Breath",
+    "bonus": "Learn every Breathing Form instantly; +2 to your Breathing save DCs"
+   },
+   {
+    "a": "Sl",
+    "b": "Hk",
+    "name": "Dragon Sun Halo Head Dance",
+    "bonus": "Every Hinokami form you chain hits each demon within 10 ft"
+   },
+   {
+    "a": "Hr",
+    "b": "Bp",
+    "name": "Hashira Prodigy",
+    "bonus": "You reach Hashira rank in half the time; +1 to all attack rolls"
+   },
+   {
+    "a": "Cr",
+    "b": "Sm",
+    "name": "Crimson Mark",
+    "bonus": "While the Mark is active, your blade is always red"
+   },
+   {
+    "a": "Tt",
+    "b": "De",
+    "name": "Spider Family",
+    "bonus": "Your Blood Demon Art is steel thread: 15 ft reach, and a hit restrains the target (DC 14 Strength save)"
+   },
+   {
+    "a": "Bn",
+    "b": "If",
+    "name": "Stone Pillar",
+    "bonus": "Blindsight 30 ft and +2 to attacks with flails"
+   },
+   {
+    "a": "Sp",
+    "b": "Sh",
+    "name": "Sound Pillar",
+    "bonus": "Musical Score triggers after 2 hits instead of 3"
+   },
+   {
+    "a": "Bg",
+    "b": "Pt",
+    "name": "Insect Pillar",
+    "bonus": "Your stinger thrusts deal +2d6 poison damage to demons"
+   },
+   {
+    "a": "Hl",
+    "b": "De",
+    "name": "Physician Demon",
+    "bonus": "Once per long rest, a demon you treat is freed from the Demon King's curse"
+   },
+   {
+    "a": "Um",
+    "b": "Pg",
+    "name": "Upper Moon One",
+    "bonus": "+2 to every ability score; Legendary Resistance (3/day)"
+   },
+   {
+    "a": "Wa",
+    "b": "Wl",
+    "name": "Dead Calm Master",
+    "bonus": "Your Still Water reaction works twice per short rest"
+   },
+   {
+    "a": "Td",
+    "b": "Tc",
+    "name": "Godspeed",
+    "bonus": "Your Godspeed dash goes 90 ft and hits each creature twice"
+   },
+   {
+    "a": "Ij",
+    "b": "Hu",
+    "name": "Kamado Headbutt",
+    "bonus": "Your headbutt stuns on a critical hit"
+   },
+   {
+    "a": "Wi",
+    "b": "Mr",
+    "name": "Wind of Marechi",
+    "bonus": "Demons within 10 ft of you have disadvantage on Wisdom saves"
+   },
+   {
+    "a": "Bi",
+    "b": "Ts",
+    "name": "Beast Breathing",
+    "bonus": "Tremorsense 30 ft; you can fight with two blades at full damage"
+   }
+  ]
+ }
 };
 
-// Static panels
-const total = ORDER.reduce((s, r) => s + RARITIES[r].weight, 0);
-$("rates").innerHTML = ORDER.map(r =>
-  `<div class="rate"><span style="color:${RARITIES[r].color};font-weight:700">${r}</span>
-   <span>${(RARITIES[r].weight / total * 100).toFixed(0)}% · ${RARITIES[r].asi.map(v => "+" + v).join(" / ")} ability scores</span></div>`).join("");
-$("index").innerHTML = ORDER.map(r =>
-  `<details><summary style="color:${RARITIES[r].color}">${r} (${FAMILIES[r].length})</summary>
-   ${FAMILIES[r].map(f => `<div class="fam"><b style="color:var(--text)">${f.name}</b> ${f.kanji} — ${f.lore}</div>`).join("")}</details>`).join("");
+// ---------------- state ----------------
+let uid = 0;
+const newId = () => "i" + Date.now().toString(36) + (uid++);
+const emptySheet = () => ({ family: null, asi: [], traits: [], passives: [], genes: null });
+function fromDefaults() {
+  const s = JSON.parse(JSON.stringify(DEFAULTS));
+  for (const list of [s.families, s.traits, s.passives, s.genes.factors]) list.forEach(x => x.id = newId());
+  const byCode = Object.fromEntries(s.genes.factors.map(f => [f.code, f.id]));
+  s.genes.combos = s.genes.combos.map(c => ({ a: byCode[c.a], b: byCode[c.b], name: c.name, bonus: c.bonus })).filter(c => c.a && c.b);
+  s.sheet = emptySheet(); s.history = [];
+  return s;
+}
+function valid(s) { return s && Array.isArray(s.rarities) && Array.isArray(s.families) && Array.isArray(s.traits) && Array.isArray(s.passives) && s.genes && Array.isArray(s.genes.factors) && s.genes.factors.length; }
+function normalize(s) {
+  s.genes.combos = s.genes.combos || [];
+  s.sheet = Object.assign(emptySheet(), s.sheet || {});
+  s.history = Array.isArray(s.history) ? s.history : [];
+  s.rarities.forEach(r => { r.asi = r.asi || [1]; r.traits = r.traits || [1, 1]; r.passives = r.passives || [1, 1]; });
+  for (const list of [s.families, s.traits, s.passives, s.genes.factors]) list.forEach(x => { if (!x.id) x.id = newId(); });
+  return s;
+}
+let state;
+try { state = JSON.parse(localStorage.getItem(STORE_KEY)); } catch (e) { state = null; }
+if (!valid(state)) {
+  state = fromDefaults();
+  // Carry over anything written on the old Gene Crossing page.
+  try {
+    const old = JSON.parse(localStorage.getItem(OLD_GENE_KEY));
+    if (old && Array.isArray(old.factors)) {
+      const idMap = {};
+      for (const of of old.factors) {
+        const cur = state.genes.factors.find(f => f.code === of.code);
+        if (cur) { if (of.bonus) cur.bonus = of.bonus; if (of.pureBonus) cur.pureBonus = of.pureBonus; idMap[of.id] = cur.id; }
+        else if (of.code && of.name) { const nf = { ...of, id: newId() }; state.genes.factors.push(nf); idMap[of.id] = nf.id; }
+      }
+      for (const oc of old.combos || []) {
+        const a = idMap[oc.a], b = idMap[oc.b]; if (!a || !b) continue;
+        const cur = state.genes.combos.find(c => (c.a === a && c.b === b) || (c.a === b && c.b === a));
+        if (cur) { if (oc.bonus) cur.bonus = oc.bonus; if (oc.name) cur.name = oc.name; }
+        else state.genes.combos.push({ a, b, name: oc.name || "", bonus: oc.bonus || "" });
+      }
+    }
+  } catch (e) {}
+}
+state = normalize(state);
+function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} }
+save();
+
+// ---------------- helpers ----------------
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const randInt = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+const shuffle = a => a.map(v => [Math.random(), v]).sort((x, y) => x[0] - y[0]).map(v => v[1]);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const rIdx = name => Math.max(0, state.rarities.findIndex(r => r.name === name));
+const rOf = x => state.rarities[rIdx(x.rarity)];
+const rColor = name => state.rarities[rIdx(name)].color;
+const byRarity = list => [...list].sort((a, b) => rIdx(a.rarity) - rIdx(b.rarity));
+const opts = (list, cur) => list.map(v => `<option ${v === cur ? "selected" : ""}>${esc(v)}</option>`).join("");
+const when = t => { const d = new Date(t), now = new Date(); const tm = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); return d.toDateString() === now.toDateString() ? tm : d.toLocaleDateString([], { month: "short", day: "numeric" }) + " " + tm; };
+const statShort = s => s.slice(0, 3).toUpperCase();
+
+function rollFrom(list) {
+  const live = state.rarities.filter(r => r.weight > 0 && list.some(x => x.rarity === r.name));
+  if (!live.length) return pick(list);
+  const total = live.reduce((s, r) => s + Number(r.weight), 0);
+  let n = Math.random() * total;
+  for (const r of live) { n -= r.weight; if (n < 0) return pick(list.filter(x => x.rarity === r.name)); }
+  return pick(list.filter(x => x.rarity === live[0].name));
+}
+function ratesHtml(list) {
+  const live = state.rarities.filter(r => r.weight > 0 && list.some(x => x.rarity === r.name));
+  const total = live.reduce((s, r) => s + Number(r.weight), 0) || 1;
+  return state.rarities.map(r => {
+    const n = list.filter(x => x.rarity === r.name).length;
+    const pct = live.includes(r) ? (r.weight / total * 100) : 0;
+    return `<div class="rate"><b style="color:${r.color}">${esc(r.name)}</b><span>${pct > 0 && pct < 1 ? pct.toFixed(2) : pct.toFixed(1)}% · ${n} ${n === 1 ? "entry" : "entries"}</span></div>`;
+  }).join("");
+}
+function glow(card, rarity) {
+  card.classList.remove("g3", "g4", "g5");
+  const i = rIdx(rarity), n = state.rarities.length;
+  card.style.setProperty("--glow", state.rarities[i].color);
+  if (i === n - 1 && n > 3) card.classList.add("g5");
+  else if (i === n - 2 && n > 3) card.classList.add("g4");
+  else if (i === n - 3 && n > 3) card.classList.add("g3");
+}
+function targetOpts(sel) {
+  const cur = sel.value;
+  sel.innerHTML = state.rarities.map((r, i) => `<option value="${i}">${esc(r.name)}</option>`).join("");
+  sel.value = cur && Number(cur) < state.rarities.length ? cur : String(Math.max(0, state.rarities.length - 2));
+}
+function choiceHtml(list, label) {
+  return state.rarities.map(r => {
+    const items = list.filter(x => x.rarity === r.name);
+    return items.length ? `<optgroup label="${esc(r.name)}">${items.map(x => `<option value="${x.id}">${esc(label(x))}</option>`).join("")}</optgroup>` : "";
+  }).join("");
+}
+function fillSelect(sel, html) { const cur = sel.value; sel.innerHTML = html; if (cur && [...sel.options].some(o => o.value === cur)) sel.value = cur; }
+
+// Roll from this tier plus one tier below; always lead with one from the tier itself.
+function rollTier(list, rarity, count) {
+  const i = rIdx(rarity);
+  const own = shuffle(list.filter(x => x.rarity === rarity));
+  const lower = i > 0 ? shuffle(list.filter(x => x.rarity === state.rarities[i - 1].name)) : [];
+  const out = own.length ? [own[0], ...shuffle([...own.slice(1), ...lower])] : shuffle(lower);
+  return out.slice(0, Math.min(count, 3));
+}
+function rollFamilyBonuses(fam) {
+  const r = rOf(fam);
+  const asi = shuffle(STATS).slice(0, r.asi.length).map((s, i) => ({ s, v: r.asi[i] }));
+  const traits = rollTier(state.traits, fam.rarity, randInt(r.traits[0], r.traits[1])).map(x => x.id);
+  const passives = rollTier(state.passives, fam.rarity, randInt(r.passives[0], r.passives[1])).map(x => x.id);
+  return { id: fam.id, asi, traits, passives };
+}
+
+// ---------------- history ----------------
+function addHistory(entry) {
+  state.history.unshift({ ...entry, at: Date.now() });
+  if (state.history.length > 300) state.history.length = 300;
+  save(); renderHistory();
+}
+const KIND_NAME = { families: "🏯 Family", traits: "✨ Trait", passives: "🌀 Passive", genes: "🧬 Genes" };
+function renderHistory() {
+  const rowsFor = k => state.history.map((h, i) => [h, i]).filter(([h]) => h.kind === k).slice(0, 40);
+  for (const k of ["families", "traits", "passives"]) {
+    const rows = rowsFor(k);
+    $(k + "-hist").innerHTML = rows.length ? rows.map(([h, i]) => `<div data-hi="${i}"><span>${esc(h.name)}${h.chosen ? '<span class="tag">✅ chosen</span>' : ""}<span class="tag">${when(h.at)}</span></span><b style="color:${rColor(h.rarity)}">${esc(h.rarity)}</b></div>`).join("") : `<span class="empty">Nothing yet.</span>`;
+  }
+  const g = rowsFor("genes");
+  $("g-hist").innerHTML = g.length ? g.map(([h, i]) => `<div data-hi="${i}"><span class="mono">${esc(h.codes)} <span class="note">${esc(h.name)}</span>${h.chosen ? '<span class="tag">✅ chosen</span>' : ""}<span class="tag">${when(h.at)}</span></span><b style="color:${rColor(h.rarity)}">${esc(h.rarity)}</b></div>`).join("") : `<span class="empty">Nothing yet.</span>`;
+  const f = $("h-filter").value;
+  const all = state.history.map((h, i) => [h, i]).filter(([h]) => !f || h.kind === f);
+  $("h-log").innerHTML = `<tr><th>When</th><th>Type</th><th>Result</th><th>Rarity</th><th>How</th></tr>` +
+    (all.length ? all.map(([h, i]) => `<tr data-hi="${i}"><td class="note">${when(h.at)}</td><td>${KIND_NAME[h.kind]}</td>
+      <td><b>${esc(h.kind === "genes" ? h.codes + " — " + h.name : h.name)}</b>${h.extra ? `<div class="note">${esc(h.extra)}</div>` : ""}</td>
+      <td><b style="color:${rColor(h.rarity)}">${esc(h.rarity)}</b></td><td class="note">${h.chosen ? "✅ Chosen" : "🎲 Spun"}</td></tr>`).join("")
+      : `<tr><td colspan="5" class="empty">No rolls yet. Go spin something!</td></tr>`);
+}
+document.addEventListener("click", e => {
+  const d = e.target.closest("[data-hi]");
+  if (!d || !(d.closest(".hist") || d.closest("#h-log"))) return;
+  const h = state.history[Number(d.dataset.hi)]; if (!h) return;
+  if (h.kind === "genes") {
+    const a = gById(h.a), b = gById(h.b);
+    showTab("genes");
+    if (a && b) showGene(a, b, true, h.chosen); else alert("One of those genes has since been removed.");
+    return;
+  }
+  const item = state[h.kind].find(x => x.id === h.id);
+  showTab(h.kind);
+  if (!item) return alert(`"${h.name}" has since been removed from the list.`);
+  if (h.kind === "families") pools.families.showBundle(h.bundle || rollFamilyBonuses(item), h.chosen);
+  else pools[h.kind].show(item, h.chosen);
+});
+$("h-filter").onchange = renderHistory;
+$("h-clear").onclick = () => { if (confirm("Clear your whole roll history?")) { state.history = []; save(); renderHistory(); } };
+
+// ---------------- tabs ----------------
+let curTab = "families";
+try { curTab = localStorage.getItem(STORE_KEY + ":tab") || "families"; } catch (e) {}
+if (location.hash) curTab = location.hash.slice(1);
+function showTab(t) {
+  if (!$("tab-" + t)) t = "families";
+  curTab = t;
+  document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === t));
+  document.querySelectorAll("section[id^=tab-]").forEach(s => s.hidden = s.id !== "tab-" + t);
+  try { localStorage.setItem(STORE_KEY + ":tab", t); } catch (e) {}
+}
+$("tabs").onclick = e => { const b = e.target.closest("button"); if (b) showTab(b.dataset.tab); };
+
+// ---------------- sheet ----------------
+const findIn = (k, id) => state[k].find(x => x.id === id);
+function renderSheet() {
+  const sh = state.sheet;
+  const fam = sh.family && findIn("families", sh.family);
+  const item = (x, kind) => `<div class="pick" style="--c:${rOf(x).color}"><div class="t"><span style="color:${rOf(x).color}">${esc(x.name)}</span>
+    <span><span class="tag">${esc(x.rarity)}</span><button class="x-btn" data-unkeep="${kind}" data-id="${x.id}" title="Remove">✕</button></span></div>
+    <div class="d">${esc(x.effect)}</div></div>`;
+  const list = k => sh[k].map(id => findIn(k, id)).filter(Boolean);
+  const ga = sh.genes && gById(sh.genes[0]), gb = sh.genes && gById(sh.genes[1]);
+  let genesHtml = `<div class="empty note">Spin or choose genes, then 📌 Keep.</div>`;
+  if (ga && gb) {
+    const c = cross(ga, gb);
+    genesHtml = `<div class="pick" style="--c:${TYPE_COLOR[c.type]}"><div class="t"><span class="mono">${tag(ga)} / ${tag(gb)}</span>
+      <span><span class="tag">${TYPE_NAME[c.type]}</span><button class="x-btn" data-unkeep="genes" title="Remove">✕</button></span></div>
+      <div class="d">${esc(geneSummary(ga, gb))}</div></div>`;
+  }
+  $("sheet").innerHTML = `
+    <div class="slot"><h3><span>Family</span></h3>${fam ? `<div class="pick" style="--c:${rOf(fam).color}"><div class="t"><span style="color:${rOf(fam).color}">${esc(fam.name)} <span class="note">${esc(fam.who)}</span></span>
+      <span><span class="tag">${esc(fam.rarity)}</span><button class="x-btn" data-unkeep="families" title="Remove">✕</button></span></div>
+      <div class="chips">${sh.asi.map(a => `<span class="chip">${statShort(a.s)} <b>+${a.v}</b></span>`).join("")}</div>
+      <div class="d" style="font-style:italic">${esc(fam.effect)}</div></div>` : `<div class="empty note">Spin or choose a family, then 📌 Keep.</div>`}</div>
+    <div class="slot"><h3><span>Traits</span><span>${list("traits").length}/${MAX.traits}</span></h3>${list("traits").map(x => item(x, "traits")).join("") || `<div class="empty note">Up to ${MAX.traits}.</div>`}</div>
+    <div class="slot"><h3><span>Passives</span><span>${list("passives").length}/${MAX.passives}</span></h3>${list("passives").map(x => item(x, "passives")).join("") || `<div class="empty note">Up to ${MAX.passives}.</div>`}</div>
+    <div class="slot"><h3><span>Genes</span></h3>${genesHtml}</div>`;
+}
+$("sheet").addEventListener("click", e => {
+  const b = e.target.closest("[data-unkeep]"); if (!b) return;
+  const k = b.dataset.unkeep, sh = state.sheet;
+  if (k === "families") { sh.family = null; sh.asi = []; }
+  else if (k === "genes") sh.genes = null;
+  else sh[k] = sh[k].filter(id => id !== b.dataset.id);
+  save(); renderSheet();
+});
+$("sheetClear").onclick = () => { if (confirm("Clear your slayer? (History is kept.)")) { state.sheet = emptySheet(); save(); renderSheet(); } };
+$("sheetCopy").onclick = async () => {
+  const sh = state.sheet, out = [], fam = sh.family && findIn("families", sh.family);
+  out.push(fam ? `${fam.name} Family (${fam.rarity}) ${fam.who}` : "No family yet");
+  if (fam) { out.push(fam.effect); if (sh.asi.length) out.push("Ability scores: " + sh.asi.map(a => `${a.s} +${a.v}`).join(", ")); }
+  for (const k of ["traits", "passives"]) {
+    const items = sh[k].map(id => findIn(k, id)).filter(Boolean);
+    if (items.length) { out.push("", k.toUpperCase()); items.forEach(x => out.push(`• ${x.name} (${x.rarity}): ${x.effect}`)); }
+  }
+  const ga = sh.genes && gById(sh.genes[0]), gb = sh.genes && gById(sh.genes[1]);
+  if (ga && gb) out.push("", `GENES ${ga.code}/${gb.code} (${TYPE_NAME[cross(ga, gb).type]})`, geneSummary(ga, gb));
+  const text = out.join("\n");
+  try { await navigator.clipboard.writeText(text); $("sheetCopy").textContent = "✅ Copied!"; } catch (e) { prompt("Copy your slayer:", text); }
+  setTimeout(() => $("sheetCopy").textContent = "📋 Copy as text", 1500);
+};
+function keepItem(k, item) {
+  const sh = state.sheet;
+  if (sh[k].includes(item.id)) return alert("Your slayer already has that.");
+  if (sh[k].length >= MAX[k]) return alert(`Your slayer already has ${MAX[k]} ${k}. Remove one in My Slayer first.`);
+  sh[k].push(item.id); save(); renderSheet();
+}
+
+// ---------------- pools (Families / Traits / Passives) ----------------
+const POOLS = {
+  families: { label: "Family", plural: "Families", who: "Kanji", whoPh: "e.g. 竈門", effect: "Lore", effectPh: "One line of family history" },
+  traits:   { label: "Trait", plural: "Traits", effect: "Effect", effectPh: "e.g. Advantage on saves against being frightened", noWho: true },
+  passives: { label: "Passive", plural: "Passives", effect: "Effect", effectPh: "e.g. +5 ft speed between dusk and dawn", noWho: true },
+};
+const itemList = (k, ids) => ids.map(id => findIn(k, id)).filter(Boolean).map(x =>
+  `<div class="item" style="--c:${rOf(x).color}"><div class="n"><span>${esc(x.name)}</span><span class="tag" style="color:${rOf(x).color}">${esc(x.rarity)}</span></div><div class="d">${esc(x.effect)}</div></div>`).join("") || `<div class="empty note">None</div>`;
+
+function buildPool(k) {
+  const P = POOLS[k], isFam = k === "families";
+  $("tab-" + k).innerHTML = `
+    <div class="top">
+      <div class="panel card" id="${k}-card">
+        <div id="${k}-result"><p class="empty">Press <b>Spin ${P.label}</b> to roll${isFam ? " your bloodline: a family, ability score increases, traits and passives" : ""}.</p></div>
+        <div class="row" style="margin-top:16px">
+          <button class="primary" id="${k}-spin">🎲 Spin ${P.label}</button>
+          <button id="${k}-auto">Auto-spin until</button><select class="auto" id="${k}-target"></select><span class="note">or better</span>
+        </div>
+        <div class="note" id="${k}-count" style="margin-top:8px">Spins this session: 0</div>
+        <div class="row choose">
+          <span class="note" style="width:100%">Or choose exactly what you get${isFam ? " (its bonuses are rolled for that family's rarity)" : ""}:</span>
+          <select id="${k}-choose"></select>
+          <button id="${k}-take">✅ Take this ${P.label.toLowerCase()}</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h3 style="margin-top:0">Drop Rates</h3><div class="rates" id="${k}-rates"></div>
+        <h3>Previous ${P.label.toLowerCase()} rolls</h3><div class="hist" id="${k}-hist"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="row" style="justify-content:space-between"><h2 style="margin:0">${P.plural} Editor <span class="note" id="${k}-total"></span></h2><button class="small" id="${k}-add">+ Add ${P.label.toLowerCase()}</button></div>
+      <p class="note">Change anything here: names, rarities and text. Spins and family rolls use whatever is in this list.</p>
+      <div class="ed-wrap"><table class="ed" id="${k}-ed"></table></div>
+    </div>`;
+
+  let spins = 0, auto = false;
+
+  function show(item, chosen) {
+    const r = rOf(item);
+    $(k + "-result").innerHTML = `
+      <span class="badge" style="color:${r.color}">${esc(r.name)}</span>${chosen ? '<span class="tag">✅ Chosen</span>' : ""}
+      <div class="big" style="color:${r.color}">${esc(item.name)}</div>
+      <div class="effect" style="--c:${r.color};margin-top:10px">${esc(item.effect) || '<span class="note">No effect written yet.</span>'}</div>
+      <div class="row" style="margin-top:10px"><button class="small keep" id="${k}-keep">📌 Keep on my slayer</button></div>`;
+    $(k + "-keep").onclick = () => keepItem(k, item);
+    glow($(k + "-card"), item.rarity);
+  }
+  function showBundle(b, chosen) {
+    const fam = findIn("families", b.id); if (!fam) return;
+    const r = rOf(fam);
+    $(k + "-result").innerHTML = `
+      <span class="badge" style="color:${r.color}">${esc(r.name)}</span>${chosen ? '<span class="tag">✅ Chosen</span>' : ""}
+      <div class="big" style="color:${r.color}">${esc(fam.name)}</div>
+      <div class="kanji">${esc(fam.who)} Family</div>
+      <p class="lore">${esc(fam.effect)}</p>
+      <h3>Ability Score Increases</h3>
+      <div class="stats">${b.asi.map(x => `<div class="stat"><span>${x.s}</span><b>+${x.v}</b></div>`).join("")}</div>
+      <h3>Traits (${b.traits.length}/3)</h3><div class="list">${itemList("traits", b.traits)}</div>
+      <h3>Passives (${b.passives.length}/3)</h3><div class="list">${itemList("passives", b.passives)}</div>
+      <div class="row" style="margin-top:12px">
+        <button class="small keep" id="fam-keep">📌 Keep family + these bonuses</button>
+        <button class="small" id="fam-reroll">🎲 Reroll bonuses (same family)</button>
+      </div>`;
+    $("fam-keep").onclick = () => {
+      const sh = state.sheet;
+      if ((sh.traits.length || sh.passives.length) && !confirm("This replaces your slayer's current traits and passives with this family's. Continue?")) return;
+      Object.assign(sh, { family: b.id, asi: b.asi, traits: [...b.traits], passives: [...b.passives] });
+      save(); renderSheet();
+    };
+    $("fam-reroll").onclick = () => { const nb = rollFamilyBonuses(fam); showBundle(nb, true); record(fam, nb, true, "Rerolled bonuses"); };
+    glow($(k + "-card"), fam.rarity);
+  }
+  function record(item, bundle, chosen, extra) {
+    const ex = bundle ? [bundle.asi.map(a => `${statShort(a.s)} +${a.v}`).join(", "), extra].filter(Boolean).join(" · ") : extra || "";
+    addHistory({ kind: k, id: item.id, name: item.name, rarity: item.rarity, chosen, bundle, extra: ex });
+  }
+  function present(item, chosen) {
+    if (isFam) { const b = rollFamilyBonuses(item); showBundle(b, chosen); record(item, b, chosen); }
+    else { show(item, chosen); record(item, null, chosen); }
+  }
+
+  async function spin() {
+    const list = state[k];
+    if (!list.length) { alert(`Add at least one ${P.label.toLowerCase()} first.`); return null; }
+    $(k + "-spin").disabled = true;
+    const card = $(k + "-card");
+    card.classList.add("shake");
+    for (let t = 0; t < 13; t++) {
+      const f = pick(list), r = rOf(f);
+      $(k + "-result").innerHTML = `<span class="badge" style="color:${r.color}">${esc(r.name)}</span><div class="big" style="color:${r.color}">${esc(f.name)}</div>${isFam ? `<div class="kanji">${esc(f.who)}</div>` : ""}`;
+      await sleep(60);
+    }
+    card.classList.remove("shake");
+    const item = rollFrom(list);
+    present(item, false);
+    spins++; $(k + "-count").textContent = `Spins this session: ${spins}`;
+    $(k + "-spin").disabled = false;
+    return item;
+  }
+
+  $(k + "-spin").onclick = spin;
+  $(k + "-auto").onclick = async () => {
+    if (auto) { auto = false; return; }
+    auto = true; $(k + "-auto").textContent = "⏹ Stop";
+    const target = Number($(k + "-target").value);
+    let guard = 0;
+    while (auto && guard++ < 500) { const it = await spin(); if (!it || rIdx(it.rarity) >= target) break; }
+    auto = false; $(k + "-auto").textContent = "Auto-spin until";
+  };
+  $(k + "-take").onclick = () => { const item = findIn(k, $(k + "-choose").value); if (item) present(item, true); };
+
+  function renderChoose() { fillSelect($(k + "-choose"), choiceHtml(state[k], x => isFam ? `${x.name} ${x.who || ""}` : x.name)); }
+  function renderRates() { $(k + "-rates").innerHTML = ratesHtml(state[k]); $(k + "-total").textContent = `(${state[k].length})`; }
+  function renderEditor() {
+    const rn = state.rarities.map(r => r.name);
+    $(k + "-ed").innerHTML = `<tr><th>Name</th><th>Rarity</th>${P.noWho ? "" : `<th>${esc(P.who)}</th>`}<th>${esc(P.effect)}</th><th></th></tr>` +
+      byRarity(state[k]).map(x => `<tr data-id="${x.id}">
+        <td class="w-name"><input data-k="name" value="${esc(x.name)}"></td>
+        <td class="w-sel"><select data-k="rarity" style="color:${rOf(x).color}">${opts(rn, x.rarity)}</select></td>
+        ${P.noWho ? "" : `<td class="w-who"><input data-k="who" value="${esc(x.who)}" placeholder="${esc(P.whoPh)}"></td>`}
+        <td><textarea data-k="effect" rows="${Math.min(6, Math.max(1, Math.ceil((x.effect || "").length / 90)))}" placeholder="${esc(P.effectPh)}">${esc(x.effect)}</textarea></td>
+        <td><button class="small" data-del title="Remove">✕</button></td></tr>`).join("");
+  }
+  $(k + "-ed").addEventListener("input", e => {
+    const tr = e.target.closest("tr[data-id]"), f = e.target.dataset.k; if (!tr || !f) return;
+    findIn(k, tr.dataset.id)[f] = e.target.value; save();
+    if (f === "name" || f === "who") renderChoose();
+    renderSheet();
+  });
+  $(k + "-ed").addEventListener("change", e => {
+    if (e.target.dataset.k === "rarity") { renderEditor(); renderChoose(); renderRates(); renderSheet(); }
+  });
+  $(k + "-ed").addEventListener("click", e => {
+    if (!e.target.hasAttribute("data-del")) return;
+    const x = findIn(k, e.target.closest("tr").dataset.id);
+    if (!confirm(`Remove "${x.name}"?`)) return;
+    state[k] = state[k].filter(y => y !== x);
+    const sh = state.sheet;
+    if (k === "families" && sh.family === x.id) { sh.family = null; sh.asi = []; }
+    if (k !== "families") sh[k] = sh[k].filter(id => id !== x.id);
+    save(); refresh(); renderSheet();
+  });
+  $(k + "-add").onclick = () => {
+    state[k].push({ id: newId(), name: `New ${P.label}`, rarity: state.rarities[0].name, who: "", effect: "" });
+    save(); refresh();
+  };
+
+  function refresh() { renderEditor(); renderChoose(); renderRates(); targetOpts($(k + "-target")); }
+  return { refresh, show, showBundle };
+}
+
+// ---------------- Genes ----------------
+const gf = () => state.genes.factors;
+const gById = id => gf().find(f => f.id === id);
+const tag = f => `<span class="mono" style="color:${rOf(f).color}">${esc(f.code)}</span>`;
+
+// Every gene always gives something. Dominance only decides full bonus vs. first line.
+function cross(a, b) {
+  if (a.id === b.id) return { type: "pure", genes: [{ f: a, status: "Pure" }] };
+  const ra = a.dominance === "Recessive", rb = b.dominance === "Recessive";
+  if (ra && rb) return { type: "hidden", genes: [{ f: a, status: "Weakened" }, { f: b, status: "Weakened" }] };
+  if (!ra && !rb) return { type: "co", genes: [{ f: a, status: "Expressed" }, { f: b, status: "Expressed" }] };
+  const [dom, rec] = ra ? [b, a] : [a, b];
+  if (dom.dominance === "Codominant") return { type: "awakened", genes: [{ f: dom, status: "Expressed" }, { f: rec, status: "Awakened" }] };
+  return { type: "suppressed", genes: [{ f: dom, status: "Expressed" }, { f: rec, status: "Weakened" }] };
+}
+function offspringRarity(c) { return c.genes.reduce((best, g) => rIdx(g.f.rarity) > rIdx(best.rarity) ? g.f : best, c.genes[0].f).rarity; }
+const comboFor = (a, b) => state.genes.combos.find(k => (k.a === a.id && k.b === b.id) || (k.a === b.id && k.b === a.id));
+function geneText(f, status) {
+  if (status === "Weakened") return (f.bonus || "").split("\n")[0];
+  if (status === "Pure") return [f.bonus, f.pureBonus].filter(Boolean).join("\n");
+  return f.bonus || "";
+}
+function geneSummary(a, b) {
+  const c = cross(a, b), combo = comboFor(a, b);
+  const lines = c.genes.map(g => `${g.f.name}${g.status === "Pure" ? " ×2" : g.status === "Weakened" ? " (weakened)" : ""}: ${geneText(g.f, g.status).replace(/\n/g, "; ")}`);
+  if (combo) lines.push(`✦ ${combo.name || "Combo"}: ${(combo.bonus || "").replace(/\n/g, "; ")}`);
+  return lines.join("\n");
+}
+
+function showGene(a, b, fromSpin, chosen) {
+  const c = cross(a, b);
+  const r = state.rarities[rIdx(offspringRarity(c))];
+  const combo = comboFor(a, b);
+  const sc = { Pure: "var(--pure)", Expressed: "var(--co)", Awakened: "var(--awakened)", Weakened: "var(--suppressed)" };
+  const genes = c.genes.map(({ f, status }) => {
+    let body;
+    if (status === "Weakened") body = f.bonus ? `<div class="bonus">${esc(f.bonus.split("\n")[0])}</div>${f.bonus.includes("\n") ? `<div class="note"><i>Weakened: you get the first line. Pair it with a codominant gene or a second copy to unlock the rest.</i></div>` : ""}` : `<div class="none">No bonus written yet.</div>`;
+    else {
+      const parts = [];
+      if (f.bonus) parts.push(`<div class="bonus">${esc(f.bonus)}</div>`);
+      if (status === "Pure" && f.pureBonus) parts.push(`<div class="bonus"><b>Pure:</b> ${esc(f.pureBonus)}</div>`);
+      body = parts.join("") || `<div class="none">No bonus written yet — add one in the Gene Editor.</div>`;
+    }
+    return `<div class="gene" style="--c:${rOf(f).color}">
+      <div class="row" style="justify-content:space-between"><span class="n">${esc(f.name)} ${tag(f)}</span>
+      <span class="badge" style="color:${sc[status]}">${status}${status === "Pure" ? " ×2" : ""}</span></div>
+      <div class="note">${esc(f.category)} · ${esc(f.dominance)} · ${esc(f.rarity)}</div>${body}</div>`;
+  }).join("");
+  const comboHtml = combo ? `<div class="gene" style="--c:#fff"><div class="row" style="justify-content:space-between"><span class="n">✦ ${esc(combo.name || "Bloodline Combo")}</span><span class="badge" style="color:#fff">Combo</span></div>
+    ${combo.bonus ? `<div class="bonus">${esc(combo.bonus)}</div>` : `<div class="none">No bonus written yet.</div>`}</div>` : "";
+  $("g-result").innerHTML = `<h2>Offspring ${chosen ? '<span class="tag">✅ Chosen</span>' : fromSpin ? "" : '<span class="note">(preview)</span>'}</h2>
+    <div class="geno mono">${tag(a)} / ${tag(b)}</div>
+    <div class="row" style="margin:6px 0 4px"><span class="badge" style="color:${r.color}">${esc(r.name)}</span>
+    <span class="badge" style="color:${TYPE_COLOR[c.type]}">${TYPE_NAME[c.type]}</span></div>${genes}${comboHtml}
+    <div class="row" style="margin-top:10px"><button class="small keep" id="g-keep">📌 Keep on my slayer</button></div>`;
+  $("g-keep").onclick = () => { state.sheet.genes = [a.id, b.id]; save(); renderSheet(); };
+  highlight(a, b);
+}
+function recordGene(a, b, chosen) {
+  const c = cross(a, b), combo = comboFor(a, b);
+  addHistory({ kind: "genes", a: a.id, b: b.id, codes: `${a.code}/${b.code}`, name: `${a.name} × ${b.name}`, rarity: offspringRarity(c), chosen, extra: TYPE_NAME[c.type] + (combo ? ` · ✦ ${combo.name}` : "") });
+}
+
+function renderMatrix() {
+  const fs = byRarity(gf());
+  let h = `<thead><tr><th class="corner rowh">A \\ B</th>${fs.map(f =>
+    `<th class="colh" style="color:${rOf(f).color}" title="${esc(f.name)}">${esc(f.code)} · ${esc(f.name)}</th>`).join("")}</tr></thead><tbody>`;
+  for (const a of fs) {
+    h += `<tr><th class="rowh" style="color:${rOf(a).color}"><span class="mono">${esc(a.code)}</span> ${esc(a.name)}</th>`;
+    for (const b of fs) {
+      const c = cross(a, b), cb = comboFor(a, b);
+      h += `<td><div class="x mono${cb ? " combo" : ""}" data-a="${a.id}" data-b="${b.id}" style="background:${TYPE_COLOR[c.type]}" title="${esc(a.name)} × ${esc(b.name)} — ${TYPE_NAME[c.type]}${cb ? " ✦ " + esc(cb.name) : ""}">${esc(a.code)}${esc(b.code)}</div></td>`;
+    }
+    h += "</tr>";
+  }
+  $("matrix").innerHTML = h + "</tbody>";
+}
+function highlight(a, b) {
+  document.querySelectorAll(".matrix .x.hit").forEach(e => e.classList.remove("hit"));
+  const el = document.querySelector(`.matrix .x[data-a="${a.id}"][data-b="${b.id}"]`);
+  if (!el || $("tab-genes").hidden) return;
+  el.classList.add("hit");
+  const wrap = document.querySelector(".matrix-wrap"), er = el.getBoundingClientRect(), wr = wrap.getBoundingClientRect();
+  wrap.scrollBy({ left: er.left - wr.left - wr.width / 2, top: er.top - wr.top - wr.height / 2, behavior: "smooth" });
+}
+$("matrix").addEventListener("click", e => { const x = e.target.closest(".x"); if (x) showGene(gById(x.dataset.a), gById(x.dataset.b), false); });
+
+function renderGeneEditor() {
+  const rn = state.rarities.map(r => r.name);
+  $("g-ed").innerHTML = `<tr><th>Code</th><th>Name</th><th>Type</th><th>Rarity</th><th>Dominance</th><th>Bonus</th><th>Pure bonus (×2)</th><th></th></tr>` +
+    byRarity(gf()).map(f => `<tr data-id="${f.id}">
+      <td><input class="w-code mono" data-k="code" value="${esc(f.code)}" maxlength="4"></td>
+      <td><input data-k="name" value="${esc(f.name)}"></td>
+      <td><select class="w-sel" data-k="category">${opts([...new Set([...CATEGORIES, f.category])], f.category)}</select></td>
+      <td><select class="w-sel" data-k="rarity" style="color:${rOf(f).color}">${opts(rn, f.rarity)}</select></td>
+      <td><select class="w-sel" data-k="dominance">${opts(DOMINANCE, f.dominance)}</select></td>
+      <td><textarea data-k="bonus" placeholder="e.g. +1 Strength">${esc(f.bonus)}</textarea></td>
+      <td><textarea data-k="pureBonus" placeholder="e.g. Advantage on Strength saves">${esc(f.pureBonus)}</textarea></td>
+      <td><button class="small" data-del title="Remove">✕</button></td></tr>`).join("");
+}
+let mt;
+$("g-ed").addEventListener("input", e => {
+  const tr = e.target.closest("tr[data-id]"), k = e.target.dataset.k; if (!tr || !k) return;
+  gById(tr.dataset.id)[k] = e.target.value; save(); renderSheet();
+  if (k !== "bonus" && k !== "pureBonus") { clearTimeout(mt); mt = setTimeout(() => { renderMatrix(); renderCombos(); renderGeneChoose(); }, 300); }
+});
+$("g-ed").addEventListener("change", e => { if (e.target.dataset.k === "rarity") { renderGeneEditor(); renderMatrix(); renderGeneChoose(); } });
+$("g-ed").addEventListener("click", e => {
+  if (!e.target.hasAttribute("data-del")) return;
+  if (gf().length <= 1) return alert("You need at least one gene.");
+  const id = e.target.closest("tr").dataset.id, f = gById(id);
+  if (!confirm(`Remove "${f.name}"?`)) return;
+  state.genes.factors = gf().filter(x => x.id !== id);
+  state.genes.combos = state.genes.combos.filter(c => c.a !== id && c.b !== id);
+  if (state.sheet.genes && state.sheet.genes.includes(id)) state.sheet.genes = null;
+  save(); refreshGenes(); renderSheet();
+});
+$("g-add").onclick = () => {
+  gf().push({ id: newId(), code: "Nw", name: "New Gene", category: "Blood", rarity: state.rarities[0].name, dominance: "Recessive", bonus: "", pureBonus: "" });
+  save(); refreshGenes();
+};
+
+function renderCombos() {
+  const fo = cur => byRarity(gf()).map(f => `<option value="${f.id}" ${f.id === cur ? "selected" : ""}>${esc(f.code)} · ${esc(f.name)}</option>`).join("");
+  const cs = state.genes.combos;
+  $("c-ed").innerHTML = `<tr><th>Gene A</th><th>Gene B</th><th>Combo name</th><th>Bonus</th><th></th></tr>` +
+    (cs.length ? cs.map((c, i) => `<tr data-ci="${i}">
+      <td><select data-k="a">${fo(c.a)}</select></td><td><select data-k="b">${fo(c.b)}</select></td>
+      <td><input data-k="name" value="${esc(c.name)}"></td>
+      <td><textarea data-k="bonus">${esc(c.bonus)}</textarea></td>
+      <td><button class="small" data-del>✕</button></td></tr>`).join("") : `<tr><td colspan="5" class="note">No combos yet.</td></tr>`);
+}
+$("c-ed").addEventListener("input", e => {
+  const tr = e.target.closest("tr[data-ci]"), k = e.target.dataset.k; if (!tr || !k) return;
+  state.genes.combos[tr.dataset.ci][k] = e.target.value; save(); renderSheet();
+});
+$("c-ed").addEventListener("change", e => { if (e.target.dataset.k === "a" || e.target.dataset.k === "b") renderMatrix(); });
+$("c-ed").addEventListener("click", e => {
+  if (!e.target.hasAttribute("data-del")) return;
+  state.genes.combos.splice(e.target.closest("tr").dataset.ci, 1); save(); renderCombos(); renderMatrix(); renderSheet();
+});
+$("c-add").onclick = () => {
+  const fs = byRarity(gf());
+  state.genes.combos.push({ a: fs[0].id, b: fs[Math.min(1, fs.length - 1)].id, name: "", bonus: "" }); save(); renderCombos();
+};
+
+const alleleHtml = f => `<span class="allele mono" style="color:${rOf(f).color}" title="${esc(f.name)}">${esc(f.code)}</span>`;
+function renderPunnett(A, B) {
+  const cell = (i, j) => {
+    if (!A) return `<div class="cell"></div>`;
+    const c = cross(A[i], B[j]);
+    return `<div class="cell mono" data-c="${i}${j}" style="color:${TYPE_COLOR[c.type]}">${esc(A[i].code)}/${esc(B[j].code)}</div>`;
+  };
+  $("punnett").innerHTML = `<div class="hd">A \\ B</div><div class="hd">${B ? alleleHtml(B[0]) : ""}</div><div class="hd">${B ? alleleHtml(B[1]) : ""}</div>
+    <div class="hd">${A ? alleleHtml(A[0]) : ""}</div>${cell(0, 0)}${cell(0, 1)}
+    <div class="hd">${A ? alleleHtml(A[1]) : ""}</div>${cell(1, 0)}${cell(1, 1)}`;
+}
+function renderGeneChoose() {
+  const html = choiceHtml(gf(), f => `${f.code} · ${f.name}`);
+  fillSelect($("g-chooseA"), html); fillSelect($("g-chooseB"), html);
+}
+
+let gSpins = 0, gAuto = false;
+async function spinGenes() {
+  $("g-spin").disabled = true;
+  const A = [rollFrom(gf()), rollFrom(gf())], B = [rollFrom(gf()), rollFrom(gf())];
+  renderPunnett(null, null);
+  for (let t = 0; t < 14; t++) {
+    $("pA").innerHTML = alleleHtml(pick(gf())) + alleleHtml(pick(gf()));
+    $("pB").innerHTML = alleleHtml(pick(gf())) + alleleHtml(pick(gf()));
+    await sleep(55);
+  }
+  $("pA").innerHTML = A.map(alleleHtml).join(""); $("pB").innerHTML = B.map(alleleHtml).join("");
+  renderPunnett(A, B);
+  const keys = ["00", "01", "10", "11"], win = pick(keys);
+  for (let t = 0; t < 10; t++) {
+    document.querySelectorAll(".punnett .cell").forEach(c => c.classList.toggle("flash", c.dataset.c === keys[t % 4]));
+    await sleep(70 + t * 12);
+  }
+  document.querySelectorAll(".punnett .cell").forEach(c => { c.classList.remove("flash"); c.classList.toggle("win", c.dataset.c === win); });
+  const a = A[+win[0]], b = B[+win[1]];
+  showGene(a, b, true);
+  gSpins++; $("g-count").textContent = `Spins this session: ${gSpins}`;
+  recordGene(a, b, false);
+  $("g-spin").disabled = false;
+  return offspringRarity(cross(a, b));
+}
+$("g-spin").onclick = spinGenes;
+$("g-take").onclick = () => {
+  const a = gById($("g-chooseA").value), b = gById($("g-chooseB").value);
+  if (!a || !b) return;
+  $("pA").innerHTML = alleleHtml(a) + alleleHtml(a); $("pB").innerHTML = alleleHtml(b) + alleleHtml(b);
+  renderPunnett([a, a], [b, b]);
+  document.querySelectorAll(".punnett .cell").forEach(c => c.classList.toggle("win", c.dataset.c === "00"));
+  showGene(a, b, true, true); recordGene(a, b, true);
+};
+$("g-auto").onclick = async () => {
+  if (gAuto) { gAuto = false; return; }
+  gAuto = true; $("g-auto").textContent = "⏹ Stop";
+  const target = Number($("g-target").value); let guard = 0;
+  while (gAuto && guard++ < 500) { if (rIdx(await spinGenes()) >= target) break; }
+  gAuto = false; $("g-auto").textContent = "Auto-spin until";
+};
+function refreshGenes() { renderMatrix(); renderGeneEditor(); renderCombos(); renderGeneChoose(); targetOpts($("g-target")); }
+
+// ---------------- settings ----------------
+function renderWeights() {
+  $("weights").innerHTML = state.rarities.map((r, i) => `<div class="wbox">
+    <b style="color:${r.color}">${esc(r.name)}</b>
+    <label>Weight<input type="number" min="0" step="0.1" value="${r.weight}" data-ri="${i}" data-f="weight"></label>
+    <label>Ability scores<input value="${r.asi.join(",")}" data-ri="${i}" data-f="asi"></label>
+    <label>Traits<input value="${r.traits.join("-")}" data-ri="${i}" data-f="traits" placeholder="min-max"></label>
+    <label>Passives<input value="${r.passives.join("-")}" data-ri="${i}" data-f="passives" placeholder="min-max"></label></div>`).join("");
+}
+$("weights").addEventListener("input", e => {
+  const i = e.target.dataset.ri, f = e.target.dataset.f; if (i === undefined) return;
+  const r = state.rarities[i], v = e.target.value;
+  if (f === "weight") r.weight = Math.max(0, Number(v) || 0);
+  if (f === "asi") { const n = v.split(/[ ,]+/).map(Number).filter(x => x > 0); if (n.length) r.asi = n.slice(0, 6); }
+  if (f === "traits" || f === "passives") { const n = v.split(/[-– ,]+/).map(Number).filter(x => !isNaN(x)); if (n.length) { const lo = Math.max(0, Math.min(3, n[0])), hi = Math.max(lo, Math.min(3, n[1] ?? n[0])); r[f] = [lo, hi]; } }
+  save(); ["families", "traits", "passives"].forEach(k => pools[k].refresh());
+});
+$("exportBtn").onclick = () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "slayer-bloodline.json"; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+$("importBtn").onclick = () => $("importFile").click();
+$("importFile").onchange = async e => {
+  const file = e.target.files[0]; if (!file) return;
+  try {
+    const s = JSON.parse(await file.text());
+    if (!valid(s)) throw new Error("bad");
+    state = normalize(s); save(); renderAll();
+  } catch (err) { alert("That file doesn't look like a Slayer Bloodline export."); }
+  e.target.value = "";
+};
+$("resetBtn").onclick = () => {
+  if (!confirm("Reset families, traits, passives and genes to the defaults? Your list edits and slayer will be cleared (history is kept).")) return;
+  const keepHist = state.history;
+  state = fromDefaults(); state.history = keepHist; save(); renderAll();
+};
+
+const pools = { families: buildPool("families"), traits: buildPool("traits"), passives: buildPool("passives") };
+function renderAll() { ["families", "traits", "passives"].forEach(k => pools[k].refresh()); refreshGenes(); renderPunnett(null, null); renderWeights(); renderHistory(); renderSheet(); }
+renderAll();
+showTab(curTab);
 </script>
 </body>
 </html>
