@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quirk Forge</title>
+<style>
+  :root {
+    --bg: #0b0f14; --panel: #131a22; --panel2: #1b2530; --text: #eef3f8; --muted: #93a3b5; --line: #263445;
+    --accent: #2fb24c; --hot: #ff5a3c; --gold: #ffd23f;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: radial-gradient(1100px 480px at 50% -220px, #123a2a 0%, var(--bg) 70%) fixed, var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { margin: 0 0 4px; font-size: 32px; font-weight: 900; letter-spacing: .5px; font-style: italic; }
+  h1 span { color: var(--accent); }
+  h2 { font-size: 18px; margin: 0 0 10px; }
+  h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin: 14px 0 8px; }
+  .sub { color: var(--muted); margin: 0 0 16px; }
+  .note { color: var(--muted); font-size: 13px; }
+  .empty { color: var(--muted); }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+  .top { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; }
+  @media (max-width: 860px) { .top { grid-template-columns: 1fr; } }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  button { font: inherit; font-weight: 700; border-radius: 10px; padding: 10px 16px; cursor: pointer; background: var(--panel2); color: var(--text); border: 1px solid var(--line); }
+  button.primary { background: linear-gradient(135deg, #2fb24c, #17672a); color: #fff; border: 0; padding: 12px 20px; flex: 1; min-width: 150px; }
+  button.keep { background: #1f3a2a; border-color: #2f6b45; }
+  button:disabled { opacity: .6; cursor: wait; }
+  button.small { padding: 5px 10px; font-size: 13px; }
+  input, select, textarea { font: inherit; color: var(--text); background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; width: 100%; }
+  select.auto { width: auto; }
+  textarea { resize: vertical; min-height: 38px; }
+  label.f { display: grid; gap: 4px; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tabs button { border-radius: 999px; }
+  .tabs button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* quirk card */
+  .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 860px) { .card-grid { grid-template-columns: 1fr; } }
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .fields .wide { grid-column: 1 / -1; }
+  .slots { display: grid; gap: 10px; }
+  .slot { background: var(--panel2); border-radius: 10px; padding: 10px 12px; }
+  .slot h3 { margin: 0 0 4px; display: flex; justify-content: space-between; }
+  .pick { border-left: 3px solid var(--c, #666); padding: 4px 8px; margin-top: 6px; }
+  .pick .t { display: flex; justify-content: space-between; gap: 6px; font-weight: 800; }
+  .pick .d { white-space: pre-wrap; font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .x-btn { background: none; border: 0; color: var(--muted); padding: 0 4px; font-size: 14px; }
+
+  /* spin cards */
+  .card { min-height: 300px; position: relative; overflow: hidden; }
+  .card.g3 { box-shadow: 0 0 26px -6px var(--glow); }
+  .card.g4 { box-shadow: 0 0 34px -4px var(--glow); animation: pulseA 2s infinite; }
+  .card.g5 { box-shadow: 0 0 42px -2px var(--glow); animation: pulseB 1.6s infinite; border-color: var(--glow); }
+  @keyframes pulseA { 50% { box-shadow: 0 0 52px 0 var(--glow); } }
+  @keyframes pulseB { 50% { box-shadow: 0 0 64px 4px var(--glow); } }
+  .shake { animation: shake .08s linear infinite; }
+  @keyframes shake { 0%{transform:translateX(0)} 50%{transform:translateX(2px)} 100%{transform:translateX(-2px)} }
+  .badge { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; border: 1px solid currentColor; }
+  .big { font-size: 34px; font-weight: 900; margin: 10px 0 2px; line-height: 1.1; font-style: italic; }
+  .who { color: var(--muted); margin-bottom: 10px; }
+  .effect { background: var(--panel2); border-radius: 10px; padding: 12px 14px; white-space: pre-wrap; line-height: 1.5; border-left: 4px solid var(--c, #666); }
+  .rates { display: grid; gap: 6px; }
+  .rate { display: flex; justify-content: space-between; font-size: 14px; gap: 8px; }
+  .hist { display: grid; gap: 4px; max-height: 260px; overflow: auto; font-size: 14px; }
+  .hist div { display: flex; justify-content: space-between; gap: 8px; padding: 5px 8px; background: var(--panel2); border-radius: 6px; cursor: pointer; }
+  .hist div:hover { filter: brightness(1.2); }
+  .tag { font-size: 11px; color: var(--muted); font-weight: 600; margin-left: 6px; }
+  .choose { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); }
+  .choose select { flex: 1; min-width: 160px; }
+  .filter { margin-bottom: 10px; }
+
+  /* inheritance square */
+  .inherit { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; margin-bottom: 10px; }
+  .parentbox { background: var(--panel2); border-radius: 10px; padding: 8px 10px; text-align: center; }
+  .parentbox .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .parentbox b { display: block; margin-top: 2px; word-break: break-word; }
+  .square { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
+  .square div { background: var(--panel2); border-radius: 8px; padding: 10px 6px; text-align: center; font-weight: 800; border: 2px solid transparent; transition: border-color .1s; font-size: 14px; }
+  .square div small { display: block; font-weight: 600; color: var(--muted); font-size: 11px; }
+  .square div.flash { border-color: #fff8; }
+  .square div.win { border-color: #fff; background: #24402f; }
+  .special { display: none; text-align: center; font-weight: 800; padding: 6px; border-radius: 8px; margin-bottom: 10px; border: 1px dashed var(--glow, #fff); color: var(--glow, #fff); }
+  .special.on { display: block; }
+
+  /* history + editors */
+  .ed-wrap { overflow-x: auto; }
+  table.log { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .log th { text-align: left; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; padding: 6px; border-bottom: 1px solid var(--line); }
+  .log td { padding: 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .log tr[data-hi] { cursor: pointer; }
+  .log tr[data-hi]:hover td { background: var(--panel2); }
+  table.ed { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 860px; }
+  .ed th { text-align: left; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; padding: 6px; border-bottom: 1px solid var(--line); }
+  .ed td { padding: 5px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .w-sel { width: 140px; } .w-name { width: 190px; } .w-who { width: 190px; }
+  .wgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>💥 Quirk <span>Forge</span></h1>
+  <p class="sub">Players <b>make their own quirk</b>. The Forge rolls what their bloodline adds to it: how they <b>inherited</b> it, a creative <b>Quirk Factor</b>, a <b>Drawback</b>, and an <b>Awakening Seed</b> for later. Press <b>📌 Keep</b> to put a result on the Quirk Card. Everything is editable and saves in this browser.</p>
+
+  <div class="panel">
+    <div class="row" style="justify-content:space-between;margin-bottom:10px">
+      <h2 style="margin:0">🪪 Quirk Card</h2>
+      <div class="row"><button class="small" id="copyCard">📋 Copy card as text</button><button class="small" id="clearCard">Clear card</button></div>
+    </div>
+    <div class="card-grid">
+      <div class="fields">
+        <label class="f">Hero name<input id="c-hero" placeholder="e.g. Ignis"></label>
+        <label class="f">Quirk name<input id="c-quirk" placeholder="e.g. Ember Pulse"></label>
+        <label class="f">Quirk type<select id="c-type"><option>Emitter</option><option>Transformation</option><option>Mutant</option><option>Other</option></select></label>
+        <span></span>
+        <label class="f">Parent A's quirk<input id="c-pa" placeholder="e.g. Hellflame"></label>
+        <label class="f">Parent B's quirk<input id="c-pb" placeholder="e.g. Frost Skin"></label>
+        <label class="f wide">Your quirk (the player writes this)<textarea id="c-desc" rows="5" placeholder="What does it do? How does it look? What are its limits?"></textarea></label>
+      </div>
+      <div class="slots" id="slots"></div>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button data-tab="inheritance" class="on">🧬 Inheritance</button>
+    <button data-tab="factors">✨ Quirk Factors</button>
+    <button data-tab="drawbacks">⚠️ Drawbacks</button>
+    <button data-tab="awakening">🌱 Awakening</button>
+    <button data-tab="history">🕑 History</button>
+    <button data-tab="settings">⚙️ Rarities &amp; Save</button>
+  </div>
+
+  <section id="tab-inheritance"></section>
+  <section id="tab-factors" hidden></section>
+  <section id="tab-drawbacks" hidden></section>
+  <section id="tab-awakening" hidden></section>
+
+  <section id="tab-history" hidden>
+    <div class="panel">
+      <div class="row" style="justify-content:space-between">
+        <h2 style="margin:0">🕑 Everything You've Rolled</h2>
+        <div class="row">
+          <select class="auto" id="h-filter"><option value="">All</option></select>
+          <button class="small" id="h-clear">Clear history</button>
+        </div>
+      </div>
+      <p class="note">Saved in this browser (last 300 rolls). Click a row to open that result again.</p>
+      <div class="ed-wrap"><table class="log" id="h-log"></table></div>
+    </div>
+  </section>
+
+  <section id="tab-settings" hidden>
+    <div class="panel">
+      <h2>Rarity Weights</h2>
+      <p class="note">Shared by every tab. Higher weight = more common. A rarity with nothing in it is skipped.</p>
+      <div class="wgrid" id="weights"></div>
+    </div>
+    <div class="panel">
+      <h2>Save &amp; Share</h2>
+      <p class="note">Lists, the Quirk Card and history all save in this browser. Export a file to back it up or share your lists with players.</p>
+      <div class="row">
+        <button id="exportBtn">Export JSON</button>
+        <button id="importBtn">Import JSON</button>
+        <input type="file" id="importFile" accept=".json,application/json" hidden>
+        <button id="resetBtn">Reset lists to defaults</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+const STORE_KEY = "mha-quirk-forge-v1";
+const QUIRK_TYPES = ["Emitter", "Transformation", "Mutant"];
+
+const W = (name, rarity, who, effect, extra) => ({ name, rarity, who, effect, ...(extra || {}) });
+
+const DEFAULTS = {
+  version: 1,
+  rarities: [
+    { name: "Common", color: "#b8b8b8", weight: 40 },
+    { name: "Uncommon", color: "#4fd06b", weight: 28 },
+    { name: "Rare", color: "#3fa0ff", weight: 17 },
+    { name: "Epic", color: "#a66bff", weight: 9 },
+    { name: "Legendary", color: "#ffb52e", weight: 4.5 },
+    { name: "Mythical", color: "#ff4f6b", weight: 1.5 },
+  ],
+
+  // {A} and {B} become the parents' quirk names from the Quirk Card.
+  inheritance: [
+    W("Parent A's Line", "Common", "Standard inheritance",
+      "Your quirk comes from {A}. Build it around the same core power, then make it yours: a new angle, a new use, a new look.\n\nLegacy Bonus: you grew up watching {A} being trained. Once per session, gain advantage on a check to control or push your quirk.\nFamily Weakness: your drawback should echo {A}'s.", { std: "A" }),
+    W("Parent B's Line", "Common", "Standard inheritance",
+      "Your quirk comes from {B}. Build it around the same core power, then make it yours: a new angle, a new use, a new look.\n\nLegacy Bonus: you grew up watching {B} being trained. Once per session, gain advantage on a check to control or push your quirk.\nFamily Weakness: your drawback should echo {B}'s.", { std: "B" }),
+    W("Fusion", "Uncommon", "Standard inheritance",
+      "Your quirk blends {A} and {B}. Take one core element from each and fuse them into a single power (e.g. fire + ice → temperature control).\n\nHybrid Edge: once per scene, a technique that clearly uses both halves gets +2 to the roll.\nUnstable Mix: on a natural 1 with your quirk, one half misfires (the GM describes how).", { std: "F" }),
+    W("Mutation", "Rare", "Standard inheritance",
+      "Your quirk looks nothing like {A} or {B}. Something new woke up in you. Build any quirk you like; it only needs one tiny, hidden link to a parent (a colour, a sound, a feeling).\n\nWildcard Spark: roll one extra Quirk Factor.\nUnknown Ceiling: the GM secretly writes down one hidden ability your quirk has. You discover it in play.", { std: "M" }),
+    W("Throwback", "Epic", "Rare outcome",
+      "Your quirk skipped a generation. It comes from a grandparent the family doesn't talk about, and it's unlike {A} or {B}. Build it freely, then decide with the GM who that grandparent was.\n\nOld Power: +1 to all quirk rolls.\nFamily Secret: once per story arc, the GM reveals something about your grandparent's quirk that unlocks a new technique."),
+    W("Late Bloomer", "Epic", "Rare outcome",
+      "Everyone thought you were Quirkless. Then it showed up, years late. Build your quirk however you like; it may still hint at {A} or {B}.\n\nUnderdog: while you're outnumbered or below half HP, +2 to quirk rolls.\nUntapped: your first Awakening comes one step earlier than normal."),
+    W("Dual Inheritance", "Legendary", "Rare outcome",
+      "You inherited BOTH {A} and {B} as two separate quirks. Build two smaller quirks; each gets one extra limit of your choice (shorter range, longer cooldown, smaller area...).\n\nSwitch: changing which quirk is active costs a bonus action.\n⚠ Overload: using both in the same turn costs a level of exhaustion (or your system's equivalent)."),
+    W("Quirk Singularity", "Mythical", "Rare outcome",
+      "Quirks grow stronger each generation, and yours is the proof. Build your quirk from {A} and {B} combined, then make it bigger than either.\n\nGrowing Power: every few sessions (GM's call), your quirk gains a new feature without training.\n⚠ Runaway: when you fail a control check by 5 or more, your quirk acts on its own for 1 round."),
+    W("Vestige", "Mythical", "Rare outcome",
+      "A fragment of someone else lives inside your quirk: not family, a stranger from long ago. Build your quirk from {A} or {B} as normal, then create a small extra power with the GM that belongs to the vestige.\n\nVestige Voice: once per session, ask the vestige one question. The GM answers in character.\nBorrowed Power: once per long rest, use the vestige's power."),
+  ],
+
+  factors: [
+    // Common
+    W("Steady Output", "Common", "Any", "+1 to checks made to control or maintain your quirk."),
+    W("Quick Start", "Common", "Emitter, Transformation", "Activating your quirk costs no action the first time in each fight."),
+    W("Signature Look", "Common", "Any", "Your quirk has a striking visual. Advantage on Intimidation or Performance checks while it's active."),
+    W("Hardy Vessel", "Common", "Mutant, Transformation", "Your HP maximum increases by 1 per level."),
+    W("Second Nature", "Common", "Any", "You can use your quirk at a basic level even while asleep, distracted or restrained."),
+    // Uncommon
+    W("Wide Output", "Uncommon", "Emitter", "Once per scene, increase your quirk's range or area by half."),
+    W("Fine Control", "Uncommon", "Emitter, Transformation", "Once per scene, reroll a failed quirk control check."),
+    W("Adrenaline Link", "Uncommon", "Any", "+2 to quirk damage while you're below half HP."),
+    W("Combo Sense", "Uncommon", "Any", "When an ally uses their quirk within 10 ft of you, your next quirk roll gets +2."),
+    W("Mutant Instinct", "Uncommon", "Mutant", "Advantage on Perception checks that use your mutant senses or body."),
+    W("Quick Recovery", "Uncommon", "Any", "Your quirk's cooldown or recharge is one step shorter."),
+    // Rare
+    W("Plus Ultra", "Rare", "Any", "Once per long rest, push past your limit: double one number of your quirk (damage, range or duration). Afterwards, your drawback hits immediately."),
+    W("Afterimage", "Rare", "Emitter, Transformation", "After you use your quirk, attacks against you have disadvantage until the start of your next turn."),
+    W("Resonance", "Rare", "Any", "Pick an element (fire, water, electricity, metal...). When your quirk interacts with it, add +1d6 to the effect."),
+    W("Adaptive Body", "Rare", "Transformation, Mutant", "When the same damage type hits you twice in one fight, you gain resistance to it for the rest of that fight."),
+    W("Gear Synergy", "Rare", "Any", "Support gear built for your quirk counts as one tier better."),
+    // Epic
+    W("Emotional Trigger", "Epic", "Any", "Pick an emotion. When you feel it strongly (GM's call), your quirk gets +2 to all rolls for 1 minute."),
+    W("Quirk Echo", "Epic", "Emitter", "Once per turn, your quirk's effect repeats at half strength at the start of your next turn."),
+    W("Living Weapon", "Epic", "Mutant, Transformation", "Your quirk attacks score a critical hit on 19–20 and ignore resistance to their damage type."),
+    W("Overflow Reserve", "Epic", "Any", "Once per long rest, use your quirk without paying its drawback."),
+    // Legendary
+    W("Second Application", "Legendary", "Any", "Your quirk has a second use of your design, approved by the GM (e.g. a fire quirk that can also sense heat)."),
+    W("Unbreakable Will", "Legendary", "Any", "Once per session, ignore an effect that would erase, suppress, copy or take control of your quirk."),
+    W("Apex Form", "Legendary", "Transformation, Mutant", "Once per long rest, enter Apex Form for 1 minute: +2 AC, +10 ft speed, and +1d8 to quirk damage."),
+    // Mythical
+    W("Pre-Awakened", "Mythical", "Any", "Your quirk has already awakened once. Design one big new feature with the GM."),
+    W("No Ceiling", "Mythical", "Any", "Each time you level up, pick one number of your quirk (range, damage, duration, size) and increase it by 50%."),
+    W("Sovereign Field", "Mythical", "Emitter", "Once per long rest, your quirk floods the area: every creature you choose within 30 ft must make a save or be caught by its effect."),
+  ],
+
+  drawbacks: [
+    // Common
+    W("Cooldown", "Common", "Any", "After a full-power use, you can't use your quirk again until the end of your next turn."),
+    W("Strain", "Common", "Any", "Each full-power use of your quirk deals 1d4 damage to you."),
+    W("Tell", "Common", "Any", "Your quirk gives a clear sign before it activates (a glow, a sound, a smell). Enemies get +2 to react to your first use in each fight."),
+    W("Hungry Body", "Common", "Mutant, Transformation", "You need twice as much food. Skip a meal and you have disadvantage on quirk rolls until you eat."),
+    // Uncommon
+    W("Overheat", "Uncommon", "Emitter", "Use your quirk 3 turns in a row and you must rest for a turn, or take 2d6 damage."),
+    W("Sensory Overload", "Uncommon", "Mutant", "Loud noises and bright lights give you disadvantage on Perception and concentration checks."),
+    W("Fuel Source", "Uncommon", "Any", "Your quirk needs a resource (water, sugar, light, sound...). Without it, you can't use your quirk."),
+    W("Emotional Leak", "Uncommon", "Any", "Strong emotions make your quirk flare up on its own. The GM may ask for a control check."),
+    // Rare
+    W("Backlash", "Rare", "Emitter", "When a quirk attack misses, you take half the damage it would have dealt."),
+    W("Body Toll", "Rare", "Transformation, Mutant", "Staying transformed for more than 1 minute gives you a level of exhaustion."),
+    W("Range Lock", "Rare", "Emitter", "Your quirk only works at one kind of range. Pick touch only, or 10 ft and farther only."),
+    W("Visible Mutation", "Rare", "Mutant", "Your quirk makes you stand out. You can't disguise yourself, and civilians may react with fear."),
+    // Epic (drawbacks with an upside)
+    W("Berserk Edge", "Epic", "Mutant, Transformation", "While your quirk is active, you have disadvantage on saves against anger and fear, but your quirk attacks deal +1d6 damage."),
+    W("Breaking Point", "Epic", "Any", "Using your quirk at 100% breaks a bone (one limb is useless until healed), but that use deals double damage."),
+    // Legendary
+    W("Ticking Clock", "Legendary", "Any", "Your quirk is slowly harming you. After each long rest, roll a d20; on a 1, lose 1 max HP permanently. In exchange, +2 to all quirk rolls."),
+    W("Quirk Hunger", "Legendary", "Any", "Your quirk must feed on something (heat, emotions, other quirks...). If it hasn't fed today, -2 to quirk rolls; right after feeding, +2."),
+    // Mythical
+    W("Catastrophe Core", "Mythical", "Any", "If you drop to 0 HP while your quirk is active, it erupts out of control (the GM decides how). Once per story arc you may trigger this on purpose for a massive effect."),
+  ],
+
+  awakening: [
+    // Common
+    W("Desperate Stand", "Common", "Trigger: drop to 0 HP while protecting someone", "When you get back up, your quirk gains a new defensive use (design it with the GM)."),
+    W("Training Arc", "Common", "Trigger: train your quirk during 3 downtime sessions", "+1 permanently to quirk rolls, and one of your quirk's numbers improves by a step."),
+    W("Rival's Push", "Common", "Trigger: lose a fight to your rival", "Your quirk learns from how they beat you. Gain a counter-technique against their style."),
+    // Uncommon
+    W("Mentor's Words", "Uncommon", "Trigger: a mentor gives you advice at a key moment", "Your next three quirk rolls get +2, and you unlock one new technique."),
+    W("First Rescue", "Uncommon", "Trigger: save a civilian with your quirk", "Your quirk gains a rescue use (lifting, shielding, moving people)."),
+    // Rare
+    W("Parent's Echo", "Rare", "Trigger: face something {A} or {B} once fought", "A memory surfaces. You unlock a technique your parent used, adapted to your quirk."),
+    W("Overclock", "Rare", "Trigger: use Plus Ultra (or push past your limit) three times", "Your limit rises permanently. Your drawback triggers one step later."),
+    // Epic
+    W("Combination Move", "Epic", "Trigger: land a team attack with the same ally three times", "You and that ally gain a named combination move that deals +2d6 when you use it together."),
+    W("Dream of the Vestige", "Epic", "Trigger: fall unconscious during a big fight", "You dream of someone who held a power like yours. Wake up with a new technique (GM's design)."),
+    // Legendary
+    W("True Awakening", "Legendary", "Trigger: a moment of total despair or total resolve (GM's call)", "Your quirk evolves: pick a big new feature, and your drawback becomes half as severe."),
+    // Mythical
+    W("Singularity Point", "Mythical", "Trigger: the story's darkest moment", "Your quirk breaks every limit for one scene. Afterwards, keep one part of that power permanently."),
+  ],
+};
+
+// ---------------- state ----------------
+let uid = 0;
+const newId = () => "i" + Date.now().toString(36) + (uid++);
+const KINDS = ["inheritance", "factors", "drawbacks", "awakening"];
+function emptyCard() { return { hero: "", quirk: "", type: "Emitter", desc: "", pa: "", pb: "", kept: { inheritance: [], factors: [], drawbacks: [], awakening: [] } }; }
+function fromDefaults() {
+  const s = JSON.parse(JSON.stringify(DEFAULTS));
+  for (const k of KINDS) s[k].forEach(x => x.id = newId());
+  s.card = emptyCard(); s.history = [];
+  return s;
+}
+function valid(s) { return s && Array.isArray(s.rarities) && KINDS.every(k => Array.isArray(s[k])); }
+function normalize(s) {
+  s.card = Object.assign(emptyCard(), s.card || {});
+  s.card.kept = Object.assign(emptyCard().kept, s.card.kept || {});
+  s.history = Array.isArray(s.history) ? s.history : [];
+  for (const k of KINDS) s[k].forEach(x => { if (!x.id) x.id = newId(); });
+  return s;
+}
+let state;
+try { state = JSON.parse(localStorage.getItem(STORE_KEY)); } catch (e) { state = null; }
+state = normalize(valid(state) ? state : fromDefaults());
+function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} }
+
+// ---------------- helpers ----------------
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const rIdx = name => Math.max(0, state.rarities.findIndex(r => r.name === name));
+const rOf = x => state.rarities[rIdx(x.rarity)];
+const rColor = name => state.rarities[rIdx(name)].color;
+const byRarity = list => [...list].sort((a, b) => rIdx(a.rarity) - rIdx(b.rarity));
+const opts = (list, cur) => list.map(v => `<option ${v === cur ? "selected" : ""}>${esc(v)}</option>`).join("");
+const when = t => { const d = new Date(t), now = new Date(); const tm = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); return d.toDateString() === now.toDateString() ? tm : d.toLocaleDateString([], { month: "short", day: "numeric" }) + " " + tm; };
+const parentA = () => state.card.pa.trim() || "Parent A's quirk";
+const parentB = () => state.card.pb.trim() || "Parent B's quirk";
+const fill = t => String(t || "").replace(/\{A\}/g, parentA()).replace(/\{B\}/g, parentB());
+
+function rollFrom(list) {
+  const live = state.rarities.filter(r => r.weight > 0 && list.some(x => x.rarity === r.name));
+  if (!live.length) return pick(list);
+  const total = live.reduce((s, r) => s + Number(r.weight), 0);
+  let n = Math.random() * total;
+  for (const r of live) { n -= r.weight; if (n < 0) return pick(list.filter(x => x.rarity === r.name)); }
+  return pick(list.filter(x => x.rarity === live[0].name));
+}
+function ratesHtml(list) {
+  const live = state.rarities.filter(r => r.weight > 0 && list.some(x => x.rarity === r.name));
+  const total = live.reduce((s, r) => s + Number(r.weight), 0) || 1;
+  return state.rarities.map(r => {
+    const n = list.filter(x => x.rarity === r.name).length;
+    const pct = live.includes(r) ? (r.weight / total * 100) : 0;
+    return `<div class="rate"><b style="color:${r.color}">${esc(r.name)}</b><span>${pct > 0 && pct < 1 ? pct.toFixed(2) : pct.toFixed(1)}% · ${n} ${n === 1 ? "entry" : "entries"}</span></div>`;
+  }).join("");
+}
+function glow(card, rarity) {
+  card.classList.remove("g3", "g4", "g5");
+  const i = rIdx(rarity), n = state.rarities.length;
+  card.style.setProperty("--glow", state.rarities[i].color);
+  if (i === n - 1 && n > 3) card.classList.add("g5");
+  else if (i === n - 2 && n > 3) card.classList.add("g4");
+  else if (i === n - 3 && n > 3) card.classList.add("g3");
+}
+function targetOpts(sel) {
+  const cur = sel.value;
+  sel.innerHTML = state.rarities.map((r, i) => `<option value="${i}">${esc(r.name)}</option>`).join("");
+  sel.value = cur && Number(cur) < state.rarities.length ? cur : String(Math.max(0, state.rarities.length - 3));
+}
+function choiceHtml(list) {
+  return state.rarities.map(r => {
+    const items = list.filter(x => x.rarity === r.name);
+    return items.length ? `<optgroup label="${esc(r.name)}">${items.map(x => `<option value="${x.id}">${esc(x.name)}</option>`).join("")}</optgroup>` : "";
+  }).join("");
+}
+function fillSelect(sel, html) { const cur = sel.value; sel.innerHTML = html; if (cur && [...sel.options].some(o => o.value === cur)) sel.value = cur; }
+
+// ---------------- pools ----------------
+const POOLS = {
+  inheritance: { label: "Inheritance", short: "inheritance", icon: "🧬", who: "Outcome", whoPh: "Standard inheritance / Rare outcome", effectPh: "Use {A} and {B} for the parents' quirks", max: 1, spinWord: "Inheritance", subs: true },
+  factors:     { label: "Quirk Factor", short: "factor", icon: "✨", who: "Best for", whoPh: "Emitter, Transformation, Mutant or Any", effectPh: "What it adds to the player's quirk", max: 3, filter: true },
+  drawbacks:   { label: "Drawback", short: "drawback", icon: "⚠️", who: "Best for", whoPh: "Emitter, Transformation, Mutant or Any", effectPh: "The cost of using the quirk", max: 2, filter: true },
+  awakening:   { label: "Awakening Seed", short: "awakening seed", icon: "🌱", who: "Trigger", whoPh: "Trigger: what has to happen in the story", effectPh: "What the quirk gains when it awakens", max: 1, subs: true },
+};
+const fitsType = (x, t) => !t || /\bany\b/i.test(x.who || "") || new RegExp("\\b" + t + "\\b", "i").test(x.who || "");
+
+function buildPool(k) {
+  const P = POOLS[k];
+  const isInh = k === "inheritance";
+  $("tab-" + k).innerHTML = `
+    <div class="top">
+      <div class="panel card" id="${k}-card">
+        ${P.filter ? `<div class="row filter"><span class="note">Spin for quirk type:</span><select class="auto" id="${k}-type"><option value="">Any type</option>${QUIRK_TYPES.map(c => `<option>${c}</option>`).join("")}</select><span class="note">(follows the Quirk Card)</span></div>` : ""}
+        ${isInh ? `
+          <div class="inherit">
+            <div class="parentbox"><div class="lbl">Parent A</div><b id="inh-pa"></b></div><b>×</b>
+            <div class="parentbox"><div class="lbl">Parent B</div><b id="inh-pb"></b></div>
+          </div>
+          <div class="square" id="inh-square"></div>
+          <div class="special" id="inh-special">✦ RARE OUTCOME — the bloodline broke the pattern!</div>` : ""}
+        <div id="${k}-result"><p class="empty">Press <b>Spin ${P.spinWord || P.label}</b> to roll.</p></div>
+        <div class="row" style="margin-top:16px">
+          <button class="primary" id="${k}-spin">🎲 Spin ${P.spinWord || P.label}</button>
+          <button id="${k}-auto">Auto-spin until</button><select class="auto" id="${k}-target"></select><span class="note">or better</span>
+        </div>
+        <div class="note" id="${k}-count" style="margin-top:8px">Spins this session: 0</div>
+        <div class="row choose">
+          <span class="note" style="width:100%">Or choose exactly what you get:</span>
+          <select id="${k}-choose"></select>
+          <button id="${k}-take">✅ Take this ${P.short}</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h3 style="margin-top:0">Drop Rates <span id="${k}-rlabel"></span></h3><div class="rates" id="${k}-rates"></div>
+        <h3>Previous ${P.label.toLowerCase()} rolls</h3><div class="hist" id="${k}-hist"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="row" style="justify-content:space-between"><h2 style="margin:0">${P.label} Editor</h2><button class="small" id="${k}-add">+ Add ${P.short}</button></div>
+      <p class="note">Change anything: names, rarities and text. Spins use whatever is in this list.${P.subs ? " Write {A} and {B} to insert the parents' quirk names." : ""}${P.filter ? " Put quirk types (or Any) in “Best for” so the type filter can find it." : ""}</p>
+      <div class="ed-wrap"><table class="ed" id="${k}-ed"></table></div>
+    </div>`;
+
+  let spins = 0, auto = false;
+  const pool = () => P.filter ? state[k].filter(x => fitsType(x, $(k + "-type").value)) : state[k];
+
+  function renderSquare(hot, flash) {
+    if (!isInh) return;
+    $("inh-pa").textContent = parentA(); $("inh-pb").textContent = parentB();
+    const std = ["A", "B", "F", "M"].map(s => state.inheritance.find(x => x.std === s)).filter(Boolean);
+    $("inh-square").innerHTML = std.map(x => `<div data-sid="${x.id}" class="${hot === x.id ? "win" : flash === x.id ? "flash" : ""}" style="color:${rOf(x).color}">${esc(x.name)}<small>${esc(x.rarity)}</small></div>`).join("");
+  }
+
+  function show(item, chosen) {
+    const r = rOf(item);
+    $(k + "-result").innerHTML = `
+      <span class="badge" style="color:${r.color}">${esc(r.name)}</span>${chosen ? '<span class="tag">✅ Chosen</span>' : ""}
+      <div class="big" style="color:${r.color}">${esc(item.name)}</div>
+      <div class="who">${item.who ? `${esc(P.who)}: ${esc(fill(item.who))}` : ""}</div>
+      <div class="effect" style="--c:${r.color}">${esc(fill(item.effect)) || '<span class="note">No text written yet — add some in the editor below.</span>'}</div>
+      <div class="row" style="margin-top:10px"><button class="small keep" id="${k}-keep">📌 Keep on Quirk Card</button></div>`;
+    $(k + "-keep").onclick = () => keep(k, item);
+    glow($(k + "-card"), item.rarity);
+    if (isInh) {
+      renderSquare(item.std ? item.id : null);
+      $("inh-special").classList.toggle("on", !item.std);
+      $("inh-special").style.setProperty("--glow", r.color);
+    }
+  }
+
+  async function spin() {
+    const list = pool();
+    if (!list.length) { alert(`Nothing matches. Add a ${P.short} or change the filter.`); return null; }
+    $(k + "-spin").disabled = true;
+    const card = $(k + "-card");
+    card.classList.add("shake");
+    if (isInh) $("inh-special").classList.remove("on");
+    for (let t = 0; t < 13; t++) {
+      const f = pick(list), r = rOf(f);
+      $(k + "-result").innerHTML = `<span class="badge" style="color:${r.color}">${esc(r.name)}</span><div class="big" style="color:${r.color}">${esc(f.name)}</div>`;
+      if (isInh) renderSquare(null, f.id);
+      await sleep(65);
+    }
+    card.classList.remove("shake");
+    const item = rollFrom(list);
+    show(item, false);
+    spins++; $(k + "-count").textContent = `Spins this session: ${spins}`;
+    addHistory({ kind: k, id: item.id, name: item.name, rarity: item.rarity, chosen: false, extra: P.filter && $(k + "-type").value ? `For ${$(k + "-type").value}` : "" });
+    $(k + "-spin").disabled = false;
+    return item;
+  }
+
+  $(k + "-spin").onclick = spin;
+  $(k + "-auto").onclick = async () => {
+    if (auto) { auto = false; return; }
+    auto = true; $(k + "-auto").textContent = "⏹ Stop";
+    const target = Number($(k + "-target").value);
+    let guard = 0;
+    while (auto && guard++ < 500) { const it = await spin(); if (!it || rIdx(it.rarity) >= target) break; }
+    auto = false; $(k + "-auto").textContent = "Auto-spin until";
+  };
+  $(k + "-take").onclick = () => {
+    const item = state[k].find(x => x.id === $(k + "-choose").value);
+    if (!item) return;
+    show(item, true);
+    addHistory({ kind: k, id: item.id, name: item.name, rarity: item.rarity, chosen: true });
+  };
+  if (P.filter) $(k + "-type").onchange = () => { renderChoose(); renderRates(); };
+
+  function renderChoose() { fillSelect($(k + "-choose"), choiceHtml(pool())); }
+  function renderRates() {
+    $(k + "-rates").innerHTML = ratesHtml(pool());
+    $(k + "-rlabel").textContent = P.filter && $(k + "-type").value ? `(${$(k + "-type").value})` : "";
+  }
+  function renderEditor() {
+    const rn = state.rarities.map(r => r.name);
+    $(k + "-ed").innerHTML = `<tr><th>Name</th><th>Rarity</th><th>${esc(P.who)}</th><th>Text</th><th></th></tr>` +
+      byRarity(state[k]).map(x => `<tr data-id="${x.id}">
+        <td class="w-name"><input data-k="name" value="${esc(x.name)}">${x.std ? '<div class="note">Shown in the 2×2 square</div>' : ""}</td>
+        <td class="w-sel"><select data-k="rarity" style="color:${rOf(x).color}">${opts(rn, x.rarity)}</select></td>
+        <td class="w-who"><input data-k="who" value="${esc(x.who)}" placeholder="${esc(P.whoPh)}"></td>
+        <td><textarea data-k="effect" rows="${Math.min(9, Math.max(2, (x.effect || "").split("\n").length + 1))}" placeholder="${esc(P.effectPh)}">${esc(x.effect)}</textarea></td>
+        <td><button class="small" data-del title="Remove">✕</button></td></tr>`).join("");
+  }
+  const find = id => state[k].find(x => x.id === id);
+  $(k + "-ed").addEventListener("input", e => {
+    const tr = e.target.closest("tr[data-id]"), f = e.target.dataset.k; if (!tr || !f) return;
+    find(tr.dataset.id)[f] = e.target.value; save();
+    if (f === "name" || f === "who") { renderChoose(); renderRates(); renderSquare(); }
+    renderSlots();
+  });
+  $(k + "-ed").addEventListener("change", e => {
+    if (e.target.dataset.k === "rarity") { renderEditor(); renderChoose(); renderRates(); renderSquare(); renderSlots(); }
+  });
+  $(k + "-ed").addEventListener("click", e => {
+    if (!e.target.hasAttribute("data-del")) return;
+    const x = find(e.target.closest("tr").dataset.id);
+    if (!confirm(`Remove "${x.name}"?`)) return;
+    state[k] = state[k].filter(y => y !== x);
+    state.card.kept[k] = state.card.kept[k].filter(id => id !== x.id);
+    save(); refresh(); renderSlots();
+  });
+  $(k + "-add").onclick = () => {
+    state[k].push({ id: newId(), name: `New ${P.label}`, rarity: state.rarities[0].name, who: P.filter ? "Any" : "", effect: "" });
+    save(); refresh();
+  };
+
+  function setType(t) { if (P.filter) { $(k + "-type").value = QUIRK_TYPES.includes(t) ? t : ""; renderChoose(); renderRates(); } }
+  function refresh() { renderEditor(); renderChoose(); renderRates(); renderSquare(); targetOpts($(k + "-target")); }
+  return { refresh, show, setType, renderSquare };
+}
+
+// ---------------- Quirk Card ----------------
+const cardFields = { "c-hero": "hero", "c-quirk": "quirk", "c-type": "type", "c-desc": "desc", "c-pa": "pa", "c-pb": "pb" };
+function loadCard() { for (const [id, f] of Object.entries(cardFields)) $(id).value = state.card[f] || (f === "type" ? "Emitter" : ""); }
+for (const [id, f] of Object.entries(cardFields)) {
+  $(id).addEventListener("input", () => {
+    state.card[f] = $(id).value; save();
+    if (f === "pa" || f === "pb") { pools.inheritance.renderSquare(); renderSlots(); }
+    if (f === "type") { pools.factors.setType(state.card.type); pools.drawbacks.setType(state.card.type); }
+  });
+}
+function renderSlots() {
+  $("slots").innerHTML = KINDS.map(k => {
+    const P = POOLS[k];
+    const items = state.card.kept[k].map(id => state[k].find(x => x.id === id)).filter(Boolean);
+    return `<div class="slot"><h3><span>${P.icon} ${P.label}${P.max > 1 ? "s" : ""}</span><span>${items.length}/${P.max}</span></h3>
+      ${items.length ? items.map(x => `<div class="pick" style="--c:${rOf(x).color}"><div class="t"><span style="color:${rOf(x).color}">${esc(x.name)}</span>
+        <span><span class="tag">${esc(x.rarity)}</span><button class="x-btn" data-unkeep="${k}" data-id="${x.id}" title="Remove">✕</button></span></div>
+        <div class="d">${x.who && k === "awakening" ? esc(fill(x.who)) + "\n" : ""}${esc(fill(x.effect))}</div></div>`).join("")
+        : `<div class="empty note">Roll or choose, then press 📌 Keep.</div>`}</div>`;
+  }).join("");
+}
+$("slots").addEventListener("click", e => {
+  const b = e.target.closest("[data-unkeep]"); if (!b) return;
+  state.card.kept[b.dataset.unkeep] = state.card.kept[b.dataset.unkeep].filter(id => id !== b.dataset.id);
+  save(); renderSlots();
+});
+function keep(k, item) {
+  const list = state.card.kept[k], P = POOLS[k];
+  if (list.includes(item.id)) return alert("That's already on the Quirk Card.");
+  if (P.max === 1) state.card.kept[k] = [item.id];
+  else if (list.length >= P.max) return alert(`The Quirk Card already has ${P.max} ${P.label.toLowerCase()}s. Remove one first.`);
+  else list.push(item.id);
+  save(); renderSlots();
+}
+$("clearCard").onclick = () => {
+  if (!confirm("Clear the whole Quirk Card? (History is kept.)")) return;
+  state.card = emptyCard(); save(); loadCard(); renderSlots(); pools.inheritance.renderSquare();
+  pools.factors.setType(state.card.type); pools.drawbacks.setType(state.card.type);
+};
+function cardText() {
+  const c = state.card, out = [];
+  out.push(`${c.hero || "Unnamed Hero"} — Quirk: ${c.quirk || "(unnamed)"} [${c.type}]`);
+  if (c.pa || c.pb) out.push(`Parents: ${parentA()} × ${parentB()}`);
+  if (c.desc) out.push("", c.desc);
+  for (const k of KINDS) {
+    const items = c.kept[k].map(id => state[k].find(x => x.id === id)).filter(Boolean);
+    if (!items.length) continue;
+    out.push("", `${POOLS[k].label.toUpperCase()}${items.length > 1 ? "S" : ""}`);
+    for (const x of items) out.push(`• ${x.name} (${x.rarity})${k === "awakening" && x.who ? " — " + fill(x.who) : ""}`, fill(x.effect));
+  }
+  return out.join("\n");
+}
+$("copyCard").onclick = async () => {
+  const text = cardText();
+  try { await navigator.clipboard.writeText(text); $("copyCard").textContent = "✅ Copied!"; }
+  catch (e) { prompt("Copy your Quirk Card:", text); }
+  setTimeout(() => $("copyCard").textContent = "📋 Copy card as text", 1500);
+};
+
+// ---------------- history ----------------
+function addHistory(entry) {
+  state.history.unshift({ ...entry, at: Date.now() });
+  if (state.history.length > 300) state.history.length = 300;
+  save(); renderHistory();
+}
+function renderHistory() {
+  for (const k of KINDS) {
+    const rows = state.history.map((h, i) => [h, i]).filter(([h]) => h.kind === k).slice(0, 40);
+    $(k + "-hist").innerHTML = rows.length ? rows.map(([h, i]) => `<div data-hi="${i}"><span>${esc(h.name)}${h.chosen ? '<span class="tag">✅ chosen</span>' : ""}<span class="tag">${when(h.at)}</span></span><b style="color:${rColor(h.rarity)}">${esc(h.rarity)}</b></div>`).join("") : `<span class="empty">Nothing yet.</span>`;
+  }
+  const f = $("h-filter").value;
+  const all = state.history.map((h, i) => [h, i]).filter(([h]) => !f || h.kind === f);
+  $("h-log").innerHTML = `<tr><th>When</th><th>Type</th><th>Result</th><th>Rarity</th><th>How</th></tr>` +
+    (all.length ? all.map(([h, i]) => `<tr data-hi="${i}"><td class="note">${when(h.at)}</td><td>${POOLS[h.kind].icon} ${esc(POOLS[h.kind].label)}</td>
+      <td><b>${esc(h.name)}</b>${h.extra ? `<div class="note">${esc(h.extra)}</div>` : ""}</td>
+      <td><b style="color:${rColor(h.rarity)}">${esc(h.rarity)}</b></td><td class="note">${h.chosen ? "✅ Chosen" : "🎲 Spun"}</td></tr>`).join("")
+      : `<tr><td colspan="5" class="empty">No rolls yet. Go spin something!</td></tr>`);
+}
+$("h-filter").innerHTML += KINDS.map(k => `<option value="${k}">${POOLS[k].label}</option>`).join("");
+$("h-filter").onchange = renderHistory;
+$("h-clear").onclick = () => { if (confirm("Clear your whole roll history?")) { state.history = []; save(); renderHistory(); } };
+document.addEventListener("click", e => {
+  const d = e.target.closest("[data-hi]");
+  if (!d || !(d.closest(".hist") || d.closest("#h-log"))) return;
+  const h = state.history[Number(d.dataset.hi)]; if (!h) return;
+  const item = state[h.kind].find(x => x.id === h.id);
+  showTab(h.kind);
+  if (item) pools[h.kind].show(item, h.chosen); else alert(`"${h.name}" has since been removed from the list.`);
+});
+
+// ---------------- tabs ----------------
+let curTab = "inheritance";
+try { curTab = localStorage.getItem(STORE_KEY + ":tab") || "inheritance"; } catch (e) {}
+function showTab(t) {
+  if (!$("tab-" + t)) t = "inheritance";
+  curTab = t;
+  document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === t));
+  document.querySelectorAll("section[id^=tab-]").forEach(s => s.hidden = s.id !== "tab-" + t);
+  try { localStorage.setItem(STORE_KEY + ":tab", t); } catch (e) {}
+}
+$("tabs").onclick = e => { const b = e.target.closest("button"); if (b) showTab(b.dataset.tab); };
+
+// ---------------- settings ----------------
+function renderWeights() {
+  $("weights").innerHTML = state.rarities.map((r, i) => `<div style="background:var(--panel2);border-radius:10px;padding:8px 10px">
+    <b style="color:${r.color}">${esc(r.name)}</b><input type="number" min="0" step="0.1" value="${r.weight}" data-ri="${i}" style="margin-top:4px"></div>`).join("");
+}
+$("weights").addEventListener("input", e => {
+  const i = e.target.dataset.ri; if (i === undefined) return;
+  state.rarities[i].weight = Math.max(0, Number(e.target.value) || 0); save();
+  KINDS.forEach(k => pools[k].refresh());
+});
+$("exportBtn").onclick = () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "quirk-forge.json"; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+$("importBtn").onclick = () => $("importFile").click();
+$("importFile").onchange = async e => {
+  const file = e.target.files[0]; if (!file) return;
+  try {
+    const s = JSON.parse(await file.text());
+    if (!valid(s)) throw new Error("bad");
+    state = normalize(s); save(); renderAll();
+  } catch (err) { alert("That file doesn't look like a Quirk Forge export."); }
+  e.target.value = "";
+};
+$("resetBtn").onclick = () => {
+  if (!confirm("Reset all four lists to the defaults? Your list edits will be erased (the Quirk Card's text and history are kept).")) return;
+  const keepCard = state.card, keepHist = state.history;
+  state = fromDefaults(); state.history = keepHist;
+  state.card = Object.assign(keepCard, { kept: emptyCard().kept });
+  save(); renderAll();
+};
+
+const pools = Object.fromEntries(KINDS.map(k => [k, buildPool(k)]));
+function renderAll() {
+  loadCard();
+  KINDS.forEach(k => pools[k].refresh());
+  pools.factors.setType(state.card.type); pools.drawbacks.setType(state.card.type);
+  renderWeights(); renderHistory(); renderSlots();
+}
+renderAll();
+showTab(curTab);
+</script>
+</body>
+</html>
