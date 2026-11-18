@@ -261,22 +261,23 @@ const TYPE_NAME = { pure: "Pure", co: "Co-expressed", awakened: "Awakened", supp
 const MAX = { traits: 3, passives: 3 };
 
 const DEFAULTS = {
- "version": 1,
+ "version": 2,
  "rarities": [
   {
    "name": "Common",
    "color": "#b8b8b8",
    "weight": 50,
    "asi": [
+    1,
     1
    ],
    "traits": [
     1,
-    1
+    2
    ],
    "passives": [
     1,
-    1
+    2
    ]
   },
   {
@@ -284,15 +285,15 @@ const DEFAULTS = {
    "color": "#4fd06b",
    "weight": 28,
    "asi": [
-    1,
+    2,
     1
    ],
    "traits": [
-    1,
+    2,
     2
    ],
    "passives": [
-    1,
+    2,
     2
    ]
   },
@@ -300,23 +301,6 @@ const DEFAULTS = {
    "name": "Rare",
    "color": "#3fa0ff",
    "weight": 15,
-   "asi": [
-    2,
-    1
-   ],
-   "traits": [
-    2,
-    2
-   ],
-   "passives": [
-    2,
-    2
-   ]
-  },
-  {
-   "name": "Legendary",
-   "color": "#ffb52e",
-   "weight": 6,
    "asi": [
     2,
     1,
@@ -328,6 +312,24 @@ const DEFAULTS = {
    ],
    "passives": [
     2,
+    3
+   ]
+  },
+  {
+   "name": "Legendary",
+   "color": "#ffb52e",
+   "weight": 6,
+   "asi": [
+    2,
+    2,
+    1
+   ],
+   "traits": [
+    3,
+    3
+   ],
+   "passives": [
+    3,
     3
    ]
   },
@@ -338,7 +340,7 @@ const DEFAULTS = {
    "asi": [
     2,
     2,
-    1
+    2
    ],
    "traits": [
     3,
@@ -621,361 +623,361 @@ const DEFAULTS = {
    "name": "Hard Worker",
    "rarity": "Common",
    "who": "",
-   "effect": "Proficiency in one skill of your choice"
+   "effect": "Proficiency in one skill of your choice, and +1 to checks with it"
   },
   {
    "name": "Light Sleeper",
    "rarity": "Common",
    "who": "",
-   "effect": "You wake instantly and can't be surprised while sleeping"
+   "effect": "You wake instantly and can't be surprised while sleeping; +1 to initiative"
   },
   {
    "name": "Thick Skin",
    "rarity": "Common",
    "who": "",
-   "effect": "Your HP maximum increases by 2"
+   "effect": "Your HP maximum increases by 4"
   },
   {
    "name": "Quick Learner",
    "rarity": "Common",
    "who": "",
-   "effect": "Proficiency with one tool or language of your choice"
+   "effect": "Proficiency with two tools or languages of your choice"
   },
   {
    "name": "Charcoal Burner's Lungs",
    "rarity": "Common",
    "who": "",
-   "effect": "Advantage on saves against smoke, ash and suffocation."
+   "effect": "Advantage on saves against smoke, ash and suffocation, and you can hold your breath 3× as long."
   },
   {
    "name": "Farmhand's Grip",
    "rarity": "Common",
    "who": "",
-   "effect": "Advantage on checks and saves to keep hold of your weapon."
+   "effect": "Advantage on checks and saves to keep hold of your weapon, and +1 to grapple checks."
   },
   {
    "name": "Wisteria Upbringing",
    "rarity": "Common",
    "who": "",
-   "effect": "Proficiency in Nature; you can identify any poison or herb by smell."
+   "effect": "Proficiency in Nature; you can identify any poison or herb by smell, and you have advantage on saves against poison."
   },
   {
    "name": "Night Watch",
    "rarity": "Common",
    "who": "",
-   "effect": "Dim light doesn't impose disadvantage on your Perception checks."
+   "effect": "Dim light doesn't impose disadvantage on your Perception checks, and you get +1 to Perception."
   },
   {
    "name": "Kakushi Training",
    "rarity": "Common",
    "who": "",
-   "effect": "Proficiency in Stealth or Medicine (your choice)."
+   "effect": "Proficiency in Stealth and Medicine."
   },
   {
    "name": "Crow's Friend",
    "rarity": "Common",
    "who": "",
-   "effect": "+1 to initiative while your Kasugai crow is nearby."
+   "effect": "+2 to initiative while your Kasugai crow is nearby."
   },
   {
    "name": "Mountain Runner",
    "rarity": "Common",
    "who": "",
-   "effect": "Rough ground and slopes don't slow you down."
+   "effect": "Rough ground and slopes don't slow you down, and you get +5 ft walking speed."
   },
   {
    "name": "Hard Head",
    "rarity": "Common",
    "who": "",
-   "effect": "Advantage on saves against being stunned. Your headbutt deals 1d4 + STR bludgeoning."
+   "effect": "Advantage on saves against being stunned. Your headbutt deals 1d6 + STR bludgeoning."
   },
   {
    "name": "Big Appetite",
    "rarity": "Common",
    "who": "",
-   "effect": "Regain 1 extra HP for each Hit Die you spend on a short rest."
+   "effect": "Regain 2 extra HP for each Hit Die you spend on a short rest."
   },
   {
    "name": "Calm Breather",
    "rarity": "Common",
    "who": "",
-   "effect": "Advantage on Constitution saves to keep concentration."
+   "effect": "Advantage on Constitution saves to keep concentration, and +1 to Constitution saves."
   },
   {
    "name": "Village Healer",
    "rarity": "Common",
    "who": "",
-   "effect": "Proficiency with the herbalism kit."
+   "effect": "Proficiency with the herbalism kit. Salves and potions you apply heal +1d4 HP."
   },
   {
    "name": "Honest Face",
    "rarity": "Common",
    "who": "",
-   "effect": "Advantage on Persuasion checks with ordinary townsfolk."
+   "effect": "Advantage on Persuasion checks with townsfolk and Corps members."
   },
   {
    "name": "Keen Nose",
    "rarity": "Uncommon",
    "who": "",
-   "effect": "Advantage on Perception checks using smell; sense demons within 30 ft"
+   "effect": "Advantage on Perception checks using smell; sense demons within 60 ft"
   },
   {
    "name": "Iron Stomach",
    "rarity": "Uncommon",
    "who": "",
-   "effect": "Advantage on saves against poison"
+   "effect": "Advantage on saves against poison, and resistance to poison damage"
   },
   {
    "name": "Wild Instinct",
    "rarity": "Uncommon",
    "who": "",
-   "effect": "+1 AC while you're below half HP"
+   "effect": "+2 AC while you're below half HP"
   },
   {
    "name": "Steady Hands",
    "rarity": "Uncommon",
    "who": "",
-   "effect": "+1 to damage rolls with swords"
+   "effect": "+1 to attack and damage rolls with swords"
   },
   {
    "name": "Fox Mask Student",
    "rarity": "Uncommon",
    "who": "",
-   "effect": "+1 to attack rolls with your first Breathing Form each combat."
+   "effect": "+2 to attack rolls with your first Breathing Form each combat."
   },
   {
    "name": "Boar's Hide",
    "rarity": "Uncommon",
    "who": "",
-   "effect": "+1 AC while not wearing armor."
+   "effect": "+1 AC while not wearing armor, and advantage on saves against being knocked prone."
   },
   {
    "name": "Final Selection Survivor",
    "rarity": "Uncommon",
    "who": "",
-   "effect": "Advantage on saves against being frightened by demons."
+   "effect": "Advantage on saves against being frightened by demons, and +1 to all saves against demons' abilities."
   },
   {
    "name": "Thread Sense",
    "rarity": "Uncommon",
    "who": "",
-   "effect": "Advantage on checks to notice threads, webs and traps."
+   "effect": "Advantage on checks to notice threads, webs and traps; cutting a thread or web costs no action."
   },
   {
    "name": "Musical Ear",
    "rarity": "Uncommon",
    "who": "",
-   "effect": "Advantage on Insight checks when you can hear the target's voice or heartbeat."
+   "effect": "Advantage on Insight checks when you can hear the target's voice or heartbeat, and you can't be surprised."
   },
   {
    "name": "Lightning Reflexes",
    "rarity": "Uncommon",
    "who": "",
-   "effect": "+2 to initiative."
+   "effect": "+3 to initiative."
   },
   {
    "name": "Swordsmith's Favor",
    "rarity": "Uncommon",
    "who": "",
-   "effect": "Your Nichirin blade is finely honed: +1 to damage rolls with it."
+   "effect": "Your Nichirin blade is finely honed: +1 to attack and damage rolls with it."
   },
   {
    "name": "Scar Tissue",
    "rarity": "Uncommon",
    "who": "",
-   "effect": "When you take a critical hit, reduce the damage by 1d6."
+   "effect": "When you take a critical hit, reduce the damage by 2d6."
   },
   {
    "name": "Planted Feet",
    "rarity": "Uncommon",
    "who": "",
-   "effect": "Advantage on saves against being shoved or knocked prone."
+   "effect": "Advantage on saves against being shoved or knocked prone, and +2 to Athletics checks to shove."
   },
   {
    "name": "Kakushi Legs",
    "rarity": "Uncommon",
    "who": "",
-   "effect": "Dash as a bonus action once per short rest."
+   "effect": "Dash or Disengage as a bonus action once per short rest, and +5 ft walking speed."
   },
   {
    "name": "Enhanced Hearing",
    "rarity": "Rare",
    "who": "",
-   "effect": "You can't be surprised; hear heartbeats through walls within 30 ft"
+   "effect": "You can't be surprised; hear heartbeats through walls within 30 ft; +2 to initiative"
   },
   {
    "name": "Dense Muscles",
    "rarity": "Rare",
    "who": "",
-   "effect": "Count as one size larger for carrying, pushing and grappling"
+   "effect": "+1 Strength. Count as one size larger for carrying, pushing and grappling"
   },
   {
    "name": "Poison Blood",
    "rarity": "Rare",
    "who": "",
-   "effect": "A demon that bites you takes 2d6 poison damage"
+   "effect": "A demon that bites you takes 3d6 poison damage"
   },
   {
    "name": "Total Concentration Talent",
    "rarity": "Rare",
    "who": "",
-   "effect": "Start with Total Concentration Breathing unlocked"
+   "effect": "+1 Constitution, and you start with Total Concentration Breathing unlocked"
   },
   {
    "name": "Coloured Blade",
    "rarity": "Rare",
    "who": "",
-   "effect": "Your Nichirin blade changed colour for you. Once per turn, add 1d4 damage of your Breathing's element."
+   "effect": "Your Nichirin blade changed colour for you. Once per turn, add 1d6 damage of your Breathing's element."
   },
   {
    "name": "Hashira Candidate",
    "rarity": "Rare",
    "who": "",
-   "effect": "+1 to your Breathing Form save DCs."
+   "effect": "+2 to your Breathing Form save DCs."
   },
   {
    "name": "Shinobi Upbringing",
    "rarity": "Rare",
    "who": "",
-   "effect": "Resistance to poison damage; proficiency with explosives and thieves' tools."
+   "effect": "+1 Dexterity. Resistance to poison damage; proficiency with explosives and thieves' tools."
   },
   {
    "name": "Iron Body",
    "rarity": "Rare",
    "who": "",
-   "effect": "Your HP maximum increases by 1 per level, and you have advantage on Strength saves."
+   "effect": "Your HP maximum increases by 2 per level, and you have advantage on Strength saves."
   },
   {
    "name": "Spatial Awareness",
    "rarity": "Rare",
    "who": "",
-   "effect": "Creatures can't gain advantage on you from flanking or being unseen within 10 ft."
+   "effect": "Creatures can't gain advantage on you from flanking or being unseen within 10 ft, and you get +1 AC."
   },
   {
    "name": "Demon Eater",
    "rarity": "Rare",
    "who": "",
-   "effect": "Once per long rest, eat demon flesh to gain 2d10 temporary HP and darkvision 60 ft for 1 hour."
+   "effect": "Once per long rest, eat demon flesh to gain 3d10 temporary HP, +1 Strength and darkvision 60 ft for 1 hour."
   },
   {
    "name": "Swordsmith Village Bond",
    "rarity": "Rare",
    "who": "",
-   "effect": "Once per long rest, a swordsmith repairs or improves your blade instantly (+1 to hit for 1 hour)."
+   "effect": "Once per long rest, a swordsmith repairs or improves your blade instantly (+2 to hit for 1 hour)."
   },
   {
    "name": "Wisteria Veins",
    "rarity": "Rare",
    "who": "",
-   "effect": "Demons that bite you take 1d8 poison damage."
+   "effect": "Demons that bite you take 2d8 poison damage."
   },
   {
    "name": "Slayer Mark (Dormant)",
    "rarity": "Legendary",
    "who": "",
-   "effect": "When you drop below half HP, gain +2 to attack rolls and +10 ft speed for 1 minute (1/long rest)"
+   "effect": "When you drop below half HP, gain +2 to attack and damage rolls and +10 ft speed for 1 minute (1/long rest)"
   },
   {
    "name": "Prodigy",
    "rarity": "Legendary",
    "who": "",
-   "effect": "Learn new Breathing Forms one level earlier"
+   "effect": "Learn new Breathing Forms two levels earlier, and +1 to your Breathing Form save DCs"
   },
   {
    "name": "Marechi Blood",
    "rarity": "Legendary",
    "who": "",
-   "effect": "A demon that tastes your blood must pass a DC 14 CON save or be poisoned for 1 minute"
+   "effect": "A demon that tastes your blood must pass a DC 15 CON save or be poisoned for 1 minute"
   },
   {
    "name": "Flame Heart",
    "rarity": "Legendary",
    "who": "",
-   "effect": "Resistance to fire damage; advantage on saves against being frightened"
+   "effect": "Resistance to fire damage; advantage on saves against being frightened; your Breathing Forms deal +1d4 fire damage"
   },
   {
    "name": "Total Concentration: Constant",
    "rarity": "Legendary",
    "who": "",
-   "effect": "You breathe correctly even while asleep: advantage on saves against exhaustion, and regain 1 extra Hit Die on a short rest."
+   "effect": "+1 Constitution. You breathe correctly even while asleep: advantage on saves against exhaustion, and regain 1 extra Hit Die on a short rest."
   },
   {
    "name": "Slayer Mark (Awakened)",
    "rarity": "Legendary",
    "who": "",
-   "effect": "Below half HP the Mark appears for 1 minute: +10 ft speed, +2 to attacks, and regain 1d6 HP each turn (1/long rest)."
+   "effect": "Below half HP the Mark appears for 1 minute: +10 ft speed, +3 to attacks, and regain 2d6 HP each turn (1/long rest)."
   },
   {
    "name": "Selfless State",
    "rarity": "Legendary",
    "who": "",
-   "effect": "Demons can't sense your killing intent. Your first attack each combat has advantage and can't be reacted to."
+   "effect": "Demons can't sense your killing intent. Your first attack each combat has advantage, can't be reacted to, and deals +2d6 damage."
   },
   {
    "name": "Hashira Pedigree",
    "rarity": "Legendary",
    "who": "",
-   "effect": "+1 to two ability scores. Hashira treat you as a promising junior."
+   "effect": "+2 to one ability score and +1 to another (max 22). Hashira treat you as a promising junior."
   },
   {
    "name": "Exploding Blood",
    "rarity": "Legendary",
    "who": "",
-   "effect": "Once per short rest, ignite your own blood: 2d8 fire damage to demons within 10 ft. It never burns humans."
+   "effect": "Once per short rest, ignite your own blood: 3d8 fire damage to demons within 10 ft. It never burns humans."
   },
   {
    "name": "Upper Moon Survivor",
    "rarity": "Legendary",
    "who": "",
-   "effect": "Advantage on saving throws against Blood Demon Arts."
+   "effect": "Advantage on saving throws against Blood Demon Arts, and resistance to their damage."
   },
   {
    "name": "See-Through World",
    "rarity": "Mythical",
    "who": "",
-   "effect": "Your weapon attacks score a critical hit on a roll of 19–20"
+   "effect": "Your weapon attacks score a critical hit on a roll of 18–20"
   },
   {
    "name": "Born Slayer Mark",
    "rarity": "Mythical",
    "who": "",
-   "effect": "You permanently bear the Mark: +10 ft speed and +1 to attack rolls"
+   "effect": "You permanently bear the Mark: +10 ft speed, +2 to attack and damage rolls, and advantage on Constitution saves"
   },
   {
    "name": "Sun Lineage",
    "rarity": "Mythical",
    "who": "",
-   "effect": "Access to Sun Breathing; demons you hit can't regenerate until the start of your next turn"
+   "effect": "Access to Sun Breathing; your Breathing Forms deal +1d8 radiant damage to demons; demons you hit can't regenerate until the start of your next turn"
   },
   {
    "name": "Red Nichirin Affinity",
    "rarity": "Mythical",
    "who": "",
-   "effect": "Your blade turns crimson: +1d6 radiant damage against demons"
+   "effect": "Your blade turns crimson: +2d6 radiant damage against demons"
   },
   {
    "name": "Thirteen Forms Memory",
    "rarity": "Mythical",
    "who": "",
-   "effect": "Once per long rest, use any Breathing Form you have ever seen, as if you knew it."
+   "effect": "Once per short rest, use any Breathing Form you have ever seen, as if you knew it."
   },
   {
    "name": "Crimson Will",
    "rarity": "Mythical",
    "who": "",
-   "effect": "Turn your blade red at will. Demons you hit can't regenerate for 1 minute."
+   "effect": "Turn your blade red at will. Demons you hit can't regenerate for 1 minute and take +1d6 radiant damage."
   },
   {
    "name": "Demon King's Bane",
    "rarity": "Mythical",
    "who": "",
-   "effect": "The first time a demon of CR 10+ sees you, it must pass a DC 17 WIS save or be frightened for 1 minute."
+   "effect": "The first time a demon of CR 10+ sees you, it must pass a DC 18 WIS save or be frightened for 1 minute. Your attacks deal +2d6 damage to frightened demons."
   },
   {
    "name": "Heaven's Body",
    "rarity": "Mythical",
    "who": "",
-   "effect": "+2 Strength and +2 Dexterity (max 22), and you make one additional attack when you take the Attack action."
+   "effect": "+2 Strength and +2 Dexterity (max 22), and you make one additional attack when you take the Attack action. +10 ft walking speed."
   }
  ],
  "passives": [
@@ -983,289 +985,289 @@ const DEFAULTS = {
    "name": "Second Wind",
    "rarity": "Common",
    "who": "",
-   "effect": "Bonus action: regain 1d10 + your level in HP (1/long rest)"
+   "effect": "Bonus action: regain 2d8 + your level in HP (1/long rest)"
   },
   {
    "name": "Footwork",
    "rarity": "Common",
    "who": "",
-   "effect": "+5 ft walking speed"
+   "effect": "+10 ft walking speed"
   },
   {
    "name": "Grit",
    "rarity": "Common",
    "who": "",
-   "effect": "Advantage on saves against exhaustion"
+   "effect": "Advantage on saves against exhaustion, and +1 to Constitution saves"
   },
   {
    "name": "Steady Stance",
    "rarity": "Common",
    "who": "",
-   "effect": "+1 AC until your next turn if you didn't move this turn."
+   "effect": "+2 AC until your next turn if you didn't move this turn."
   },
   {
    "name": "Quick Sheath",
    "rarity": "Common",
    "who": "",
-   "effect": "Drawing or sheathing your blade takes no action."
+   "effect": "Drawing or sheathing your blade takes no action, and you get +1 to initiative."
   },
   {
    "name": "Battle Cry",
    "rarity": "Common",
    "who": "",
-   "effect": "Bonus action: allies within 30 ft gain +1 to their next saving throw (1/short rest)."
+   "effect": "Bonus action: allies within 30 ft gain +2 to their next saving throw (1/short rest)."
   },
   {
    "name": "Patch Up",
    "rarity": "Common",
    "who": "",
-   "effect": "Stabilize a dying creature as a bonus action."
+   "effect": "Stabilize a dying creature as a bonus action; it also regains 1d4 HP."
   },
   {
    "name": "Deep Breath",
    "rarity": "Common",
    "who": "",
-   "effect": "Bonus action: regain 1d4 HP (1/short rest)."
+   "effect": "Bonus action: regain 1d8 HP (1/short rest)."
   },
   {
    "name": "Shoulder Check",
    "rarity": "Common",
    "who": "",
-   "effect": "Shove a creature as a bonus action after you hit it."
+   "effect": "Shove a creature as a bonus action after you hit it, pushing it up to 10 ft."
   },
   {
    "name": "Scout's Eye",
    "rarity": "Common",
    "who": "",
-   "effect": "You can't be surprised in forests or mountains."
+   "effect": "You can't be surprised in forests or mountains, and +2 to Perception there."
   },
   {
    "name": "Low Stance",
    "rarity": "Common",
    "who": "",
-   "effect": "Ranged attacks against you have -1 to hit while you're crouched."
+   "effect": "Ranged attacks against you have -2 to hit while you're crouched."
   },
   {
    "name": "Night Runner",
    "rarity": "Common",
    "who": "",
-   "effect": "+5 ft speed between dusk and dawn."
+   "effect": "+10 ft speed between dusk and dawn."
   },
   {
    "name": "Counter Stance",
    "rarity": "Uncommon",
    "who": "",
-   "effect": "Reaction: when a creature misses you with a melee attack, make one melee attack against it (1/short rest)"
+   "effect": "Reaction: when a creature misses you with a melee attack, make one melee attack against it (2/short rest)"
   },
   {
    "name": "Breath Recovery",
    "rarity": "Uncommon",
    "who": "",
-   "effect": "Regain one expended Breathing Form use when you finish a short rest"
+   "effect": "Regain two expended Breathing Form use when you finish a short rest"
   },
   {
    "name": "Adrenaline",
    "rarity": "Uncommon",
    "who": "",
-   "effect": "+2 to damage rolls while you're below half HP"
+   "effect": "+3 to damage rolls while you're below half HP"
   },
   {
    "name": "Flowing Strike",
    "rarity": "Uncommon",
    "who": "",
-   "effect": "After you miss with a melee attack, your next attack gets +2."
+   "effect": "After you miss with a melee attack, your next attack gets +3."
   },
   {
    "name": "Wind Blade",
    "rarity": "Uncommon",
    "who": "",
-   "effect": "Your first Breathing Form each turn has +5 ft reach."
+   "effect": "Your first Breathing Form each turn has +5 ft reach and +1 to hit."
   },
   {
    "name": "Flame Momentum",
    "rarity": "Uncommon",
    "who": "",
-   "effect": "Each consecutive hit on the same target adds +1 damage (max +3)."
+   "effect": "Each consecutive hit on the same target adds +1 damage (max +4)."
   },
   {
    "name": "Constant Breathing",
    "rarity": "Uncommon",
    "who": "",
-   "effect": "The first level of exhaustion has no effect on you."
+   "effect": "The first two levels of exhaustion have no effect on you."
   },
   {
    "name": "Moonlit Step",
    "rarity": "Uncommon",
    "who": "",
-   "effect": "+10 ft speed while in moonlight."
+   "effect": "+15 ft speed and advantage on Stealth while in moonlight."
   },
   {
    "name": "Twin Fang",
    "rarity": "Uncommon",
    "who": "",
-   "effect": "Add your ability modifier to off-hand damage when fighting with two blades."
+   "effect": "Add your ability modifier to off-hand damage when fighting with two blades, and +1 damage with each."
   },
   {
    "name": "Guard Break",
    "rarity": "Uncommon",
    "who": "",
-   "effect": "When you hit a blocking or shielded creature, it loses its reaction."
+   "effect": "When you hit a blocking or shielded creature, it loses its reaction and takes +1d4 damage."
   },
   {
    "name": "Water Wheel",
    "rarity": "Uncommon",
    "who": "",
-   "effect": "After you dodge an attack, move 10 ft without provoking opportunity attacks."
+   "effect": "After you dodge an attack, move 15 ft without provoking opportunity attacks."
   },
   {
    "name": "Thunderclap",
    "rarity": "Rare",
    "who": "",
-   "effect": "Your first attack in each combat has advantage and deals +2d6 damage"
+   "effect": "Your first attack in each combat has advantage and deals +3d6 damage"
   },
   {
    "name": "Butterfly Dance",
    "rarity": "Rare",
    "who": "",
-   "effect": "After you take the Dodge action, your next attack has advantage"
+   "effect": "After you take the Dodge action, your next attack has advantage and +2 damage"
   },
   {
    "name": "Still Water",
    "rarity": "Rare",
    "who": "",
-   "effect": "Reaction: reduce the damage from one melee attack by 1d10 + your DEX modifier"
+   "effect": "Reaction: reduce the damage from one melee attack by 2d8 + your DEX modifier"
   },
   {
    "name": "Dance of the Fire God",
    "rarity": "Rare",
    "who": "",
-   "effect": "When you roll initiative, your attacks deal +1d6 fire damage for 1 minute (1/long rest)."
+   "effect": "When you roll initiative, your attacks deal +1d8 fire damage for 1 minute (1/long rest)."
   },
   {
    "name": "Whirlpool Guard",
    "rarity": "Rare",
    "who": "",
-   "effect": "Reaction: when a projectile targets you, cut it down (no damage) once per round."
+   "effect": "Reaction: when a projectile targets you, cut it down (no damage) once per round, and fling the pieces at a creature within 30 ft (1d8)."
   },
   {
    "name": "Mist Clouds",
    "rarity": "Rare",
    "who": "",
-   "effect": "After you use a Breathing Form, you're lightly obscured until your next turn."
+   "effect": "After you use a Breathing Form, you're lightly obscured and get +1 AC until your next turn."
   },
   {
    "name": "Fang Ripper",
    "rarity": "Rare",
    "who": "",
-   "effect": "While wielding two blades, your critical hit range is 19–20."
+   "effect": "While wielding two blades, your critical hit range is 19–20 and each blade deals +1 damage."
   },
   {
    "name": "Serpentine Strike",
    "rarity": "Rare",
    "who": "",
-   "effect": "Your attacks ignore half and three-quarters cover."
+   "effect": "+1 to attack rolls, and your attacks ignore half and three-quarters cover."
   },
   {
    "name": "Whip Blade Reach",
    "rarity": "Rare",
    "who": "",
-   "effect": "Your flexible blade has 15 ft reach."
+   "effect": "Your flexible blade has 15 ft reach and +1 to hit."
   },
   {
    "name": "Insect Sting",
    "rarity": "Rare",
    "who": "",
-   "effect": "Your thrusts stack poison: each hit on a demon adds 1d4 poison damage at the start of its turn (max 3d4)."
+   "effect": "Your thrusts stack poison: each hit on a demon adds 1d6 poison damage at the start of its turn (max 4d6)."
   },
   {
    "name": "Set Your Heart Ablaze",
    "rarity": "Legendary",
    "who": "",
-   "effect": "While below half HP, you have advantage on attack rolls and can't be frightened"
+   "effect": "While below half HP, you have advantage on attack rolls, +2 to damage, and can't be frightened"
   },
   {
    "name": "Mist Veil",
    "rarity": "Legendary",
    "who": "",
-   "effect": "After you use a Breathing Form, attacks against you have disadvantage until the start of your next turn"
+   "effect": "After you use a Breathing Form, attacks against you have disadvantage until the start of your next turn, and you get +10 ft speed"
   },
   {
    "name": "Sound Score",
    "rarity": "Legendary",
    "who": "",
-   "effect": "After you hit the same creature 3 times, you crit it on 19–20 for 1 minute"
+   "effect": "After you hit the same creature 3 times, you crit it on 18–20 for 1 minute"
   },
   {
    "name": "Ninth Form: Rengoku",
    "rarity": "Legendary",
    "who": "",
-   "effect": "Once per long rest, charge in a straight line up to 60 ft and deal an extra 8d10 fire damage to one creature."
+   "effect": "Once per long rest, charge in a straight line up to 60 ft and deal an extra 10d10 fire damage to one creature."
   },
   {
    "name": "Dead Calm",
    "rarity": "Legendary",
    "who": "",
-   "effect": "For 2 rounds, any melee attack that would hit you is cut down instead (1/long rest)."
+   "effect": "For 3 rounds, any melee attack that would hit you is cut down instead (1/long rest)."
   },
   {
    "name": "Volcanic Rock Guard",
    "rarity": "Legendary",
    "who": "",
-   "effect": "While you're wielding a flail or heavy weapon, you have resistance to bludgeoning and slashing damage."
+   "effect": "While you're wielding a flail or heavy weapon, you have resistance to bludgeoning and slashing damage and +1 AC."
   },
   {
    "name": "Idaten Typhoon",
    "rarity": "Legendary",
    "who": "",
-   "effect": "Once per short rest, leap and slash everything within 15 ft (Dex save, 6d8 slashing)."
+   "effect": "Once per short rest, leap and slash everything within 15 ft (Dex save, 8d8 slashing)."
   },
   {
    "name": "Honoikazuchi no Kami",
    "rarity": "Legendary",
    "who": "",
-   "effect": "Once per long rest, a dragon of lightning: move 90 ft in a line and deal 10d6 lightning to one target."
+   "effect": "Once per long rest, a dragon of lightning: move 90 ft in a line and deal 12d6 lightning to one target."
   },
   {
    "name": "Hinokami Kagura",
    "rarity": "Mythical",
    "who": "",
-   "effect": "Chain two Breathing Forms in a single action (1/short rest)"
+   "effect": "Chain up to three Breathing Forms in a single action (1/short rest)"
   },
   {
    "name": "Transparent World",
    "rarity": "Mythical",
    "who": "",
-   "effect": "Your attacks ignore resistance to slashing damage"
+   "effect": "Your attacks ignore resistance and immunity to slashing damage, and deal +1d6 slashing"
   },
   {
    "name": "Sunlight Will",
    "rarity": "Mythical",
    "who": "",
-   "effect": "Demons you hit can't regenerate for 1 minute"
+   "effect": "Demons you hit can't regenerate for 1 minute and take +1d8 radiant damage from you"
   },
   {
    "name": "Sunflower Thrust",
    "rarity": "Mythical",
    "who": "",
-   "effect": "Your first attack each combat can't miss."
+   "effect": "Your first attack each combat can't miss and is a critical hit."
   },
   {
    "name": "Dragon Sun Halo",
    "rarity": "Mythical",
    "who": "",
-   "effect": "Once per turn, a Breathing Form you use also hits every demon within 10 ft of the target."
+   "effect": "Once per turn, a Breathing Form you use also hits every demon within 10 ft of the target, dealing +1d8 radiant damage to each."
   },
   {
    "name": "Thirteenth Form",
    "rarity": "Mythical",
    "who": "",
-   "effect": "Once per long rest, chain every form you know into one action. A demon reduced to 0 HP this way can't be revived."
+   "effect": "Once per long rest, chain every form you know into one action, adding +4d10 radiant damage. A demon reduced to 0 HP this way can't be revived."
   },
   {
    "name": "Beneficent Radiance",
    "rarity": "Mythical",
    "who": "",
-   "effect": "When you drop to 0 HP, roll a d20; on 10+ you drop to 1 HP instead and your next attack is a critical hit."
+   "effect": "When you drop to 0 HP, roll a d20; on 8+ you drop to 1 HP instead and your next attack is a critical hit."
   }
  ],
  "genes": {
@@ -1276,8 +1278,8 @@ const DEFAULTS = {
     "category": "Race",
     "rarity": "Common",
     "dominance": "Dominant",
-    "bonus": "+1 to one ability score of your choice\nProficiency in one skill of your choice\nCan learn any Breathing Style",
-    "pureBonus": "+1 to two ability scores of your choice\nIndomitable Will: when you drop to 0 HP but aren't killed outright, drop to 1 HP instead (1/long rest)"
+    "bonus": "+1 to two ability scores of your choice\nProficiency in one skill of your choice\nCan learn any Breathing Style",
+    "pureBonus": "+1 to two more ability scores of your choice\nIndomitable Will: when you drop to 0 HP but aren't killed outright, drop to 1 HP instead (1/long rest)"
    },
    {
     "code": "Hs",
@@ -1285,7 +1287,7 @@ const DEFAULTS = {
     "category": "Lineage",
     "rarity": "Common",
     "dominance": "Codominant",
-    "bonus": "+1 Constitution\nAdvantage on saves against being knocked prone",
+    "bonus": "+1 Constitution, +1 Strength\nAdvantage on saves against being knocked prone",
     "pureBonus": "+1 Constitution; HP max +1 per level\nAdvantage on saves against prone and exhaustion"
    },
    {
@@ -1294,7 +1296,7 @@ const DEFAULTS = {
     "category": "Mutation",
     "rarity": "Common",
     "dominance": "Recessive",
-    "bonus": "Proficiency in Perception\n+1 to initiative",
+    "bonus": "Proficiency in Perception\n+2 to initiative",
     "pureBonus": "Expertise in Perception\nAdvantage on checks to find hidden or invisible creatures"
    },
    {
@@ -1303,7 +1305,7 @@ const DEFAULTS = {
     "category": "Mutation",
     "rarity": "Common",
     "dominance": "Recessive",
-    "bonus": "+1 Constitution\nHold your breath 3× as long as normal",
+    "bonus": "+1 Constitution, +1 Wisdom\nHold your breath 3× as long as normal",
     "pureBonus": "Hold your breath for up to 1 hour\nRegain one expended Breathing Form use when you finish a short rest"
    },
    {
@@ -1312,8 +1314,8 @@ const DEFAULTS = {
     "category": "Lineage",
     "rarity": "Common",
     "dominance": "Dominant",
-    "bonus": "+1 Strength\nCarrying capacity doubled",
-    "pureBonus": "+1 Strength, +1 Constitution\nAdvantage on Athletics checks to grapple or shove"
+    "bonus": "+1 Strength, +1 Constitution\nCarrying capacity doubled",
+    "pureBonus": "+2 Strength\nAdvantage on Athletics checks to grapple or shove"
    },
    {
     "code": "Mb",
@@ -1321,7 +1323,7 @@ const DEFAULTS = {
     "category": "Lineage",
     "rarity": "Common",
     "dominance": "Codominant",
-    "bonus": "+1 Constitution\nResistance to cold damage; acclimated to high altitude",
+    "bonus": "+1 Constitution\nResistance to cold damage; acclimated to high altitude; +5 ft walking speed",
     "pureBonus": "Climbing speed equal to your walking speed\nSnow, ice and rocky difficult terrain cost no extra movement"
    },
    {
@@ -1330,7 +1332,7 @@ const DEFAULTS = {
     "category": "Lineage",
     "rarity": "Common",
     "dominance": "Recessive",
-    "bonus": "Proficiency with smith's tools\nYour blade can't be broken by nonmagical means",
+    "bonus": "Proficiency with smith's tools\nYour blade can't be broken by nonmagical means, and +1 to damage rolls with swords",
     "pureBonus": "+1 to attack rolls with swords\nRepair a broken Nichirin blade during a short rest"
    },
    {
@@ -1339,7 +1341,7 @@ const DEFAULTS = {
     "category": "Mutation",
     "rarity": "Uncommon",
     "dominance": "Recessive",
-    "bonus": "Proficiency in Insight; advantage on Insight checks to detect lies\nYou know the direction of any demon within 60 ft",
+    "bonus": "+1 Wisdom. Proficiency in Insight; advantage on Insight checks to detect lies\nYou know the direction of any demon within 60 ft",
     "pureBonus": "Blindsight 15 ft (scent)\nOpening Thread: once per short rest, your next melee hit against a demon is a critical hit"
    },
    {
@@ -1348,7 +1350,7 @@ const DEFAULTS = {
     "category": "Mutation",
     "rarity": "Uncommon",
     "dominance": "Recessive",
-    "bonus": "Advantage on Perception checks that rely on hearing\nYou can't be surprised while conscious",
+    "bonus": "Advantage on Perception checks that rely on hearing\nYou can't be surprised while conscious; +1 to initiative",
     "pureBonus": "+1 Dexterity\nHeartbeat Reading (bonus action): learn whether a creature within 30 ft is below half HP, and gain advantage on Insight checks against it"
    },
    {
@@ -1357,7 +1359,7 @@ const DEFAULTS = {
     "category": "Mutation",
     "rarity": "Uncommon",
     "dominance": "Recessive",
-    "bonus": "+1 Dexterity\nTremorsense 10 ft",
+    "bonus": "+1 Dexterity\nTremorsense 15 ft",
     "pureBonus": "Tremorsense 30 ft\nBeing blinded doesn't impose disadvantage on your attacks against creatures within 30 ft"
    },
    {
@@ -1366,7 +1368,7 @@ const DEFAULTS = {
     "category": "Lineage",
     "rarity": "Uncommon",
     "dominance": "Dominant",
-    "bonus": "+1 Dexterity\nProficiency in Stealth\nResistance to poison damage",
+    "bonus": "+1 Dexterity, +1 Wisdom\nProficiency in Stealth\nResistance to poison damage",
     "pureBonus": "+1 Dexterity, +1 Intelligence\nImmune to poison damage and the poisoned condition\nCraft 1d4 explosive kunai per long rest (2d6 fire, 10 ft radius, DC 13 DEX save for half)"
    },
    {
@@ -1376,7 +1378,7 @@ const DEFAULTS = {
     "rarity": "Uncommon",
     "dominance": "Codominant",
     "bonus": "+1 Constitution\nHP max +1 per level",
-    "pureBonus": "+2 Constitution\nAdvantage on saves against being stunned or knocked unconscious"
+    "pureBonus": "+2 Constitution (max 21)\nAdvantage on saves against being stunned or knocked unconscious"
    },
    {
     "code": "Fj",
@@ -1384,7 +1386,7 @@ const DEFAULTS = {
     "category": "Mutation",
     "rarity": "Uncommon",
     "dominance": "Recessive",
-    "bonus": "+1 Dexterity\nProficiency in Acrobatics",
+    "bonus": "+1 Dexterity\nProficiency in Acrobatics; advantage on checks to escape grapples",
     "pureBonus": "Expertise in Acrobatics\nAdvantage on checks to escape grapples and restraints; squeeze through spaces as if you were Small"
    },
    {
@@ -1402,7 +1404,7 @@ const DEFAULTS = {
     "category": "Lineage",
     "rarity": "Uncommon",
     "dominance": "Codominant",
-    "bonus": "Proficiency with the herbalism kit\nDemons of CR 2 or lower have disadvantage on attack rolls against you",
+    "bonus": "Proficiency with the herbalism kit\nDemons of CR 3 or lower have disadvantage on attack rolls against you",
     "pureBonus": "Wisteria Aura: demons of CR 4 or lower must pass a DC 13 WIS save to willingly move within 10 ft of you\nAllies within 10 ft regain 1 extra HP per Hit Die they spend"
    },
    {
@@ -1412,7 +1414,7 @@ const DEFAULTS = {
     "rarity": "Uncommon",
     "dominance": "Recessive",
     "bonus": "A Kasugai crow companion (raven stat block) that can speak and carry messages\nYou can see through its eyes as an action",
-    "pureBonus": "Your crow can use its reaction to impose disadvantage on one attack against a creature within 5 ft of it (1/short rest)"
+    "pureBonus": "Your crow can use its reaction to impose disadvantage on one attack against a creature within 5 ft of it (2/short rest)"
    },
    {
     "code": "De",
@@ -1420,7 +1422,7 @@ const DEFAULTS = {
     "category": "Race",
     "rarity": "Rare",
     "dominance": "Dominant",
-    "bonus": "+2 Strength, +1 Constitution\nDarkvision 60 ft\nRegeneration: at the start of your turn, regain HP equal to your CON modifier if you have at least 1 HP\nLearn one Blood Demon Art\n⚠ Sunlight Hypersensitivity: take 10 radiant damage at the start of each turn in sunlight, and you can't regenerate there\n⚠ Can't use Breathing Styles",
+    "bonus": "+2 Strength, +2 Constitution\nDarkvision 60 ft\nRegeneration: at the start of your turn, regain HP equal to your CON modifier + 2 if you have at least 1 HP\nLearn one Blood Demon Art\n⚠ Sunlight Hypersensitivity: take 10 radiant damage at the start of each turn in sunlight, and you can't regenerate there\n⚠ Can't use Breathing Styles",
     "pureBonus": "+2 Strength, +2 Constitution\nDarkvision 120 ft\nRegeneration doubles, and severed limbs regrow over 1 minute\n⚠ Sunlight deals 20 radiant damage per turn and also lowers your HP max by that amount until a long rest"
    },
    {
@@ -1429,7 +1431,7 @@ const DEFAULTS = {
     "category": "Blood",
     "rarity": "Rare",
     "dominance": "Recessive",
-    "bonus": "+1 Constitution\nA demon that bites you or tastes your blood must pass a DC 13 CON save or be poisoned until the end of its next turn",
+    "bonus": "+1 Constitution, +1 Charisma\nA demon that bites you or tastes your blood must pass a DC 14 CON save or be poisoned until the end of its next turn",
     "pureBonus": "Intoxicating Blood: the save becomes DC 15, and the demon stays poisoned for 1 minute (it repeats the save at the end of each of its turns)\n⚠ Demons within 300 ft can smell you and will seek you out"
    },
    {
@@ -1438,8 +1440,8 @@ const DEFAULTS = {
     "category": "Mutation",
     "rarity": "Rare",
     "dominance": "Codominant",
-    "bonus": "+2 Strength\nCount as one size larger for carrying, pushing and grappling",
-    "pureBonus": "+2 Strength, +1 Constitution\nUnarmed strikes deal 1d8 + STR bludgeoning\nSmall characters can wield heavy weapons without disadvantage"
+    "bonus": "+2 Strength, +1 Constitution\nCount as one size larger for carrying, pushing and grappling",
+    "pureBonus": "+1 more Strength (max 22)\nUnarmed strikes deal 1d10 + STR bludgeoning\nSmall characters can wield heavy weapons without disadvantage"
    },
    {
     "code": "Dc",
@@ -1447,7 +1449,7 @@ const DEFAULTS = {
     "category": "Mutation",
     "rarity": "Rare",
     "dominance": "Recessive",
-    "bonus": "Proficiency with firearms\nEat demon flesh (action): gain 2d10 temporary HP and regain 2 HP at the start of each turn for 1 minute (1/long rest)",
+    "bonus": "Proficiency with firearms\nEat demon flesh (action): gain 3d10 temporary HP and regain 3 HP at the start of each turn for 1 minute (1/long rest)",
     "pureBonus": "Partial Demonization: eating demon flesh also grants +2 Strength and darkvision 60 ft for 1 minute (2/long rest)\n⚠ While demonized, sunlight deals 5 radiant damage per turn"
    },
    {
@@ -1456,7 +1458,7 @@ const DEFAULTS = {
     "category": "Blood",
     "rarity": "Rare",
     "dominance": "Codominant",
-    "bonus": "Resistance to poison damage; advantage on saves against poison\nWisteria Coating (bonus action): your weapon deals +1d6 poison damage to demons for 1 minute (proficiency bonus uses per long rest)",
+    "bonus": "Resistance to poison damage; advantage on saves against poison\nWisteria Coating (bonus action): your weapon deals +1d8 poison damage to demons for 1 minute (proficiency bonus uses per long rest)",
     "pureBonus": "Immune to poison damage and the poisoned condition\nWisteria Body: a demon that bites you or drinks your blood takes 4d6 poison damage"
    },
    {
@@ -1465,8 +1467,8 @@ const DEFAULTS = {
     "category": "Lineage",
     "rarity": "Rare",
     "dominance": "Codominant",
-    "bonus": "+1 Wisdom, +1 Constitution\nLearn new Breathing Forms one level earlier\n+1 to your Breathing Style save DC",
-    "pureBonus": "+2 Wisdom\nCreate your own Breathing Style: design one custom form with your DM\nTotal Concentration: Constant from level 1"
+    "bonus": "+2 Wisdom, +1 Constitution\nLearn new Breathing Forms one level earlier\n+1 to your Breathing Style save DC",
+    "pureBonus": "+1 to your Breathing Style save DC\nCreate your own Breathing Style: design one custom form with your DM\nTotal Concentration: Constant from level 1"
    },
    {
     "code": "Ms",
@@ -1474,8 +1476,8 @@ const DEFAULTS = {
     "category": "Lineage",
     "rarity": "Rare",
     "dominance": "Recessive",
-    "bonus": "+1 Dexterity\nCast Fog Cloud centered on yourself as a bonus action, without a spell slot (1/short rest)",
-    "pureBonus": "+2 Dexterity\nYou can see through your own fog\nWhen you take the Dodge action, you become invisible until the start of your next turn"
+    "bonus": "+2 Dexterity\nCast Fog Cloud centered on yourself as a bonus action, without a spell slot (1/short rest)",
+    "pureBonus": "+1 Wisdom\nYou can see through your own fog\nWhen you take the Dodge action, you become invisible until the start of your next turn"
    },
    {
     "code": "If",
@@ -1483,8 +1485,8 @@ const DEFAULTS = {
     "category": "Lineage",
     "rarity": "Rare",
     "dominance": "Codominant",
-    "bonus": "+1 Strength, +1 Wisdom\nProficiency with flails, war picks and chain weapons",
-    "pureBonus": "+2 Strength, +1 Wisdom\nMeditation: if you don't move on your turn, regain 1d8 HP at the end of it"
+    "bonus": "+2 Strength, +1 Wisdom\nProficiency with flails, war picks and chain weapons",
+    "pureBonus": "+1 Constitution\nMeditation: if you don't move on your turn, regain 2d8 HP at the end of it"
    },
    {
     "code": "Kz",
@@ -1492,7 +1494,7 @@ const DEFAULTS = {
     "category": "Race",
     "rarity": "Legendary",
     "dominance": "Dominant",
-    "bonus": "+2 Strength, +2 Constitution\nDarkvision 120 ft\nRegeneration: regain 10 HP at the start of each turn\nLearn two Blood Demon Arts\nLegendary Resistance (1/day)\n⚠ Sunlight Hypersensitivity: 20 radiant damage per turn in sunlight\n⚠ Can't use Breathing Styles",
+    "bonus": "+3 Strength, +2 Constitution (max 22)\nDarkvision 120 ft\nRegeneration: regain 12 HP at the start of each turn\nLearn two Blood Demon Arts\nLegendary Resistance (1/day)\n⚠ Sunlight Hypersensitivity: 20 radiant damage per turn in sunlight\n⚠ Can't use Breathing Styles",
     "pureBonus": "+1 to any ability score (max 22)\nLegendary Resistance (2/day)\nOnly a Nichirin blade can kill you by beheading; otherwise your head regrows over 1 round\n⚠ Sunlight destroys you after one full round"
    },
    {
@@ -1501,7 +1503,7 @@ const DEFAULTS = {
     "category": "Technique Gene",
     "rarity": "Legendary",
     "dominance": "Recessive",
-    "bonus": "Mark Awakening: when you drop below half HP, the Mark awakens for 1 minute: +10 ft speed, +2 to attack rolls, advantage on CON saves (1/long rest)\n⚠ Each awakening permanently lowers your HP max by 1",
+    "bonus": "Mark Awakening: when you drop below half HP, the Mark awakens for 1 minute: +15 ft speed, +3 to attack rolls, advantage on CON saves (1/long rest)\n⚠ Each awakening permanently lowers your HP max by 1",
     "pureBonus": "Awaken the Mark at will as a bonus action (proficiency bonus uses per long rest)\nCrimson Blade: while awakened, demons you hit can't regenerate until the end of their next turn"
    },
    {
@@ -1510,7 +1512,7 @@ const DEFAULTS = {
     "category": "Technique Gene",
     "rarity": "Legendary",
     "dominance": "Recessive",
-    "bonus": "Your weapon attacks score a critical hit on a roll of 19–20\nBonus action: learn a creature's AC, current HP and vulnerabilities",
+    "bonus": "Your weapon attacks score a critical hit on a roll of 19–20, and your critical hits deal +1d6\nBonus action: learn a creature's AC, current HP and vulnerabilities",
     "pureBonus": "Critical hits on 18–20\nSelfless State: you have advantage on attack rolls against creatures that haven't taken a turn yet in this combat"
    },
    {
@@ -1519,7 +1521,7 @@ const DEFAULTS = {
     "category": "Lineage",
     "rarity": "Legendary",
     "dominance": "Recessive",
-    "bonus": "+2 Charisma\nCalming Voice (action): allies within 30 ft gain advantage on saves against being frightened or charmed for 1 minute\nForesight: you can't be surprised; +2 to initiative\n⚠ Family Curse: HP max reduced by 1 per level",
+    "bonus": "+2 Charisma, +1 Wisdom\nCalming Voice (action): allies within 30 ft gain advantage on saves against being frightened or charmed for 1 minute\nForesight: you can't be surprised; +2 to initiative\n⚠ Family Curse: HP max reduced by 1 per level",
     "pureBonus": "+1 Charisma, +1 Wisdom\nCast Command at 3rd level (1/long rest) and Augury (1/long rest) without spell slots\n⚠ Family Curse: HP max reduced by 2 per level"
    },
    {
@@ -1528,7 +1530,7 @@ const DEFAULTS = {
     "category": "Lineage",
     "rarity": "Legendary",
     "dominance": "Codominant",
-    "bonus": "+2 Strength\nResistance to fire damage\nYour Nichirin blade deals +1d6 fire damage",
+    "bonus": "+2 Strength, +1 Constitution\nResistance to fire damage\nYour Nichirin blade deals +1d8 fire damage",
     "pureBonus": "+1 Strength, +1 Charisma\nSet Your Heart Ablaze: while below half HP, you have advantage on attack rolls and can't be frightened"
    },
    {
@@ -1537,7 +1539,7 @@ const DEFAULTS = {
     "category": "Lineage",
     "rarity": "Legendary",
     "dominance": "Recessive",
-    "bonus": "+2 Dexterity\n+10 ft walking speed\nYour first hit in each combat deals an extra 3d6 lightning damage",
+    "bonus": "+2 Dexterity\n+10 ft walking speed\nYour first hit in each combat deals an extra 4d6 lightning damage",
     "pureBonus": "+1 Dexterity; +20 ft walking speed in total\nGodspeed: dash up to 60 ft in a straight line and attack each creature you pass; this movement provokes no opportunity attacks (1/short rest)"
    },
    {
@@ -1546,8 +1548,8 @@ const DEFAULTS = {
     "category": "Lineage",
     "rarity": "Legendary",
     "dominance": "Codominant",
-    "bonus": "+1 Dexterity, +1 Wisdom\nReaction: reduce the damage from one melee attack by 1d10 + your DEX modifier",
-    "pureBonus": "+2 Wisdom\nGain Evasion\nDead Calm (reaction): take no damage from one attack that hits you (1/short rest)"
+    "bonus": "+2 Wisdom, +1 Dexterity\nReaction: reduce the damage from one melee attack by 2d10 + your DEX modifier",
+    "pureBonus": "+1 Dexterity\nGain Evasion\nDead Calm (reaction): take no damage from one attack that hits you (1/short rest)"
    },
    {
     "code": "Su",
@@ -1555,7 +1557,7 @@ const DEFAULTS = {
     "category": "Lineage",
     "rarity": "Mythical",
     "dominance": "Codominant",
-    "bonus": "+2 to one ability score and +1 to another\nAccess to Sun Breathing\nYour weapon attacks deal +1d8 radiant damage; demons you hit can't regenerate until the start of your next turn",
+    "bonus": "+2 to two ability scores\nAccess to Sun Breathing\nYour weapon attacks deal +1d10 radiant damage; demons you hit can't regenerate until the start of your next turn",
     "pureBonus": "Origin of All Breaths: you can learn forms from any Breathing Style\nBorn Marked: you always have the Slayer Mark's awakened benefits, at no HP cost"
    },
    {
@@ -1564,7 +1566,7 @@ const DEFAULTS = {
     "category": "Race",
     "rarity": "Mythical",
     "dominance": "Dominant",
-    "bonus": "+3 Strength, +2 Constitution (max 22)\nRegeneration: regain 20 HP at the start of each turn\nMultiple hearts and brains: beheading can't kill you\nCan turn a willing or incapacitated human into a demon\n⚠ Sunlight Hypersensitivity: 20 radiant damage per turn and disadvantage on all rolls in sunlight",
+    "bonus": "+3 Strength, +2 Constitution (max 22)\nRegeneration: regain 25 HP at the start of each turn\nMultiple hearts and brains: beheading can't kill you\nCan turn a willing or incapacitated human into a demon\n⚠ Sunlight Hypersensitivity: 20 radiant damage per turn and disadvantage on all rolls in sunlight",
     "pureBonus": "Change your shape at will (as the Shapechange spell, no concentration)\nScatter: when you drop to 0 HP, burst into fragments and re-form 1d4 hours later (1/week)\n⚠ Sunlight destroys you after one full round"
    },
    {
@@ -1573,7 +1575,7 @@ const DEFAULTS = {
     "category": "Race",
     "rarity": "Mythical",
     "dominance": "Recessive",
-    "bonus": "+2 Strength, +1 Constitution\nRegeneration: regain 5 HP at the start of each turn\nImmune to sunlight; you never need to eat humans\nBlood Demon Art: Exploding Blood (bonus action, your blood ignites: 2d8 fire to demons within 10 ft)",
+    "bonus": "+2 Strength, +1 Constitution\nRegeneration: regain 8 HP at the start of each turn\nImmune to sunlight; you never need to eat humans\nBlood Demon Art: Exploding Blood (bonus action, your blood ignites: 3d8 fire to demons within 10 ft)",
     "pureBonus": "+2 Strength\nCast Enlarge/Reduce on yourself at will, without concentration\nYou can use Breathing Styles while a demon"
    },
    {
@@ -1582,7 +1584,7 @@ const DEFAULTS = {
     "category": "Lineage",
     "rarity": "Mythical",
     "dominance": "Codominant",
-    "bonus": "+1 Constitution, +1 Charisma\nAdvantage on saves against exhaustion\nOnce per short rest, after you use a Breathing Form, you can use a second form as part of the same action",
+    "bonus": "+2 Constitution, +1 Charisma\nAdvantage on saves against exhaustion\nOnce per short rest, after you use a Breathing Form, you can use a second form as part of the same action",
     "pureBonus": "Endless Dance: each consecutive turn you use a Breathing Form, gain a cumulative +1 to attack and damage rolls (max +5); it resets if you skip a turn"
    },
    {
@@ -1591,7 +1593,7 @@ const DEFAULTS = {
     "category": "Mutation",
     "rarity": "Mythical",
     "dominance": "Recessive",
-    "bonus": "+2 Dexterity, +1 Strength\nBorn with Transparent World (critical hits on 19–20)\nYou make one additional attack when you take the Attack action",
+    "bonus": "+2 Dexterity, +2 Strength (max 22)\nBorn with Transparent World (critical hits on 19–20)\nYou make one additional attack when you take the Attack action",
     "pureBonus": "Perfect Form: if every attack you make on your turn hits, you gain an extra action on your next turn (1/short rest)"
    },
    {
@@ -1601,7 +1603,7 @@ const DEFAULTS = {
     "rarity": "Common",
     "dominance": "Codominant",
     "bonus": "HP max +1 per level",
-    "pureBonus": "Advantage on saves against being frightened"
+    "pureBonus": "+1 Wisdom; advantage on saves against being frightened"
    },
    {
     "code": "Fh",
@@ -1609,7 +1611,7 @@ const DEFAULTS = {
     "category": "Mutation",
     "rarity": "Common",
     "dominance": "Dominant",
-    "bonus": "Regain 1 extra HP for each Hit Die you spend",
+    "bonus": "Regain 2 extra HP for each Hit Die you spend",
     "pureBonus": "+1 Constitution"
    },
    {
@@ -1618,8 +1620,8 @@ const DEFAULTS = {
     "category": "Mutation",
     "rarity": "Common",
     "dominance": "Recessive",
-    "bonus": "Darkvision 30 ft",
-    "pureBonus": "Darkvision 60 ft; advantage on Perception at night"
+    "bonus": "Darkvision 60 ft",
+    "pureBonus": "Darkvision 90 ft; advantage on Perception at night"
    },
    {
     "code": "Qf",
@@ -1627,7 +1629,7 @@ const DEFAULTS = {
     "category": "Mutation",
     "rarity": "Common",
     "dominance": "Recessive",
-    "bonus": "+5 ft walking speed",
+    "bonus": "+10 ft walking speed",
     "pureBonus": "Dash as a bonus action once per short rest"
    },
    {
@@ -1637,7 +1639,7 @@ const DEFAULTS = {
     "rarity": "Common",
     "dominance": "Recessive",
     "bonus": "Advantage on saves against being stunned",
-    "pureBonus": "Headbutt is a natural weapon: 1d6 + STR bludgeoning"
+    "pureBonus": "Headbutt is a natural weapon: 1d8 + STR bludgeoning"
    },
    {
     "code": "Wb",
@@ -1646,7 +1648,7 @@ const DEFAULTS = {
     "rarity": "Common",
     "dominance": "Codominant",
     "bonus": "Resistance to cold damage",
-    "pureBonus": "Advantage on saves against exhaustion from cold or hunger"
+    "pureBonus": "Advantage on saves against exhaustion from cold or hunger; +1 Constitution"
    },
    {
     "code": "Sd",
@@ -1654,7 +1656,7 @@ const DEFAULTS = {
     "category": "Lineage",
     "rarity": "Common",
     "dominance": "Dominant",
-    "bonus": "+1 to your first attack roll each combat",
+    "bonus": "+2 to your first attack roll each combat",
     "pureBonus": "Proficiency with one tool of your choice"
    },
    {
@@ -1672,7 +1674,7 @@ const DEFAULTS = {
     "category": "Technique Gene",
     "rarity": "Uncommon",
     "dominance": "Codominant",
-    "bonus": "+1 to attack rolls with Water Breathing; swim speed 20 ft",
+    "bonus": "+2 to attack rolls with Water Breathing; swim speed 20 ft",
     "pureBonus": "Water forms deal +1d4 damage"
    },
    {
@@ -1681,7 +1683,7 @@ const DEFAULTS = {
     "category": "Technique Gene",
     "rarity": "Uncommon",
     "dominance": "Codominant",
-    "bonus": "+1 to attack rolls with Wind Breathing; +5 ft speed",
+    "bonus": "+2 to attack rolls with Wind Breathing; +5 ft speed",
     "pureBonus": "Wind forms push the target 10 ft"
    },
    {
@@ -1690,7 +1692,7 @@ const DEFAULTS = {
     "category": "Technique Gene",
     "rarity": "Uncommon",
     "dominance": "Codominant",
-    "bonus": "+1 AC while wielding a heavy weapon",
+    "bonus": "+2 AC while wielding a heavy weapon",
     "pureBonus": "Stone forms knock targets prone on a failed Strength save"
    },
    {
@@ -1699,7 +1701,7 @@ const DEFAULTS = {
     "category": "Technique Gene",
     "rarity": "Uncommon",
     "dominance": "Recessive",
-    "bonus": "+2 to initiative",
+    "bonus": "+3 to initiative",
     "pureBonus": "Your first attack each combat deals +1d6 lightning"
    },
    {
@@ -1708,7 +1710,7 @@ const DEFAULTS = {
     "category": "Mutation",
     "rarity": "Uncommon",
     "dominance": "Dominant",
-    "bonus": "You can't be surprised in the wild",
+    "bonus": "You can't be surprised in the wild; +1 to attack rolls against beasts and demons",
     "pureBonus": "Advantage on attacks against creatures that haven't acted yet"
    },
    {
@@ -1717,7 +1719,7 @@ const DEFAULTS = {
     "category": "Lineage",
     "rarity": "Uncommon",
     "dominance": "Recessive",
-    "bonus": "Proficiency in Stealth",
+    "bonus": "+1 Dexterity; proficiency in Stealth",
     "pureBonus": "Hide as a bonus action"
    },
    {
@@ -1726,7 +1728,7 @@ const DEFAULTS = {
     "category": "Lineage",
     "rarity": "Rare",
     "dominance": "Recessive",
-    "bonus": "+1 Dexterity; advantage on Acrobatics checks",
+    "bonus": "+2 Dexterity; advantage on Acrobatics checks",
     "pureBonus": "After you take the Dodge action, your next attack has advantage"
    },
    {
@@ -1735,7 +1737,7 @@ const DEFAULTS = {
     "category": "Mutation",
     "rarity": "Rare",
     "dominance": "Codominant",
-    "bonus": "Your attacks ignore half cover",
+    "bonus": "+1 to attack rolls; your attacks ignore half cover",
     "pureBonus": "Your attacks ignore three-quarters cover too"
    },
    {
@@ -1744,7 +1746,7 @@ const DEFAULTS = {
     "category": "Mutation",
     "rarity": "Rare",
     "dominance": "Recessive",
-    "bonus": "Blindsight 10 ft",
+    "bonus": "Blindsight 15 ft",
     "pureBonus": "Blindsight 30 ft; you can't be blinded"
    },
    {
@@ -1753,7 +1755,7 @@ const DEFAULTS = {
     "category": "Mutation",
     "rarity": "Rare",
     "dominance": "Codominant",
-    "bonus": "Advantage on hearing-based Perception; you can't be surprised",
+    "bonus": "Advantage on hearing-based Perception; you can't be surprised; +1 to initiative",
     "pureBonus": "Musical Score: after you hit the same creature 3 times, you have advantage on attacks against it"
    },
    {
@@ -1762,7 +1764,7 @@ const DEFAULTS = {
     "category": "Race",
     "rarity": "Rare",
     "dominance": "Dominant",
-    "bonus": "+1 Strength, +1 Constitution\nDarkvision 60 ft; regain 2 HP at the start of each turn\n⚠ Sunlight deals 5 radiant damage per turn; can't use Breathing",
+    "bonus": "+2 Strength, +1 Constitution\nDarkvision 60 ft; regain 3 HP at the start of each turn\n⚠ Sunlight deals 5 radiant damage per turn; can't use Breathing",
     "pureBonus": "Learn one Blood Demon Art; regeneration becomes 4 HP per turn"
    },
    {
@@ -1771,7 +1773,7 @@ const DEFAULTS = {
     "category": "Blood",
     "rarity": "Rare",
     "dominance": "Recessive",
-    "bonus": "Proficiency in Medicine; your healer's kit restores +1d4 HP",
+    "bonus": "Proficiency in Medicine; your healer's kit restores +1d6 HP",
     "pureBonus": "Once per long rest, brew a drug that gives an injected demon disadvantage on attacks for 1 minute"
    },
    {
@@ -1780,7 +1782,7 @@ const DEFAULTS = {
     "category": "Race",
     "rarity": "Legendary",
     "dominance": "Dominant",
-    "bonus": "+2 Strength, +2 Constitution, +1 Dexterity\nDarkvision 120 ft; regain 15 HP at the start of each turn\nTwo Blood Demon Arts\n⚠ Sunlight deals 25 radiant per turn; can't use Breathing",
+    "bonus": "+2 Strength, +2 Constitution, +1 Dexterity\nDarkvision 120 ft; regain 18 HP at the start of each turn\nTwo Blood Demon Arts\n⚠ Sunlight deals 25 radiant per turn; can't use Breathing",
     "pureBonus": "Legendary Resistance (2/day)\n⚠ Sunlight destroys you after one full round"
    },
    {
@@ -1789,7 +1791,7 @@ const DEFAULTS = {
     "category": "Lineage",
     "rarity": "Legendary",
     "dominance": "Codominant",
-    "bonus": "+1 to two ability scores\n+1 to your Breathing Form save DC",
+    "bonus": "+2 to one ability score and +1 to another\n+1 to your Breathing Form save DC",
     "pureBonus": "Once per long rest, reroll a failed saving throw"
    },
    {
@@ -1798,7 +1800,7 @@ const DEFAULTS = {
     "category": "Technique Gene",
     "rarity": "Legendary",
     "dominance": "Recessive",
-    "bonus": "Once per long rest, your blade turns red for 1 minute: demons you hit can't regenerate until the end of their next turn",
+    "bonus": "Twice per long rest, your blade turns red for 1 minute: demons you hit can't regenerate until the end of their next turn",
     "pureBonus": "Turn your blade red as a bonus action (proficiency bonus uses per long rest)"
    },
    {
@@ -1807,7 +1809,7 @@ const DEFAULTS = {
     "category": "Lineage",
     "rarity": "Legendary",
     "dominance": "Codominant",
-    "bonus": "Moon Breathing: your slashes throw crescent blades (+1d6 slashing to one extra creature within 5 ft of the target)",
+    "bonus": "Moon Breathing: your slashes throw crescent blades (+1d8 slashing to one extra creature within 5 ft of the target)",
     "pureBonus": "Moon forms gain 10 ft of reach"
    },
    {
@@ -1816,7 +1818,7 @@ const DEFAULTS = {
     "category": "Blood",
     "rarity": "Legendary",
     "dominance": "Recessive",
-    "bonus": "Demon: learn one extra Blood Demon Art. Human: resistance to damage from Blood Demon Arts",
+    "bonus": "Demon: learn one extra Blood Demon Art. Human: +1 Constitution and resistance to damage from Blood Demon Arts",
     "pureBonus": "Demon: your Blood Demon Art save DCs +2. Human: advantage on saves against Blood Demon Arts"
    },
    {
@@ -1825,7 +1827,7 @@ const DEFAULTS = {
     "category": "Technique Gene",
     "rarity": "Mythical",
     "dominance": "Recessive",
-    "bonus": "You can learn forms from every Breathing Style",
+    "bonus": "You can learn forms from every Breathing Style; +1 to your Breathing Form save DCs",
     "pureBonus": "Once per long rest, use any Breathing Form you have ever seen"
    },
    {
@@ -1834,7 +1836,7 @@ const DEFAULTS = {
     "category": "Technique Gene",
     "rarity": "Mythical",
     "dominance": "Codominant",
-    "bonus": "Your Breathing Forms deal +1d8 radiant damage to demons",
+    "bonus": "Your Breathing Forms deal +2d8 radiant damage to demons",
     "pureBonus": "Once per turn, a form also hits every demon within 10 ft of the target"
    },
    {
@@ -1843,7 +1845,7 @@ const DEFAULTS = {
     "category": "Race",
     "rarity": "Mythical",
     "dominance": "Dominant",
-    "bonus": "+3 Strength, +2 Constitution (max 22)\nRegain 20 HP at the start of each turn\nYou can use Breathing Styles AND Blood Demon Arts\n⚠ Sunlight destroys you after one full round",
+    "bonus": "+3 Strength, +2 Constitution (max 22)\nRegain 25 HP at the start of each turn\nYou can use Breathing Styles AND Blood Demon Arts\n⚠ Sunlight destroys you after one full round",
     "pureBonus": "Six Eyes: critical hits on 19–20, and you can't be surprised"
    },
    {
@@ -1852,7 +1854,7 @@ const DEFAULTS = {
     "category": "Blood",
     "rarity": "Mythical",
     "dominance": "Recessive",
-    "bonus": "Demon: immune to sunlight. Human: demons that drink your blood are poisoned for 1 minute",
+    "bonus": "+2 Constitution. Demon: immune to sunlight. Human: demons that drink your blood are poisoned for 1 minute",
     "pureBonus": "Perfect Being: regain 10 HP at the start of each turn, and you no longer age"
    }
   ],
@@ -1861,7 +1863,7 @@ const DEFAULTS = {
     "a": "Hu",
     "b": "De",
     "name": "Demon-Human Hybrid",
-    "bonus": "Use Breathing Styles AND a Blood Demon Art\nRegain 2 HP at the start of each turn\nSunlight only stops your regeneration instead of damaging you"
+    "bonus": "Use Breathing Styles AND a Blood Demon Art\nRegain 4 HP at the start of each turn\nSunlight only stops your regeneration instead of damaging you"
    },
    {
     "a": "Sm",
@@ -1879,7 +1881,7 @@ const DEFAULTS = {
     "a": "Sn",
     "b": "Su",
     "name": "Scent of the Sun",
-    "bonus": "Opening Thread recharges on a roll of 5–6 at the start of each of your turns"
+    "bonus": "Opening Thread recharges on a roll of 4–6 at the start of each of your turns"
    },
    {
     "a": "Sc",
@@ -1891,7 +1893,7 @@ const DEFAULTS = {
     "a": "De",
     "b": "Mr",
     "name": "Blood Frenzy",
-    "bonus": "+2 to damage rolls while poisoned by Marechi blood\n⚠ While frenzied, pass a DC 13 WIS save each turn or attack the nearest creature"
+    "bonus": "+3 to damage rolls while poisoned by Marechi blood\n⚠ While frenzied, pass a DC 13 WIS save each turn or attack the nearest creature"
    },
    {
     "a": "Dc",
@@ -1909,7 +1911,7 @@ const DEFAULTS = {
     "a": "Fl",
     "b": "Bp",
     "name": "Flame Hashira Legacy",
-    "bonus": "Learn Flame Breathing's Ninth Form 2 levels early; your Flame forms deal +1d6 fire damage"
+    "bonus": "Learn Flame Breathing's Ninth Form 2 levels early; your Flame forms deal +1d8 fire damage"
    },
    {
     "a": "Sh",
@@ -1921,13 +1923,13 @@ const DEFAULTS = {
     "a": "Wm",
     "b": "Ts",
     "name": "Beast Sense",
-    "bonus": "+10 ft speed; tremorsense 60 ft"
+    "bonus": "+15 ft speed; tremorsense 60 ft"
    },
    {
     "a": "Ms",
     "b": "Bp",
     "name": "Prodigy of the Mist",
-    "bonus": "+1 Dexterity; learn forms of any Breathing Style one level earlier"
+    "bonus": "+2 Dexterity; learn forms of any Breathing Style one level earlier"
    },
    {
     "a": "If",
@@ -1939,7 +1941,7 @@ const DEFAULTS = {
     "a": "Pt",
     "b": "Fj",
     "name": "Butterfly Dance",
-    "bonus": "When a creature misses you with a melee attack, it takes 1d6 poison damage (2d6 if it's a demon)"
+    "bonus": "When a creature misses you with a melee attack, it takes 1d8 poison damage (2d8 if it's a demon)"
    },
    {
     "a": "Tc",
@@ -1963,7 +1965,7 @@ const DEFAULTS = {
     "a": "Mn",
     "b": "Sm",
     "name": "Moon Mark",
-    "bonus": "Your Mark never fades and costs no HP; Moon forms deal +2d6 damage"
+    "bonus": "Your Mark never fades and costs no HP; Moon forms deal +3d6 damage"
    },
    {
     "a": "Sc",
@@ -1987,7 +1989,7 @@ const DEFAULTS = {
     "a": "Hr",
     "b": "Bp",
     "name": "Hashira Prodigy",
-    "bonus": "You reach Hashira rank in half the time; +1 to all attack rolls"
+    "bonus": "You reach Hashira rank in half the time; +2 to all attack rolls"
    },
    {
     "a": "Cr",
@@ -2004,8 +2006,8 @@ const DEFAULTS = {
    {
     "a": "Bn",
     "b": "If",
-    "name": "Stone Pillar",
-    "bonus": "Blindsight 30 ft and +2 to attacks with flails"
+    "name": "Stone Hashira",
+    "bonus": "Blindsight 30 ft and +3 to attacks with flails"
    },
    {
     "a": "Sp",
@@ -2017,7 +2019,7 @@ const DEFAULTS = {
     "a": "Bg",
     "b": "Pt",
     "name": "Insect Pillar",
-    "bonus": "Your stinger thrusts deal +2d6 poison damage to demons"
+    "bonus": "Your stinger thrusts deal +3d6 poison damage to demons"
    },
    {
     "a": "Hl",
@@ -2047,7 +2049,7 @@ const DEFAULTS = {
     "a": "Ij",
     "b": "Hu",
     "name": "Kamado Headbutt",
-    "bonus": "Your headbutt stuns on a critical hit"
+    "bonus": "Your headbutt stuns on a critical hit and deals +1d6"
    },
    {
     "a": "Wi",
@@ -2111,6 +2113,44 @@ if (!valid(state)) {
 }
 state = normalize(state);
 function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} }
+
+// Upgrade older saves to the stronger defaults. Text that is still an old default (or empty) is
+// replaced; anything you wrote yourself is kept. New entries are added.
+(function upgrade() {
+  if ((state.version || 1) >= DEFAULTS.version) return;
+  const hashText = t => { let x = 5381; for (const c of t) x = ((x * 33) ^ c.codePointAt(0)) >>> 0; return x.toString(36); };
+  const OLD = new Set(["1ne8ft7","lilrgu","czasvx","1btyl8i","vgnjvx","x3wvx5","12e3i2f","1t2qmbd","hctz3s","15gcfsx","gkfpyn","h935mj","1jmj66l","qrspx5","weqc4p","1u5ejv4","rhknw0","ta30f3","oqphzm","ct9qcy","rlizl5","1jgbyr1","uqlo2z","144t8h0","1fpksow","987uht","1p29646","qi6od5","4xthj3","1rmy6sc","1snpcqr","2oyq6","8awlw9","1nyatgg","1gmxrry","ppaccs","tbuyd8","1wmf6s4","h7ambh","lt822t","1muim08","1b305we","zvwksn","14rcpx7","1wgbunx","17yes3i","1nxfiwq","9cclvi","17shc3l","tf6sd4","1898j72","qfuwpx","1yikgxw","1l58mp7","tzzjsk","17vbi3g","sklqne","1kktfv7","eg587s","vt83qe","zy087p","1weniim","9nqx21","1qp22a5","1m19z5u","1vhdttn","e6u27u","6fxjvs","1xhp0xk","13olpit","1xgz86e","3n0q0u","pkjf54","vtl14v","si1cl3","1zcm6z","1wal0j1","1umuve5","1baev14","1ib8wk0","8ii8gv","1tpb15x","195ofxa","12qkm3b","1rmreji","1kkz8zg","gzn973","1t9bjva","efjdre","1n8p14x","1s27f2h","1tn6m82","q3sbli","drayo0","2otqdl","vdmf3o","njg00n","1dw1308","l5ubrv","41j4vq","1fax9la","tgqcsw","1a5r6jl","1lvy2bi","117q1ps","1bkrvj","4t58no","1vnurj4","12ekvzx","n1tekq","o21sjv","12cxybc","1w701k9","1b1gxjp","1y1cg7e","183l40k","1m1q7q7","1rk7ab2","xzf346","n2zv49","epveiv","1wkcn8g","1j4q2on","1vkemi9","113gq7g","r8er4h","85xi8p","unjcnx","1anbqs0","1m13lxd","xfzup9","qsmhip","15h0mta","1iqbabt","tkdna0","16h52y8","1rimh1q","fpmr3o","1ubckyb","yv3v9c","df7h2b","1ked1bk","tuuhir","9mfdmj","a66a6e","1wwu2c6","5n2gx","1einmsq","l40rnu","ox6f4l","i0p6ag","d4j76w","ph9tf4","1h2b5s","1yh6721","2da32c","1qfvcch","1h0x5yz","1dzuo4v","10tb3ae","anxhhq","1swd0t","4xzgpc","q2jr0e","eez0es","xa06u1","1f1kzuj","gxi8gs","1vl3k8i","qpf4n9","1kd6z9h","w38ixk","niqpiz","8pugc3","35vvgj","nk0k63","8rhjfo","1v9uhlc","h1nph4","19kak68","1uijyqi","1y3eie0","1ck5lnr","1o3xec5","1xhx45e","m2h871","sqneim","1p5bkdv","1hrxpkd","6xwc7t","1617duh","cp9j7h","6gf6hp","mertfp","gw6s5l","65espq","1kmerep","2vc5fi","ucg25y","1dacgau","q0p1zr","txjpo2","18vsyi7","1dqm68n","13lhejc","oftaop","1v2k1kx","19y9evx","y49eux","9ld8y3","dp8qzg","omq0hz","fbh0y","p4r3gw","1je7bh6","rnndkl","1an6w6v","1m3l7iq","8yw3cl","nzl9b4","12v2ix0","init61","93j5x","tskye0","1ic3m02","ejwzo1","cvpafa","xz8f0u","1rrvjak","v0q36k","13pi4dt","ikh11q","pfv289","6qgmlu","1aashtk","5wwwjn","1dmrdch","12xterq","1klr9mv","1wwxp1t","17bhr20","mdenak","av6ab5","vxgu0h","1fiopia","13y2vaz","17d1deg","12mxj3v","l2cb2q","1f9ud8o","o9jpql","1tyk6k4","1tkrja1","1mawe4q","ts09q2","basr9w","663tt9","tendcy","3yo6bq","9lt7kp","ggxsvd","1jmuppg","1khwp29","4fh27m","owo9g3","esxo5l","1ysjzs9","1jwl06k","1eedlu7","1aqeit","4h7fdx","1hg2ovc","1ym713j","muskc8","hwea7s","1pqjxv","gehe2d","181xhyr","6op32a","8s48g8","pfp9ie","1opcezq","1de24w8","uvs9ll","1ijzxcq","7ilxoa","1e46me3","15fpgfb","1rrcsqq","hq9ohn","68io7c","1i9ibfh","1hkcgv8","1fxl9o3","1mktoew","vcf9b1","1602tts","1iegan9","tx3enk","1t58snd","10v90n0","17dzjhs","hka617","hsblip","2xokxh","139ufkw","rgot7q","12j0ktr","1qkcm3m","tg0131","54y17t","qytiey","1scvhyo","cs9slz"]);
+  const OLD_RAR = {"Common":{"asi":[1],"traits":[1,1],"passives":[1,1]},"Uncommon":{"asi":[1,1],"traits":[1,2],"passives":[1,2]},"Rare":{"asi":[2,1],"traits":[2,2],"passives":[2,2]},"Legendary":{"asi":[2,1,1],"traits":[2,3],"passives":[2,3]},"Mythical":{"asi":[2,2,1],"traits":[3,3],"passives":[3,3]}};
+  const stale = v => !v || OLD.has(hashText(v));
+  const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  for (const k of ["families", "traits", "passives"]) {
+    for (const di of DEFAULTS[k]) {
+      const cur = state[k].find(x => x.name === di.name);
+      if (!cur) state[k].push({ ...di, id: newId() });
+      else if (stale(cur.effect)) cur.effect = di.effect;
+    }
+  }
+  const byCode = c => state.genes.factors.find(f => f.code === c);
+  for (const df of DEFAULTS.genes.factors) {
+    const cur = byCode(df.code);
+    if (!cur) { state.genes.factors.push({ ...df, id: newId() }); continue; }
+    if (stale(cur.bonus)) cur.bonus = df.bonus;
+    if (stale(cur.pureBonus)) cur.pureBonus = df.pureBonus;
+  }
+  for (const dc of DEFAULTS.genes.combos) {
+    const a = byCode(dc.a), b = byCode(dc.b); if (!a || !b) continue;
+    const cur = state.genes.combos.find(c => (c.a === a.id && c.b === b.id) || (c.a === b.id && c.b === a.id));
+    if (!cur) { state.genes.combos.push({ a: a.id, b: b.id, name: dc.name, bonus: dc.bonus }); continue; }
+    if (stale(cur.bonus)) cur.bonus = dc.bonus;
+    if (cur.name === "Stone Pillar" && dc.name === "Stone Hashira") cur.name = dc.name;
+  }
+  for (const r of state.rarities) {
+    const o = OLD_RAR[r.name], n = DEFAULTS.rarities.find(x => x.name === r.name);
+    if (!o || !n) continue;
+    for (const f of ["asi", "traits", "passives"]) if (same(r[f], o[f])) r[f] = n[f];
+  }
+  state.version = DEFAULTS.version;
+})();
 save();
 
 // ---------------- helpers ----------------
