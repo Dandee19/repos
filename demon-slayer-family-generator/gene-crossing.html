@@ -82,7 +82,7 @@
 <body>
 <div class="wrap">
   <h1>🧬 Bloodline Gene Crossing</h1>
-  <p class="sub">Every race, lineage and extraordinary genetic factor, crossed against each other. Spin to roll two parents, cross them in a Punnett square and inherit a genotype. Fill in your own bonuses in the editor below — they save automatically in this browser. <a href="index.html">← Family Roll</a></p>
+  <p class="sub">A homebrew D&amp;D 5e bloodline table. Every race, lineage and extraordinary genetic factor, crossed against each other. Spin to roll two parents, cross them in a Punnett square and inherit a genotype. Fill in your own bonuses in the editor below — they save automatically in this browser. <a href="index.html">← Family Roll</a></p>
 
   <div class="top">
     <div class="panel">
@@ -112,7 +112,7 @@
     <div class="legend">
       <span style="--k:var(--pure)">Pure — same gene twice (homozygous)</span>
       <span style="--k:var(--co)">Co-expressed — both genes active</span>
-      <span style="--k:var(--partial)">Partial — codominant unlocks a recessive at half strength</span>
+      <span style="--k:var(--partial)">Partial — codominant unlocks the first line of a recessive’s bonus</span>
       <span style="--k:var(--masked)">Masked — dominant hides recessive (carrier)</span>
       <span style="--k:var(--latent)">Latent — two different recessives, both dormant</span>
     </div>
@@ -136,7 +136,7 @@
         <button class="small" id="resetBtn">Reset to defaults</button>
       </div>
     </div>
-    <p class="note">Write anything in the bonus boxes, e.g. “+15% Strength, regen 2 HP/s”. <b>Bonus</b> applies when the gene is expressed; <b>Pure bonus</b> applies when the offspring has two copies of it.</p>
+    <p class="note">Written for D&amp;D 5e. Edit any box freely, e.g. “+1 Strength, resistance to fire damage”. <b>Bonus</b> applies when the gene is expressed; <b>Pure bonus</b> applies when the offspring has two copies of it.</p>
     <div class="ed-wrap"><table class="ed" id="editor"></table></div>
   </div>
 
@@ -166,143 +166,143 @@ const DEFAULTS = {
     { name: "Legendary", color: "#ffb52e", weight: 6 },
     { name: "Mythical", color: "#ff4f8b", weight: 1 },
   ],
-  version: 2,
+  version: 3,
   factors: [
     // ───────── Common ─────────
     F("Hu", "Human", "Race", "Common", "Dominant",
-      "+5% Health, +5% Stamina\nCan learn any Breathing Style\nUnaffected by sunlight",
-      "+10% Health, +10% Stamina\nIndomitable Will: survive one lethal hit at 1 HP (once per fight)"),
+      "+1 to one ability score of your choice\nProficiency in one skill of your choice\nCan learn any Breathing Style",
+      "+1 to two ability scores of your choice\nIndomitable Will: when you drop to 0 HP but aren't killed outright, drop to 1 HP instead (1/long rest)"),
     F("Hs", "Hardy Stock", "Lineage", "Common", "Codominant",
-      "+6% Durability\n-10% stun duration",
-      "+12% Durability, +5% Health\nCan't be knocked down by normal attacks"),
+      "+1 Constitution\nAdvantage on saves against being knocked prone",
+      "+1 Constitution; HP max +1 per level\nAdvantage on saves against prone and exhaustion"),
     F("Ke", "Keen Eyes", "Mutation", "Common", "Recessive",
-      "+5% Critical Chance\nSee enemy attack wind-ups slightly earlier",
-      "+10% Critical Chance\nSpot hidden or camouflaged demons"),
+      "Proficiency in Perception\n+1 to initiative",
+      "Expertise in Perception\nAdvantage on checks to find hidden or invisible creatures"),
     F("Lb", "Long Breath", "Mutation", "Common", "Recessive",
-      "+8% Breath Control\n+5% breath regen",
-      "+15% Breath Control\nTotal Concentration lasts 50% longer"),
+      "+1 Constitution\nHold your breath 3× as long as normal",
+      "Hold your breath for up to 1 hour\nRegain one expended Breathing Form use when you finish a short rest"),
     F("Fb", "Farmer's Back", "Lineage", "Common", "Dominant",
-      "+5% Strength, +5% Stamina\nGrabs and shoves are 10% stronger",
-      "+10% Strength, +8% Stamina\nCan grab and throw lower-rank demons"),
+      "+1 Strength\nCarrying capacity doubled",
+      "+1 Strength, +1 Constitution\nAdvantage on Athletics checks to grapple or shove"),
     F("Mb", "Mountain-Born", "Lineage", "Common", "Codominant",
-      "+4% Stamina, +5% Speed on rough terrain\nResist cold and thin air",
-      "+10% Stamina\nNo stamina drain from climbing, snow or water"),
+      "+1 Constitution\nResistance to cold damage; acclimated to high altitude",
+      "Climbing speed equal to your walking speed\nSnow, ice and rocky difficult terrain cost no extra movement"),
     F("Sw", "Swordsmith Blood", "Lineage", "Common", "Recessive",
-      "+5% Sword Mastery\nNichirin blade durability +20%",
-      "+10% Sword Mastery\nRepair a broken blade mid-fight (once per fight)"),
+      "Proficiency with smith's tools\nYour blade can't be broken by nonmagical means",
+      "+1 to attack rolls with swords\nRepair a broken Nichirin blade during a short rest"),
 
     // ───────── Uncommon ─────────
     F("Sn", "Enhanced Smell", "Mutation", "Uncommon", "Recessive",
-      "+8% Critical Chance vs demons\nSmell demons through walls and sense emotions (fear, lies, killing intent)",
-      "Track any demon you've smelled across the map\nSmell the Opening Thread: next hit is a guaranteed crit (every 30s)"),
+      "Proficiency in Insight; advantage on Insight checks to detect lies\nYou know the direction of any demon within 60 ft",
+      "Blindsight 15 ft (scent)\nOpening Thread: once per short rest, your next melee hit against a demon is a critical hit"),
     F("Ea", "Enhanced Hearing", "Mutation", "Uncommon", "Recessive",
-      "+6% dodge chance\nHear heartbeats: see enemy HP and intent",
-      "+12% dodge chance\nHear attacks from behind: auto-parry once every 30s"),
+      "Advantage on Perception checks that rely on hearing\nYou can't be surprised while conscious",
+      "+1 Dexterity\nHeartbeat Reading (bonus action): learn whether a creature within 30 ft is below half HP, and gain advantage on Insight checks against it"),
     F("Ts", "Enhanced Touch", "Mutation", "Uncommon", "Recessive",
-      "+6% Speed\nSense movement through air vibrations; immune to blindness",
-      "+10% Speed\nAuto-dodge the first ranged attack each fight"),
+      "+1 Dexterity\nTremorsense 10 ft",
+      "Tremorsense 30 ft\nBeing blinded doesn't impose disadvantage on your attacks against creatures within 30 ft"),
     F("Sh", "Shinobi Blood", "Lineage", "Uncommon", "Dominant",
-      "+8% Speed\nPoison resistance 50%\n+10% damage from stealth",
-      "+15% Speed\nFull poison immunity\nUnlocks explosive kunai / beads skill"),
+      "+1 Dexterity\nProficiency in Stealth\nResistance to poison damage",
+      "+1 Dexterity, +1 Intelligence\nImmune to poison damage and the poisoned condition\nCraft 1d4 explosive kunai per long rest (2d6 fire, 10 ft radius, DC 13 DEX save for half)"),
     F("Ic", "Iron Constitution", "Lineage", "Uncommon", "Codominant",
-      "+8% Durability, +6% Health",
-      "+15% Durability, +12% Health\nBones don't break: immune to cripple effects"),
+      "+1 Constitution\nHP max +1 per level",
+      "+2 Constitution\nAdvantage on saves against being stunned or knocked unconscious"),
     F("Fj", "Flexible Joints", "Mutation", "Uncommon", "Recessive",
-      "+8% dodge chance\nAttacks from odd angles: +5% Critical Chance",
-      "+15% dodge chance\nSlip out of grabs and restraints instantly"),
+      "+1 Dexterity\nProficiency in Acrobatics",
+      "Expertise in Acrobatics\nAdvantage on checks to escape grapples and restraints; squeeze through spaces as if you were Small"),
     F("Wm", "Wild Mountain Blood", "Lineage", "Uncommon", "Dominant",
-      "+8% Strength, +5% Speed\nCan dual-wield blades\n⚠ -10% Breath Control",
-      "+15% Strength, +10% Speed\nBeast Rage: +20% damage for 8s after taking a heavy hit"),
+      "+1 Strength, +1 Dexterity\nAdd your ability modifier to off-hand attack damage when fighting with two weapons\n⚠ -1 Intelligence",
+      "+2 Strength, +1 Dexterity\nBeast Rage: when a critical hit hits you, gain advantage on attack rolls until the end of your next turn"),
     F("Wk", "Wisteria Keeper", "Lineage", "Uncommon", "Codominant",
-      "+5% Health\nWisteria scent: low-rank demons near you deal 15% less damage",
-      "+10% Health\nWisteria aura repels low-rank demons; allies near you heal 1% HP/s"),
+      "Proficiency with the herbalism kit\nDemons of CR 2 or lower have disadvantage on attack rolls against you",
+      "Wisteria Aura: demons of CR 4 or lower must pass a DC 13 WIS save to willingly move within 10 ft of you\nAllies within 10 ft regain 1 extra HP per Hit Die they spend"),
     F("Cb", "Crow Bond", "Lineage", "Uncommon", "Recessive",
-      "Kasugai crow scouts: reveals nearby enemies\n+5% Speed while tracking",
-      "Crow dives at enemies: interrupt a demon's skill once per fight"),
+      "A Kasugai crow companion (raven stat block) that can speak and carry messages\nYou can see through its eyes as an action",
+      "Your crow can use its reaction to impose disadvantage on one attack against a creature within 5 ft of it (1/short rest)"),
 
     // ───────── Rare ─────────
     F("De", "Demon", "Race", "Rare", "Dominant",
-      "+15% Strength, +10% Health\nRegenerate 2% HP/s\nCan learn a Blood Demon Art\n⚠ Burns in sunlight; can't use Breathing",
-      "+25% Strength, +20% Health\nRegenerate 4% HP/s and regrow limbs\n⚠ Sunlight kills instantly"),
+      "+2 Strength, +1 Constitution\nDarkvision 60 ft\nRegeneration: at the start of your turn, regain HP equal to your CON modifier if you have at least 1 HP\nLearn one Blood Demon Art\n⚠ Sunlight Hypersensitivity: take 10 radiant damage at the start of each turn in sunlight, and you can't regenerate there\n⚠ Can't use Breathing Styles",
+      "+2 Strength, +2 Constitution\nDarkvision 120 ft\nRegeneration doubles, and severed limbs regrow over 1 minute\n⚠ Sunlight deals 20 radiant damage per turn and also lowers your HP max by that amount until a long rest"),
     F("Mr", "Marechi Blood", "Blood", "Rare", "Recessive",
-      "+10% Health\nDemons that smell your blood are dazed: -20% accuracy for 5s",
-      "Demons that bite you become Intoxicated for 10s (-30% damage)\nDemons hunt you more often (more drops)"),
+      "+1 Constitution\nA demon that bites you or tastes your blood must pass a DC 13 CON save or be poisoned until the end of its next turn",
+      "Intoxicating Blood: the save becomes DC 15, and the demon stays poisoned for 1 minute (it repeats the save at the end of each of its turns)\n⚠ Demons within 300 ft can smell you and will seek you out"),
     F("Dm", "Dense Muscle Fibers", "Mutation", "Rare", "Codominant",
-      "+12% Strength, +5% Speed\nHeavy weapons don't slow you down",
-      "+25% Strength\nWield a whip-blade or heavy blade at full speed\nUnarmed hits deal sword-level damage"),
+      "+2 Strength\nCount as one size larger for carrying, pushing and grappling",
+      "+2 Strength, +1 Constitution\nUnarmed strikes deal 1d8 + STR bludgeoning\nSmall characters can wield heavy weapons without disadvantage"),
     F("Dc", "Demon Consumption", "Mutation", "Rare", "Recessive",
-      "Eat demon flesh: regen 1.5% HP/s for 20s\nCan wield firearms",
-      "Partial demonization for 30s: +20% Strength, regen 3% HP/s\n⚠ Sunlight cancels the effect"),
+      "Proficiency with firearms\nEat demon flesh (action): gain 2d10 temporary HP and regain 2 HP at the start of each turn for 1 minute (1/long rest)",
+      "Partial Demonization: eating demon flesh also grants +2 Strength and darkvision 60 ft for 1 minute (2/long rest)\n⚠ While demonized, sunlight deals 5 radiant damage per turn"),
     F("Pt", "Poison Tolerance", "Blood", "Rare", "Codominant",
-      "Poison damage -40%\nCoat blade in wisteria poison: +8% damage to demons",
-      "Poison immunity\nWisteria Body: demons that bite you take 5% max HP per second"),
+      "Resistance to poison damage; advantage on saves against poison\nWisteria Coating (bonus action): your weapon deals +1d6 poison damage to demons for 1 minute (proficiency bonus uses per long rest)",
+      "Immune to poison damage and the poisoned condition\nWisteria Body: a demon that bites you or drinks your blood takes 4d6 poison damage"),
     F("Bp", "Breathing Prodigy", "Lineage", "Rare", "Codominant",
-      "+12% Breath Control\nLearn Breathing forms 50% faster\nTotal Concentration: Constant unlocked early",
-      "+20% Breath Control\nCreate your own Breathing Style (custom final form)"),
+      "+1 Wisdom, +1 Constitution\nLearn new Breathing Forms one level earlier\n+1 to your Breathing Style save DC",
+      "+2 Wisdom\nCreate your own Breathing Style: design one custom form with your DM\nTotal Concentration: Constant from level 1"),
     F("Ms", "Mist Blood", "Lineage", "Rare", "Recessive",
-      "+10% Speed\nAttacks leave mist: enemies get -10% accuracy",
-      "+20% Speed\nObscuring Clouds: become untargetable for 2s after a dodge"),
+      "+1 Dexterity\nCast Fog Cloud centered on yourself as a bonus action, without a spell slot (1/short rest)",
+      "+2 Dexterity\nYou can see through your own fog\nWhen you take the Dodge action, you become invisible until the start of your next turn"),
     F("If", "Iron Faith", "Lineage", "Rare", "Codominant",
-      "+10% Strength, +8% Durability\nMastery of chains, flails and axes",
-      "+20% Strength, +12% Durability\nMeditate: heal 5% HP after standing still for 3s"),
+      "+1 Strength, +1 Wisdom\nProficiency with flails, war picks and chain weapons",
+      "+2 Strength, +1 Wisdom\nMeditation: if you don't move on your turn, regain 1d8 HP at the end of it"),
 
     // ───────── Legendary ─────────
     F("Kz", "Twelve Kizuki Blood", "Race", "Legendary", "Dominant",
-      "+25% Strength, +20% Health\nRegenerate 4% HP/s\nTwo Blood Demon Art slots\n⚠ Burns in sunlight; can't use Breathing",
-      "+35% Strength, +30% Health\nRegenerate 6% HP/s; survive one beheading per fight\n⚠ Sunlight kills instantly"),
+      "+2 Strength, +2 Constitution\nDarkvision 120 ft\nRegeneration: regain 10 HP at the start of each turn\nLearn two Blood Demon Arts\nLegendary Resistance (1/day)\n⚠ Sunlight Hypersensitivity: 20 radiant damage per turn in sunlight\n⚠ Can't use Breathing Styles",
+      "+1 to any ability score (max 22)\nLegendary Resistance (2/day)\nOnly a Nichirin blade can kill you by beheading; otherwise your head regrows over 1 round\n⚠ Sunlight destroys you after one full round"),
     F("Sm", "Slayer Mark Gene", "Technique Gene", "Legendary", "Recessive",
-      "Mark awakens below 40% HP: +25% Strength, +20% Speed for 20s\n⚠ Awakening costs 10% current HP",
-      "Awaken the Mark at will (60s cooldown)\nRed Blade: hits stop demon regen for 5s"),
+      "Mark Awakening: when you drop below half HP, the Mark awakens for 1 minute: +10 ft speed, +2 to attack rolls, advantage on CON saves (1/long rest)\n⚠ Each awakening permanently lowers your HP max by 1",
+      "Awaken the Mark at will as a bonus action (proficiency bonus uses per long rest)\nCrimson Blade: while awakened, demons you hit can't regenerate until the end of their next turn"),
     F("Tw", "Transparent World", "Technique Gene", "Legendary", "Recessive",
-      "+20% Critical Chance\nSee demon weak points: +15% neck-cut damage",
-      "Selfless State: enemies can't sense you\nFirst hit always crits and ignores 30% defense"),
+      "Your weapon attacks score a critical hit on a roll of 19–20\nBonus action: learn a creature's AC, current HP and vulnerabilities",
+      "Critical hits on 18–20\nSelfless State: you have advantage on attack rolls against creatures that haven't taken a turn yet in this combat"),
     F("Ub", "Ubuyashiki Bloodline", "Lineage", "Legendary", "Recessive",
-      "Calming Voice: allies nearby deal +15% damage\nForesight: +10% dodge chance\n⚠ -15% Health (family curse)",
-      "Command: stun all nearby enemies for 3s (once per fight)\nForesight: +20% dodge chance\n⚠ -25% Health"),
+      "+2 Charisma\nCalming Voice (action): allies within 30 ft gain advantage on saves against being frightened or charmed for 1 minute\nForesight: you can't be surprised; +2 to initiative\n⚠ Family Curse: HP max reduced by 1 per level",
+      "+1 Charisma, +1 Wisdom\nCast Command at 3rd level (1/long rest) and Augury (1/long rest) without spell slots\n⚠ Family Curse: HP max reduced by 2 per level"),
     F("Fl", "Flame Lineage", "Lineage", "Legendary", "Codominant",
-      "+15% Strength\nAttacks Burn for 2% HP/s\nFlame Breathing forms +20% damage",
-      "+25% Strength\nSet Your Heart Ablaze: +30% damage below 30% HP and can't be staggered"),
+      "+2 Strength\nResistance to fire damage\nYour Nichirin blade deals +1d6 fire damage",
+      "+1 Strength, +1 Charisma\nSet Your Heart Ablaze: while below half HP, you have advantage on attack rolls and can't be frightened"),
     F("Tc", "Thunder Clan", "Lineage", "Legendary", "Recessive",
-      "+20% Speed\nFirst Form deals 2× damage\nDashes have invincibility frames",
-      "+30% Speed\nGodspeed: one dash hits up to 7 enemies"),
+      "+2 Dexterity\n+10 ft walking speed\nYour first hit in each combat deals an extra 3d6 lightning damage",
+      "+1 Dexterity; +20 ft walking speed in total\nGodspeed: dash up to 60 ft in a straight line and attack each creature you pass; this movement provokes no opportunity attacks (1/short rest)"),
     F("Wl", "Still Water Lineage", "Lineage", "Legendary", "Codominant",
-      "+15% Durability\nBlocked damage -25%; Water Breathing counters +20%",
-      "+25% Durability\nDead Calm: negate all damage for 2s after a perfect block"),
+      "+1 Dexterity, +1 Wisdom\nReaction: reduce the damage from one melee attack by 1d10 + your DEX modifier",
+      "+2 Wisdom\nGain Evasion\nDead Calm (reaction): take no damage from one attack that hits you (1/short rest)"),
 
     // ───────── Mythical ─────────
     F("Su", "Sun Lineage", "Lineage", "Mythical", "Codominant",
-      "+30% Breathing damage\nAccess to Sun Breathing\nHits stop demon regen for 5s",
-      "Origin of All Breaths: learn every Breathing Style\nBorn with the Slayer Mark, with no HP cost"),
+      "+2 to one ability score and +1 to another\nAccess to Sun Breathing\nYour weapon attacks deal +1d8 radiant damage; demons you hit can't regenerate until the start of your next turn",
+      "Origin of All Breaths: you can learn forms from any Breathing Style\nBorn Marked: you always have the Slayer Mark's awakened benefits, at no HP cost"),
     F("Pg", "Progenitor Cells", "Race", "Mythical", "Dominant",
-      "+40% Strength, +40% Health\nRegenerate 8% HP/s; multiple hearts and brains\nCan turn humans into demons\n⚠ Burns in sunlight",
-      "Shape-shift at will\nScatter into cells: survive one death per fight\n⚠ Sunlight kills instantly"),
+      "+3 Strength, +2 Constitution (max 22)\nRegeneration: regain 20 HP at the start of each turn\nMultiple hearts and brains: beheading can't kill you\nCan turn a willing or incapacitated human into a demon\n⚠ Sunlight Hypersensitivity: 20 radiant damage per turn and disadvantage on all rolls in sunlight",
+      "Change your shape at will (as the Shapechange spell, no concentration)\nScatter: when you drop to 0 HP, burst into fragments and re-form 1d4 hours later (1/week)\n⚠ Sunlight destroys you after one full round"),
     F("Sc", "Sun-Conquering Demon", "Race", "Mythical", "Recessive",
-      "+25% Strength, regenerate 5% HP/s\nImmune to sunlight\nBlood Demon Art: Exploding Blood\nNever needs to eat humans",
-      "+40% Strength\nSize-shift (grow or shrink)\nCan use Breathing as a demon"),
+      "+2 Strength, +1 Constitution\nRegeneration: regain 5 HP at the start of each turn\nImmune to sunlight; you never need to eat humans\nBlood Demon Art: Exploding Blood (bonus action, your blood ignites: 2d8 fire to demons within 10 ft)",
+      "+2 Strength\nCast Enlarge/Reduce on yourself at will, without concentration\nYou can use Breathing Styles while a demon"),
     F("Hk", "Hinokami Dancer", "Lineage", "Mythical", "Codominant",
-      "Hinokami Kagura: chain forms without stopping\n+20% Stamina, +25% breath regen",
-      "Endless Dance: each chained form adds +5% damage (max +60%)"),
+      "+1 Constitution, +1 Charisma\nAdvantage on saves against exhaustion\nOnce per short rest, after you use a Breathing Form, you can use a second form as part of the same action",
+      "Endless Dance: each consecutive turn you use a Breathing Form, gain a cumulative +1 to attack and damage rolls (max +5); it resets if you skip a turn"),
     F("Hb", "Heavenly Body", "Mutation", "Mythical", "Recessive",
-      "+25% Speed, +25% Sword Mastery\nBorn able to see the Transparent World",
-      "Perfect Form: +50% damage and no stamina cost for 10s after landing 5 hits"),
+      "+2 Dexterity, +1 Strength\nBorn with Transparent World (critical hits on 19–20)\nYou make one additional attack when you take the Attack action",
+      "Perfect Form: if every attack you make on your turn hits, you gain an extra action on your next turn (1/short rest)"),
   ],
   combos: [
-    { a: "Hu", b: "De", name: "Demon-Human Hybrid", bonus: "Use Breathing AND a Blood Demon Art\nRegenerate 1.5% HP/s\nSunlight halves regen instead of burning you" },
-    { a: "Sm", b: "Tw", name: "Awakened Slayer", bonus: "Red Blade + Transparent World: +30% neck-cut damage; demons can't regenerate while marked" },
-    { a: "Su", b: "Hk", name: "Thirteenth Form", bonus: "Chain all Sun Breathing forms into one endless loop: +25% damage, no breath cost" },
-    { a: "Sn", b: "Su", name: "Scent of the Sun", bonus: "Smell the Opening Thread every 20s (guaranteed crit)" },
-    { a: "Sc", b: "Hu", name: "Path Back to Humanity", bonus: "Can return to human form; keep +10% to all stats" },
-    { a: "De", b: "Mr", name: "Blood Frenzy", bonus: "+30% damage while Intoxicated\n⚠ 20% chance to attack allies while frenzied" },
-    { a: "Dc", b: "De", name: "Demon Eater", bonus: "Copy a weaker version of a devoured demon's Blood Demon Art for 30s" },
-    { a: "Kz", b: "Pg", name: "Favored of the Progenitor", bonus: "+20% to all stats\nUpper-rank demons won't attack you\n⚠ Sunlight kills instantly" },
-    { a: "Fl", b: "Bp", name: "Flame Hashira Legacy", bonus: "Ninth Form unlocked early; Flame forms +15% damage" },
-    { a: "Sh", b: "Ea", name: "Sound of Battle", bonus: "Musical Score: after 3 hits, +20% Critical Chance and dodge for 10s" },
-    { a: "Wm", b: "Ts", name: "Beast Sense", bonus: "+15% Speed; sense enemies up to 50m away" },
-    { a: "Ms", b: "Bp", name: "Prodigy of the Mist", bonus: "Master any Breathing Style in half the time; +10% Speed" },
-    { a: "If", b: "Dm", name: "Stone Pillar", bonus: "+20% Strength, +15% Durability; heavy-weapon hits can't be blocked" },
-    { a: "Pt", b: "Fj", name: "Butterfly Dance", bonus: "+15% dodge chance; each dodge stacks poison on nearby demons" },
-    { a: "Tc", b: "Tw", name: "Flash of Thunder", bonus: "First Form crits are 3× damage" },
-    { a: "Wl", b: "Hs", name: "Unshakable Calm", bonus: "Perfect blocks reflect 30% of the damage" },
+    { a: "Hu", b: "De", name: "Demon-Human Hybrid", bonus: "Use Breathing Styles AND a Blood Demon Art\nRegain 2 HP at the start of each turn\nSunlight only stops your regeneration instead of damaging you" },
+    { a: "Sm", b: "Tw", name: "Awakened Slayer", bonus: "While the Mark is awakened, you score critical hits on 17–20 and demons you hit can't regenerate" },
+    { a: "Su", b: "Hk", name: "Thirteenth Form", bonus: "Once per long rest, as one action, attack once with every Sun Breathing form you know. Demons slain this way can't be revived" },
+    { a: "Sn", b: "Su", name: "Scent of the Sun", bonus: "Opening Thread recharges on a roll of 5–6 at the start of each of your turns" },
+    { a: "Sc", b: "Hu", name: "Path Back to Humanity", bonus: "Through a ritual (DM's call), you can return to being human and keep +1 to every ability score" },
+    { a: "De", b: "Mr", name: "Blood Frenzy", bonus: "+2 to damage rolls while poisoned by Marechi blood\n⚠ While frenzied, pass a DC 13 WIS save each turn or attack the nearest creature" },
+    { a: "Dc", b: "De", name: "Demon Eater", bonus: "After eating a demon's flesh, use a weaker version of its Blood Demon Art for 1 minute (DM's call)" },
+    { a: "Kz", b: "Pg", name: "Favored of the Progenitor", bonus: "+2 to every ability score (max 22)\nDemons of CR 10 or lower won't attack you\n⚠ Sunlight destroys you after one full round" },
+    { a: "Fl", b: "Bp", name: "Flame Hashira Legacy", bonus: "Learn Flame Breathing's Ninth Form 2 levels early; your Flame forms deal +1d6 fire damage" },
+    { a: "Sh", b: "Ea", name: "Sound of Battle", bonus: "Musical Score: after you hit the same creature 3 times, you have advantage on attacks against it and it has disadvantage against you for 1 minute" },
+    { a: "Wm", b: "Ts", name: "Beast Sense", bonus: "+10 ft speed; tremorsense 60 ft" },
+    { a: "Ms", b: "Bp", name: "Prodigy of the Mist", bonus: "+1 Dexterity; learn forms of any Breathing Style one level earlier" },
+    { a: "If", b: "Dm", name: "Stone Pillar", bonus: "Your heavy weapon hits push the target 10 ft, and their damage can't be reduced" },
+    { a: "Pt", b: "Fj", name: "Butterfly Dance", bonus: "When a creature misses you with a melee attack, it takes 1d6 poison damage (2d6 if it's a demon)" },
+    { a: "Tc", b: "Tw", name: "Flash of Thunder", bonus: "Your first-hit bonus becomes 6d6 lightning, and that hit is always a critical hit" },
+    { a: "Wl", b: "Hs", name: "Unshakable Calm", bonus: "When your Still Water reaction reduces damage to 0, the attacker takes the damage you prevented" },
   ],
 };
 
@@ -323,15 +323,18 @@ if (!state || !Array.isArray(state.factors) || !Array.isArray(state.rarities)) s
 state.combos = state.combos || [];
 state.factors.forEach(f => { if (!f.id) f.id = newId(); });
 
-// Bring older saves up to date: add new default genes and fill in bonuses that were left empty.
-// Anything you already typed is kept.
+// Bring older saves up to date: add new default genes and refresh bonus text that is empty or
+// still the untouched text from an earlier version. Anything you typed yourself is kept.
+const hashText = s => { let x = 5381; for (const c of s) x = ((x * 33) ^ c.codePointAt(0)) >>> 0; return x.toString(36); };
+const OLD_DEFAULT_TEXT = new Set(["1jtknd9","4yqgc8","1laylvh","1tr6rbm","1wt30mn","1vlxgtc","h7d5jy","13kt2xp","76vjyf","lo7fcj","10i738d","s3oawf","1s1139b","oe715","9i3clt","jslpo9","18lf3j5","gq6djc","10yrbzg","wiwpk3","1j8ogfm","1fe8ra2","8ujz3u","1spp4o6","1sba3ou","yqbqyw","1czwmkz","vc01o4","9d5sim","s0ttmn","1awzinv","g1frvs","1ok9wz3","zdv6e5","cvs37","q34mx3","7sheqt","16yoxws","wrrqng","gnf14f","6a9wl8","162we6n","1we69os","r469x4","1c1ry3k","nto4gn","s7ax21","1xv5j6w","d1el7v","1t4abfw","qx46wl","5ph5j8","1h7e1tw","ufno5g","e3z556","fxys01","rubl7f","nefv21","hhkqls","18l3rlp","122m3et","1h5bind","mq33z5","6l9kgn","1q7q1hx","5zl6gz","102d6pf","1ga1sy7","1wp5nyj","d536n2","faiok2","shl6vj","13q328q","qoid56","iktzko","1utoboi","1molh2d","x8cq9i","1mlfn4","yfxdrm","o4eoco","tznxqk","6hwge1","rb8uob","1qeqa6i","be2mjg","1htu3tb","2bn8qm"]);
+const stale = v => !v || OLD_DEFAULT_TEXT.has(hashText(v));
 if ((state.version || 1) < DEFAULTS.version) {
   const d = fromDefaults();
   const byCode = c => state.factors.find(f => f.code === c);
   for (const df of d.factors) {
     const cur = byCode(df.code);
     if (!cur) state.factors.push(df);
-    else { if (!cur.bonus) cur.bonus = df.bonus; if (!cur.pureBonus) cur.pureBonus = df.pureBonus; }
+    else { if (stale(cur.bonus)) cur.bonus = df.bonus; if (stale(cur.pureBonus)) cur.pureBonus = df.pureBonus; }
   }
   const code = id => (d.factors.find(f => f.id === id) || {}).code;
   for (const dc of d.combos) {
@@ -339,7 +342,7 @@ if ((state.version || 1) < DEFAULTS.version) {
     if (!a || !b) continue;
     const cur = state.combos.find(c => (c.a === a.id && c.b === b.id) || (c.a === b.id && c.b === a.id));
     if (!cur) state.combos.push({ a: a.id, b: b.id, name: dc.name, bonus: dc.bonus });
-    else { if (!cur.bonus) cur.bonus = dc.bonus; if (!cur.name) cur.name = dc.name; }
+    else { if (stale(cur.bonus)) cur.bonus = dc.bonus; if (!cur.name) cur.name = dc.name; }
   }
   state.version = DEFAULTS.version;
   save();
@@ -393,7 +396,9 @@ function showResult(a, b, fromSpin) {
     if (status === "Carrier") body = `<div class="none">Dormant — carried and can pass to the next generation, but gives no bonus.</div>`;
     else {
       const parts = [];
-      if (f.bonus) parts.push(`<div class="bonus">${esc(f.bonus)}${status === "Partial" ? " <i>(half strength)</i>" : ""}</div>`);
+      if (f.bonus) parts.push(status === "Partial"
+        ? `<div class="bonus">${esc(f.bonus.split("\n")[0])}</div><div class="note"><i>Partial: only the first line of this gene's bonus applies.</i></div>`
+        : `<div class="bonus">${esc(f.bonus)}</div>`);
       if (status === "Pure" && f.pureBonus) parts.push(`<div class="bonus"><b>Pure:</b> ${esc(f.pureBonus)}</div>`);
       body = parts.join("") || `<div class="none">No bonus set yet — add one in the Factor Editor.</div>`;
     }
@@ -469,8 +474,8 @@ function renderEditor() {
       <td><select class="w-sel" data-k="category">${opts([...new Set([...CATEGORIES, f.category])], f.category)}</select></td>
       <td><select class="w-sel" data-k="rarity" style="color:${rarityOf(f).color}">${opts(rn, f.rarity)}</select></td>
       <td><select class="w-sel" data-k="dominance">${opts(DOMINANCE, f.dominance)}</select></td>
-      <td><textarea data-k="bonus" placeholder="e.g. +10% Strength">${esc(f.bonus)}</textarea></td>
-      <td><textarea data-k="pureBonus" placeholder="e.g. +25% Strength">${esc(f.pureBonus)}</textarea></td>
+      <td><textarea data-k="bonus" placeholder="e.g. +1 Strength, darkvision 60 ft">${esc(f.bonus)}</textarea></td>
+      <td><textarea data-k="pureBonus" placeholder="e.g. +2 Strength, advantage on STR saves">${esc(f.pureBonus)}</textarea></td>
       <td><button class="small" data-del title="Remove">✕</button></td></tr>`).join("");
 }
 
@@ -507,7 +512,7 @@ function renderCombos() {
     (state.combos.length ? state.combos.map((c, i) => `<tr data-ci="${i}">
       <td><select data-k="a">${fopts(c.a)}</select></td><td><select data-k="b">${fopts(c.b)}</select></td>
       <td><input data-k="name" value="${esc(c.name)}"></td>
-      <td><textarea data-k="bonus" placeholder="e.g. Regenerate limbs, immune to sunlight">${esc(c.bonus)}</textarea></td>
+      <td><textarea data-k="bonus" placeholder="e.g. Regain 5 HP per turn, immune to sunlight">${esc(c.bonus)}</textarea></td>
       <td><button class="small" data-del>✕</button></td></tr>`).join("")
     : `<tr><td colspan="5" class="note">No special combinations yet.</td></tr>`);
 }

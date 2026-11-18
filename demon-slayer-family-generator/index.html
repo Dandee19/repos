@@ -55,7 +55,7 @@
 <body>
 <div class="wrap">
   <h1>⚔️ Slayer Family Roll</h1>
-  <p class="sub"><a href="gene-crossing.html" style="color:#ff7a8a">🧬 Gene Crossing Table →</a><br>Spin for your bloodline. Higher rarity = bigger stat bonuses, more traits and more passives (max 3 each).</p>
+  <p class="sub"><a href="gene-crossing.html" style="color:#ff7a8a">🧬 Gene Crossing Table →</a><br>Spin for your bloodline in your homebrew D&amp;D 5e campaign. Higher rarity = bigger ability score increases, more traits and more passives (max 3 each). Ability scores still cap at 20 unless your DM says otherwise.</p>
 
   <div class="grid">
     <div class="panel card" id="card">
@@ -87,14 +87,14 @@
 
 <script>
 const RARITIES = {
-  Common:    { weight: 50, color: "var(--common)",    statRange: [1, 3],   stats: 2, traits: [1, 1], passives: [1, 1] },
-  Uncommon:  { weight: 28, color: "var(--uncommon)",  statRange: [3, 6],   stats: 3, traits: [1, 2], passives: [1, 2] },
-  Rare:      { weight: 15, color: "var(--rare)",      statRange: [6, 10],  stats: 3, traits: [2, 2], passives: [2, 2] },
-  Legendary: { weight: 6,  color: "var(--legendary)", statRange: [10, 16], stats: 4, traits: [2, 3], passives: [2, 3] },
-  Mythical:  { weight: 1,  color: "var(--mythical)",  statRange: [16, 25], stats: 5, traits: [3, 3], passives: [3, 3] },
+  Common:    { weight: 50, color: "var(--common)",    asi: [1], traits: [1, 1], passives: [1, 1] },
+  Uncommon:  { weight: 28, color: "var(--uncommon)",  asi: [1, 1], traits: [1, 2], passives: [1, 2] },
+  Rare:      { weight: 15, color: "var(--rare)",      asi: [2, 1], traits: [2, 2], passives: [2, 2] },
+  Legendary: { weight: 6,  color: "var(--legendary)", asi: [2, 1, 1], traits: [2, 3], passives: [2, 3] },
+  Mythical:  { weight: 1,  color: "var(--mythical)",  asi: [2, 2, 1], traits: [3, 3], passives: [3, 3] },
 };
 
-const STATS = ["Strength", "Speed", "Durability", "Breath Control", "Sword Mastery", "Stamina", "Critical Chance", "Health"];
+const STATS = ["Strength", "Dexterity", "Constitution", "Intelligence", "Wisdom", "Charisma"];
 
 // Each family has a signature trait + passive pool it can roll from.
 const FAMILIES = {
@@ -133,66 +133,66 @@ const FAMILIES = {
   ],
 };
 
-// Traits = innate characteristics. Tiered so stronger families get stronger ones.
+// Traits = innate characteristics. Tiered so stronger families get stronger ones. (D&D 5e)
 const TRAITS = {
   Common: [
-    ["Hard Worker", "+5% training XP"],
-    ["Light Sleeper", "Detect ambushes slightly earlier"],
-    ["Thick Skin", "-3% damage taken"],
-    ["Quick Learner", "Breathing forms unlock 5% faster"],
+    ["Hard Worker", "Proficiency in one skill of your choice"],
+    ["Light Sleeper", "You wake instantly and can't be surprised while sleeping"],
+    ["Thick Skin", "Your HP maximum increases by 2"],
+    ["Quick Learner", "Proficiency with one tool or language of your choice"],
   ],
   Uncommon: [
-    ["Keen Nose", "Can smell nearby demons"],
-    ["Iron Stomach", "Immune to weak poisons"],
-    ["Wild Instinct", "+8% dodge chance at low HP"],
-    ["Steady Hands", "+6% sword damage"],
+    ["Keen Nose", "Advantage on Perception checks using smell; sense demons within 30 ft"],
+    ["Iron Stomach", "Advantage on saves against poison"],
+    ["Wild Instinct", "+1 AC while you're below half HP"],
+    ["Steady Hands", "+1 to damage rolls with swords"],
   ],
   Rare: [
-    ["Enhanced Hearing", "Hear demon heartbeats through walls"],
-    ["Dense Muscles", "+12% Strength scaling"],
-    ["Poison Blood", "Demons that bite you take damage"],
-    ["Total Concentration Talent", "Start with Total Concentration unlocked"],
+    ["Enhanced Hearing", "You can't be surprised; hear heartbeats through walls within 30 ft"],
+    ["Dense Muscles", "Count as one size larger for carrying, pushing and grappling"],
+    ["Poison Blood", "A demon that bites you takes 2d6 poison damage"],
+    ["Total Concentration Talent", "Start with Total Concentration Breathing unlocked"],
   ],
   Legendary: [
-    ["Slayer Mark (Dormant)", "Mark awakens below 30% HP"],
-    ["Prodigy", "Learn any breathing style twice as fast"],
-    ["Marechi Blood", "Rare blood that intoxicates demons"],
-    ["Flame Heart", "+20% damage while burning"],
+    ["Slayer Mark (Dormant)", "When you drop below half HP, gain +2 to attack rolls and +10 ft speed for 1 minute (1/long rest)"],
+    ["Prodigy", "Learn new Breathing Forms one level earlier"],
+    ["Marechi Blood", "A demon that tastes your blood must pass a DC 14 CON save or be poisoned for 1 minute"],
+    ["Flame Heart", "Resistance to fire damage; advantage on saves against being frightened"],
   ],
   Mythical: [
-    ["See-Through World", "See muscles and blood flow; perfect counters"],
-    ["Born Slayer Mark", "Permanent Demon Slayer Mark"],
-    ["Sun Lineage", "Access to Sun Breathing"],
-    ["Red Nichirin Affinity", "Blade turns crimson; halts demon regen"],
+    ["See-Through World", "Your weapon attacks score a critical hit on a roll of 19–20"],
+    ["Born Slayer Mark", "You permanently bear the Mark: +10 ft speed and +1 to attack rolls"],
+    ["Sun Lineage", "Access to Sun Breathing; demons you hit can't regenerate until the start of your next turn"],
+    ["Red Nichirin Affinity", "Your blade turns crimson: +1d6 radiant damage against demons"],
   ],
 };
 
-// Passives = always-on combat effects.
+// Passives = always-on combat effects. (D&D 5e)
 const PASSIVES = {
   Common: [
-    ["Second Wind", "Regain 5% HP once per fight"],
-    ["Footwork", "+3% movement speed"],
-    ["Grit", "+5% stamina regen"],
+    ["Second Wind", "Bonus action: regain 1d10 + your level in HP (1/long rest)"],
+    ["Footwork", "+5 ft walking speed"],
+    ["Grit", "Advantage on saves against exhaustion"],
   ],
   Uncommon: [
-    ["Counter Stance", "10% chance to counter attacks"],
-    ["Breath Recovery", "+10% breath regen"],
-    ["Adrenaline", "+8% damage below 50% HP"],
+    ["Counter Stance", "Reaction: when a creature misses you with a melee attack, make one melee attack against it (1/short rest)"],
+    ["Breath Recovery", "Regain one expended Breathing Form use when you finish a short rest"],
+    ["Adrenaline", "+2 to damage rolls while you're below half HP"],
   ],
   Rare: [
-    ["Thunderclap", "First hit each fight is a guaranteed crit"],
-    ["Butterfly Dance", "+15% dodge after dodging"],
-    ["Still Water", "Take 15% less damage while blocking"],
+    ["Thunderclap", "Your first attack in each combat has advantage and deals +2d6 damage"],
+    ["Butterfly Dance", "After you take the Dodge action, your next attack has advantage"],
+    ["Still Water", "Reaction: reduce the damage from one melee attack by 1d10 + your DEX modifier"],
   ],
   Legendary: [
-    ["Set Your Heart Ablaze", "Damage rises as HP falls (up to +30%)"],
-    ["Mist Veil", "Become harder to target for 3s after a skill"],
-    ["Sound Score", "Read enemy patterns; +20% crit after 3 hits"],
+    ["Set Your Heart Ablaze", "While below half HP, you have advantage on attack rolls and can't be frightened"],
+    ["Mist Veil", "After you use a Breathing Form, attacks against you have disadvantage until the start of your next turn"],
+    ["Sound Score", "After you hit the same creature 3 times, you crit it on 19–20 for 1 minute"],
   ],
   Mythical: [
-    ["Hinokami Kagura", "Endless chain of 13 forms with no breath cost"],
-    ["Transparent World", "Ignore 40% of enemy defense"],
-    ["Sunlight Will", "Demons hit by you can't regenerate for 10s"],
+    ["Hinokami Kagura", "Chain two Breathing Forms in a single action (1/short rest)"],
+    ["Transparent World", "Your attacks ignore resistance to slashing damage"],
+    ["Sunlight Will", "Demons you hit can't regenerate for 1 minute"],
   ],
 };
 
@@ -221,7 +221,7 @@ function generate() {
   const rarity = rollRarity();
   const cfg = RARITIES[rarity];
   const fam = pick(FAMILIES[rarity]);
-  const stats = shuffle(STATS).slice(0, cfg.stats).map(s => ({ s, v: randInt(...cfg.statRange) }));
+  const stats = shuffle(STATS).slice(0, cfg.asi.length).map((s, i) => ({ s, v: cfg.asi[i] }));
   const traits = rollPool(TRAITS, rarity, randInt(...cfg.traits));
   const passives = rollPool(PASSIVES, rarity, randInt(...cfg.passives));
   return { rarity, fam, stats, traits, passives };
@@ -237,8 +237,8 @@ function render(r) {
     <div class="fname" style="color:${cfg.color}">${r.fam.name}</div>
     <div class="kanji">${r.fam.kanji} Family</div>
     <p class="lore">${r.fam.lore}</p>
-    <h3>Stat Bonuses</h3>
-    <div class="stats">${r.stats.map(x => `<div class="stat"><span>${x.s}</span><b>+${x.v}%</b></div>`).join("")}</div>
+    <h3>Ability Score Increases</h3>
+    <div class="stats">${r.stats.map(x => `<div class="stat"><span>${x.s}</span><b>+${x.v}</b></div>`).join("")}</div>
     <h3>Traits (${r.traits.length}/3)</h3><div class="list">${list(r.traits)}</div>
     <h3>Passives (${r.passives.length}/3)</h3><div class="list">${list(r.passives)}</div>`;
   const card = $("card");
@@ -294,7 +294,7 @@ $("lockBtn").onclick = async () => {
 const total = ORDER.reduce((s, r) => s + RARITIES[r].weight, 0);
 $("rates").innerHTML = ORDER.map(r =>
   `<div class="rate"><span style="color:${RARITIES[r].color};font-weight:700">${r}</span>
-   <span>${(RARITIES[r].weight / total * 100).toFixed(0)}% · +${RARITIES[r].statRange[0]}–${RARITIES[r].statRange[1]}% stats</span></div>`).join("");
+   <span>${(RARITIES[r].weight / total * 100).toFixed(0)}% · ${RARITIES[r].asi.map(v => "+" + v).join(" / ")} ability scores</span></div>`).join("");
 $("index").innerHTML = ORDER.map(r =>
   `<details><summary style="color:${RARITIES[r].color}">${r} (${FAMILIES[r].length})</summary>
    ${FAMILIES[r].map(f => `<div class="fam"><b style="color:var(--text)">${f.name}</b> ${f.kanji} — ${f.lore}</div>`).join("")}</details>`).join("");
