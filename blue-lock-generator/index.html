@@ -1,0 +1,742 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Egoist Roll</title>
+<style>
+  :root {
+    --bg: #060a17; --panel: #0d1430; --panel2: #141d40; --text: #e9eefc; --muted: #8f9bc4; --line: #22305e; --accent: #2f6bff;
+    --pure: #ffd23f; --co: #4fd06b; --partial: #3fc6c6; --masked: #7b8cff; --latent: #5d6688;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: radial-gradient(1200px 500px at 50% -200px, #12245e 0%, var(--bg) 70%) fixed, var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { margin: 0 0 4px; font-size: 30px; letter-spacing: .5px; }
+  h1 span { color: var(--accent); }
+  h2 { font-size: 18px; margin: 0 0 10px; }
+  h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin: 14px 0 8px; }
+  .sub { color: var(--muted); margin: 0 0 16px; }
+  .note { color: var(--muted); font-size: 13px; }
+  .empty { color: var(--muted); }
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+  .top { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; }
+  @media (max-width: 860px) { .top { grid-template-columns: 1fr; } }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  button { font: inherit; font-weight: 700; border-radius: 10px; padding: 10px 16px; cursor: pointer; background: var(--panel2); color: var(--text); border: 1px solid var(--line); }
+  button.primary { background: linear-gradient(135deg, #2f6bff, #1a3aa8); color: #fff; border: 0; padding: 12px 20px; flex: 1; min-width: 150px; }
+  button:disabled { opacity: .6; cursor: wait; }
+  button.small { padding: 5px 10px; font-size: 13px; }
+  input, select, textarea { font: inherit; color: var(--text); background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; width: 100%; }
+  select.auto { width: auto; }
+  textarea { resize: vertical; min-height: 38px; }
+
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tabs button { border-radius: 999px; }
+  .tabs button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* spin cards */
+  .card { min-height: 300px; position: relative; overflow: hidden; }
+  .card.g3 { box-shadow: 0 0 26px -6px #ffb52e; }
+  .card.g4 { box-shadow: 0 0 34px -4px #ff4f8b; animation: pulseM 2s infinite; }
+  .card.g5 { box-shadow: 0 0 40px -2px #3df5ff; animation: pulseML 1.6s infinite; border-color: #3df5ff; }
+  @keyframes pulseM { 50% { box-shadow: 0 0 52px 0 #ff4f8b; } }
+  @keyframes pulseML { 50% { box-shadow: 0 0 64px 4px #3df5ff; } }
+  .shake { animation: shake .08s linear infinite; }
+  @keyframes shake { 0%{transform:translateX(0)} 50%{transform:translateX(2px)} 100%{transform:translateX(-2px)} }
+  .badge { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; border: 1px solid currentColor; }
+  .big { font-size: 34px; font-weight: 900; margin: 10px 0 2px; line-height: 1.1; }
+  .ml-tag { font-size: 16px; display: block; letter-spacing: 1px; }
+  .who { color: var(--muted); margin-bottom: 10px; }
+  .effect { background: var(--panel2); border-radius: 10px; padding: 12px 14px; white-space: pre-wrap; line-height: 1.5; border-left: 4px solid var(--c, #666); }
+  .rates { display: grid; gap: 6px; }
+  .rate { display: flex; justify-content: space-between; font-size: 14px; gap: 8px; }
+  .hist { display: grid; gap: 4px; max-height: 240px; overflow: auto; font-size: 14px; }
+  .hist div { display: flex; justify-content: space-between; gap: 8px; padding: 4px 8px; background: var(--panel2); border-radius: 6px; cursor: pointer; }
+
+  /* editors */
+  .ed-wrap { overflow-x: auto; }
+  table.ed { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 860px; }
+  .ed th { text-align: left; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; padding: 6px; border-bottom: 1px solid var(--line); }
+  .ed td { padding: 5px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .w-code { width: 64px; } .w-sel { width: 140px; } .w-name { width: 190px; } .w-who { width: 170px; }
+
+  /* genes */
+  .parents { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .parent { background: var(--panel2); border-radius: 10px; padding: 10px; text-align: center; }
+  .parent .lbl { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+  .alleles { display: flex; justify-content: center; gap: 6px; margin-top: 6px; }
+  .allele { min-width: 48px; padding: 6px 8px; border-radius: 8px; font-weight: 800; border: 2px solid currentColor; background: #0006; }
+  .punnett { display: grid; grid-template-columns: 56px 1fr 1fr; gap: 4px; margin-top: 12px; }
+  .punnett > div { background: var(--panel2); border-radius: 8px; padding: 10px 4px; text-align: center; min-height: 44px; font-weight: 700; }
+  .punnett .hd { background: transparent; color: var(--muted); }
+  .punnett .cell.win { outline: 3px solid #fff; }
+  .punnett .cell.flash { outline: 2px dashed #fff8; }
+  .gene { background: var(--panel2); border-radius: 10px; padding: 10px 12px; margin-top: 8px; border-left: 4px solid var(--c, #666); }
+  .gene .n { font-weight: 800; }
+  .gene .bonus { white-space: pre-wrap; margin-top: 4px; }
+  .gene .none { color: var(--muted); font-style: italic; font-size: 14px; margin-top: 4px; }
+  .geno { font-size: 30px; font-weight: 900; }
+  .matrix-wrap { overflow: auto; max-height: 72vh; border-radius: 10px; border: 1px solid var(--line); }
+  table.matrix { border-collapse: separate; border-spacing: 0; font-size: 12px; }
+  .matrix th, .matrix td { padding: 0; }
+  .matrix thead th { position: sticky; top: 0; z-index: 2; background: var(--panel); }
+  .matrix th.rowh { position: sticky; left: 0; z-index: 1; background: var(--panel); text-align: left; padding: 0 8px; white-space: nowrap; }
+  .matrix thead th.corner { left: 0; z-index: 3; }
+  .matrix th.colh { min-width: 46px; padding: 6px 2px; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; font-weight: 700; }
+  .matrix td .x { width: 46px; height: 34px; display: grid; place-items: center; cursor: pointer; border: 1px solid var(--bg); font-weight: 700; color: #060a17; }
+  .matrix td .x:hover { filter: brightness(1.25); }
+  .matrix td .x.hit { outline: 3px solid #fff; outline-offset: -3px; animation: blink .5s 4; position: relative; z-index: 1; }
+  @keyframes blink { 50% { filter: brightness(1.8); } }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); margin: 10px 0; }
+  .legend span::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: var(--k); margin-right: 6px; vertical-align: -2px; }
+  .wgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>⚽ Egoist <span>Roll</span></h1>
+  <p class="sub">Blue Lock homebrew roller. Spin for your <b>Weapon</b>, your <b>Family</b> and your <b>Genes</b>. Everything is editable, and your changes save automatically in this browser.</p>
+
+  <div class="tabs" id="tabs">
+    <button data-tab="weapons" class="on">⚔️ Weapons</button>
+    <button data-tab="families">🏠 Families</button>
+    <button data-tab="genes">🧬 Genes</button>
+    <button data-tab="settings">⚙️ Rarities &amp; Save</button>
+  </div>
+
+  <section id="tab-weapons"></section>
+  <section id="tab-families" hidden></section>
+
+  <section id="tab-genes" hidden>
+    <div class="top">
+      <div class="panel">
+        <h2>Spin Your Genes</h2>
+        <div class="parents">
+          <div class="parent"><div class="lbl">Parent A</div><div class="alleles" id="pA"><span class="allele">?</span><span class="allele">?</span></div></div>
+          <div class="parent"><div class="lbl">Parent B</div><div class="alleles" id="pB"><span class="allele">?</span><span class="allele">?</span></div></div>
+        </div>
+        <div class="punnett" id="punnett"></div>
+        <div class="row" style="margin-top:14px">
+          <button class="primary" id="g-spin">🎲 Spin Genes</button>
+          <button id="g-auto">Auto-spin until</button><select class="auto" id="g-target"></select><span class="note">or better</span>
+        </div>
+        <div class="note" id="g-count" style="margin-top:8px">Spins: 0</div>
+        <h3>History</h3>
+        <div class="hist" id="g-hist"><span class="empty">No spins yet.</span></div>
+      </div>
+      <div class="panel" id="g-result">
+        <h2>Offspring</h2>
+        <p class="empty">Spin, or click any square in the crossing table, to see what that genotype gives.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Gene Crossing Table</h2>
+      <div class="legend">
+        <span style="--k:var(--pure)">Pure — same gene twice</span>
+        <span style="--k:var(--co)">Co-expressed — both genes active</span>
+        <span style="--k:var(--partial)">Partial — codominant unlocks the first line of a recessive’s bonus</span>
+        <span style="--k:var(--masked)">Masked — dominant hides recessive (carrier)</span>
+        <span style="--k:var(--latent)">Latent — two different recessives, both dormant</span>
+      </div>
+      <div class="matrix-wrap"><table class="matrix" id="matrix"></table></div>
+    </div>
+
+    <div class="panel">
+      <div class="row" style="justify-content:space-between">
+        <h2 style="margin:0">Gene Editor</h2>
+        <button class="small" id="g-add">+ Add gene</button>
+      </div>
+      <p class="note"><b>Bonus</b> applies when the gene is expressed. <b>Pure bonus</b> applies on top of it when you have two copies.</p>
+      <div class="ed-wrap"><table class="ed" id="g-ed" style="min-width:1000px"></table></div>
+    </div>
+
+    <div class="panel">
+      <div class="row" style="justify-content:space-between">
+        <h2 style="margin:0">Gene Combos</h2>
+        <button class="small" id="c-add">+ Add combo</button>
+      </div>
+      <p class="note">Extra bonus when a specific pair of genes meets (either order).</p>
+      <div class="ed-wrap"><table class="ed" id="c-ed" style="min-width:720px"></table></div>
+    </div>
+  </section>
+
+  <section id="tab-settings" hidden>
+    <div class="panel">
+      <h2>Rarity Weights</h2>
+      <p class="note">Shared by weapons, families and genes. Higher weight = more common. A rarity with nothing in it is skipped.</p>
+      <div class="wgrid" id="weights"></div>
+    </div>
+    <div class="panel">
+      <h2>Save &amp; Share</h2>
+      <p class="note">Everything saves in this browser automatically. Export a file to back it up or move it to another device.</p>
+      <div class="row">
+        <button id="exportBtn">Export JSON</button>
+        <button id="importBtn">Import JSON</button>
+        <input type="file" id="importFile" accept=".json,application/json" hidden>
+        <button id="resetBtn">Reset everything to defaults</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+const STORE_KEY = "blue-lock-egoist-roll-v1";
+const DOMINANCE = ["Dominant", "Codominant", "Recessive"];
+const CATEGORIES = ["Body", "Mind", "Lineage", "Instinct"];
+const TYPE_COLOR = { pure: "var(--pure)", co: "var(--co)", partial: "var(--partial)", masked: "var(--masked)", latent: "var(--latent)" };
+const TYPE_NAME = { pure: "Pure", co: "Co-expressed", partial: "Partial", masked: "Masked", latent: "Latent" };
+
+const W = (name, rarity, who, effect) => ({ name, rarity, who, effect });
+const G = (code, name, category, rarity, dominance, bonus, pureBonus) => ({ code, name, category, rarity, dominance, bonus, pureBonus });
+
+const DEFAULTS = {
+  version: 1,
+  rarities: [
+    { name: "Common", color: "#b8b8b8", weight: 45 },
+    { name: "Uncommon", color: "#4fd06b", weight: 28 },
+    { name: "Rare", color: "#3fa0ff", weight: 15 },
+    { name: "Legendary", color: "#ffb52e", weight: 8 },
+    { name: "Mythical", color: "#ff4f8b", weight: 3.5 },
+    { name: "Master's League", color: "#3df5ff", weight: 0.5 },
+  ],
+
+  weapons: [
+    // Common
+    W("Clean First Touch", "Common", "Every Blue Lock striker", "+1 to trap rolls."),
+    W("Long Ball", "Common", "Midfielders", "Your passes go 10 feet farther."),
+    W("Sliding Tackle", "Common", "Defenders", "+2 to steal rolls. If the steal fails, you lose 5 ft of stride on your next turn."),
+    W("Header", "Common", "Target strikers", "+2 to headers and aerial duels."),
+    W("Engine", "Common", "Box-to-box players", "Ignore the first point of fatigue each half."),
+    W("Shoulder Charge", "Common", "Physical players", "+2 to physical contests (shoulder-to-shoulder, holding off a defender)."),
+    // Uncommon
+    W("Good Body", "Uncommon", "Physical monsters", "+1 Strength, Maximum is now 22"),
+    W("Speed Burst", "Uncommon", "Wingers", "+5 ft to stride on your first move each turn."),
+    W("Body Feint", "Uncommon", "Bachira, Otoya", "+2 to Dodge. A defender who fails to steal from you can't intercept your next pass."),
+    W("Power Shot", "Uncommon", "Kunigami", "+2 to shooting, and your shots go 10 feet farther."),
+    W("Direct Shot", "Uncommon", "Isagi", "+2 to scoring on first-time shots (shooting in the same action you receive the ball)."),
+    W("Wall", "Uncommon", "Gagamaru, Raichi", "+2 to blocking shots. Allies within 10 ft gain +1 to intercepts."),
+    // Rare
+    W("Core Control", "Rare", "Bachira", "Your turn movement is 270 Degrees"),
+    W("Golden Zone", "Rare", "Strikers", "+3 to scoring in a 15 foot area of your choice"),
+    W("Spatial Awareness", "Rare", "Isagi", "+3 to intercepts and pass reads. Once per turn, ask the GM where one player is about to move."),
+    W("Top Speed", "Rare", "Chigiri", "+10 ft to stride when you have 30 ft of open space in front of you."),
+    W("Aerial Beauty", "Rare", "Aryu", "+3 to headers and aerial duels, and you may jump to intercept passes up to 10 ft overhead."),
+    W("Perfect Pass", "Rare", "Hiori", "+3 to passing, and your passes can curve around one defender."),
+    W("Phantom", "Rare", "Otoya", "Defenders get -3 to track or mark you while you're off the ball."),
+    W("Ball Stop", "Rare", "Karasu", "+3 to steal rolls. After a successful steal, you may pass as a free action."),
+    // Legendary
+    W("Trap God", "Legendary", "Nagi", "Gain +4 to trap rolls, and may use traps as a bonus action"),
+    W("Off the Ball", "Legendary", "Isagi, Otoya", "Doubled stride off the ball"),
+    W("Meta Vision", "Legendary", "Isagi", "+4 to pass reads and shooting. Once per turn, the GM tells you one opponent's planned action before it happens."),
+    W("Predator Eye", "Legendary", "Barou", "+4 to scoring on shots taken right after you steal or dribble past someone."),
+    W("Chameleon", "Legendary", "Reo", "Once per match, copy any Rare or lower weapon you've seen this match for 3 turns. +2 to all rolls while copying."),
+    W("Explosive Volley", "Legendary", "Shidou", "+4 to volleys, and you may volley from any body position (bicycle, scissor, flying)."),
+    W("Gyro Dribble", "Legendary", "Yukimiya", "+4 to dribbling. Any defender you dribble past loses their reaction this turn."),
+    W("Speed Star", "Legendary", "Chigiri", "Once per turn, double your stride for one straight-line move."),
+    W("Pinball Pass", "Legendary", "Kurona", "After you pass, you may move 15 ft and receive a return pass as part of the same action."),
+    // Mythical
+    W("Finesse Shot", "Mythical", "Rin", "Your shots go 30 feet farther, and you may use strength to shoot."),
+    W("Creative Dribbling", "Mythical", "Bachira", "You add your full intelligence to creative dribbling, and increase your stride by 1 ft."),
+    W("Destroyer", "Mythical", "Rin", "Once per half, enter Destructive Flow for 3 turns: +5 to all rolls, and anyone failing a check against you is staggered (can't react or intercept until next turn)."),
+    W("Emperor Impact", "Mythical", "Kaiser", "+5 to shooting, and your shots can't be intercepted within 20 ft of the release."),
+    W("Precision Pass", "Mythical", "Sae", "+5 to passing. Your passes ignore range penalties and land on any exact spot you choose within range."),
+    W("Fake Volley", "Mythical", "Nagi", "Once per turn, fake a shot as a free action. Defenders who fail a DC 15 read are staggered."),
+    W("Flow", "Mythical", "True Egoists", "Once per match, enter Flow for 5 turns: +3 to every roll and +5 ft stride."),
+    // Master's League
+    W("Samba", "Master's League", "Lavinho",
+      "+3ft to Stride\n\nElastic Rhythm (Passive): Gain +4 to Dribbling and Dodge, and anyone failing a steal vs you is staggered (can't react or intercept until next turn).\n\nDribble Chain: You may perform up to 3 dribble checks per turn, with each success letting you move 10 ft extra (stackable), and when dribbling past 2 players, gain +3 to your next shot or pass"),
+    W("Emperor", "Master's League", "Kaiser",
+      "+20 ft to shot range\n\nEmperor's Aura (Passive): Gain +4 to Shooting and Trap, and defenders within 10 ft get -2 to block your shots.\n\nMagic Volley: Once per turn, after receiving an aerial pass you may shoot as a free action with +5, and if it scores, your next shot this match gains +2."),
+    W("Total Vision", "Master's League", "Isagi",
+      "+1 Intelligence, Maximum is now 22\n\nMeta Field (Passive): You always know every player's position and intended move, and gain +4 to Passing and Intercepts.\n\nDirect Link: After a successful intercept, you may immediately pass or shoot as a free action with +3, and if that leads to a goal, you regain your bonus action."),
+    W("Lightspeed", "Master's League", "Loki",
+      "+5 ft to Stride, doubled when chasing a loose ball\n\nAfterimage (Passive): Gain +4 to Steal and Intercept, and anyone you sprint past can't react to you until next turn.\n\nBurst Chain: You may make up to 2 sprint moves per turn, and each one that beats a defender gives +2 to your next steal or shot."),
+  ],
+
+  families: [
+    // Common
+    W("Igarashi", "Common", "Igarashi Gurimu", "+1 Constitution\nNever Give Up: once per match, reroll a failed check."),
+    W("Imamura", "Common", "Imamura Yudai", "+1 Dexterity\nAgile Feet: +2 to Dodge."),
+    W("Naruhaya", "Common", "Naruhaya Asahi", "+1 Dexterity\nOpportunist: +2 to scoring on rebounds and loose balls."),
+    W("Kuon", "Common", "Kuon Wataru", "+1 Strength\nAerial Fighter: +2 to headers."),
+    W("Iemon", "Common", "Iemon Okuhito", "+1 Wisdom\nKeeper's Hands: +2 to saves."),
+    W("Tsurugi", "Common", "Tsurugi Zantetsu", "+1 Dexterity\nInstinct Runner: +5 ft stride on counterattacks."),
+    W("Kira", "Common", "Kira Ryosuke", "+1 to any one ability\nFallen Prodigy: +1 to shooting."),
+    // Uncommon
+    W("Raichi", "Uncommon", "Raichi Jingo", "+1 Strength, +1 Constitution\nPitbull: +2 to steals; a failed steal still slows the target by 5 ft."),
+    W("Gagamaru", "Uncommon", "Gagamaru Gin", "+1 Dexterity, +1 Constitution\nFlexible Keeper: +3 to saves and blocks."),
+    W("Tokimitsu", "Uncommon", "Tokimitsu Aoshi", "+1 Strength, +1 Constitution\nAnxious Monster: +2 to physical contests.\n⚠ -1 Wisdom"),
+    W("Niko", "Uncommon", "Niko Ikki", "+1 Intelligence, +1 Wisdom\nHeart Eye: +2 to intercepts and reading plays."),
+    W("Otoya", "Uncommon", "Otoya Eita", "+1 Dexterity, +1 Charisma\nNinja Bloodline: defenders get -1 to mark you off the ball."),
+    W("Karasu", "Uncommon", "Karasu Tabito", "+1 Intelligence, +1 Dexterity\nAnalyst: once per half, learn an opponent's best weapon."),
+    W("Kurona", "Uncommon", "Kurona Ranze", "+1 Dexterity, +1 Wisdom\nShark Positioning: +2 to receiving passes in open space."),
+    W("Aryu", "Uncommon", "Aryu Jyubei", "+1 Strength, +1 Dexterity\nTall & Beautiful: +2 to headers and aerial intercepts."),
+    // Rare
+    W("Kunigami", "Rare", "Kunigami Rensuke", "+2 Strength, +1 Constitution\nHero's Left: +3 to left-foot shots, and they go 10 ft farther."),
+    W("Chigiri", "Rare", "Chigiri Hyoma", "+2 Dexterity, +1 Charisma\nPrincess Speed: +10 ft stride on straight lines.\n⚠ Old Knee Injury: -2 to stamina checks after 3 sprints in one half."),
+    W("Hiori", "Rare", "Hiori Yo", "+2 Intelligence, +1 Dexterity\nPass Mapping: +3 to passing; once per turn, a pass may change direction once."),
+    W("Yukimiya", "Rare", "Yukimiya Kenyu", "+2 Dexterity, +1 Charisma\nGyro Balance: +3 to dribbling.\n⚠ Fading Eyesight: -1 to long-range reads."),
+    W("Mikage", "Rare", "Mikage Reo", "+1 to three abilities of your choice\nWealthy Prodigy: once per match, use any Uncommon weapon you've seen this match."),
+    W("Barou", "Rare", "Barou Shoei", "+2 Strength, +1 Charisma\nKing's Pride: +3 to scoring when you shoot instead of passing.\n⚠ -2 to passing."),
+    // Legendary
+    W("Isagi", "Legendary", "Isagi Yoichi", "+2 Intelligence, +1 Wisdom\nAdaptive Genius: once per match, add +4 to a roll after seeing the result.\nDirect Shot: +2 to first-time shots."),
+    W("Bachira", "Legendary", "Bachira Meguru", "+2 Dexterity, +1 Intelligence\nThe Monster Within: add half your Intelligence to dribbling, and +3 ft stride while dribbling."),
+    W("Nagi", "Legendary", "Nagi Seishiro", "+2 Dexterity, +1 Intelligence\nLazy Genius: +3 to trap rolls, and your first trap each turn is free.\n⚠ -2 to stamina checks."),
+    W("Shidou", "Legendary", "Shidou Ryusei", "+2 Strength, +2 Dexterity\nDevil's Instinct: +3 to volleys and shots inside the box.\n⚠ -2 to passing."),
+    W("Ness", "Legendary", "Alexis Ness", "+2 Intelligence, +1 Dexterity\nMagic Pass: +3 to passing, and through balls curve around one defender."),
+    W("Lavinho", "Legendary", "Lavinho", "+2 Dexterity, +1 Charisma\nSamba Blood: +3 to Dribbling and Dodge."),
+    // Mythical
+    W("Itoshi", "Mythical", "Itoshi Rin, Itoshi Sae", "+2 to two abilities, Maximum is now 22\nProdigy Siblings: +4 to Shooting or Passing (choose one).\nOnce per match, succeed on a check you failed by 3 or less."),
+    W("Kaiser", "Mythical", "Michael Kaiser", "+2 Strength, +2 Dexterity, Maximum is now 22\nEmperor: +4 to shooting, and your shots go 20 ft farther."),
+    W("Loki", "Mythical", "Julian Loki", "+3 Dexterity, Maximum is now 22\nWorld's Fastest: +10 ft stride, and you can't be outrun in a chase."),
+    // Master's League
+    W("Noa", "Master's League", "Noel Noa", "+2 to all abilities, Maximum is now 22\n\nStrongest in the World (Passive): Gain +3 to Shooting, Passing, Dribbling and Trap.\n\nPerfect Logic: Once per turn, reroll any check, and if the reroll succeeds, your next check this turn gains +2."),
+  ],
+
+  genes: {
+    factors: [
+      // Common
+      G("Av", "Average Athlete", "Body", "Common", "Dominant", "+1 to one ability of your choice", "+1 to two abilities of your choice"),
+      G("Lu", "Big Lungs", "Body", "Common", "Codominant", "+1 Constitution", "+1 Constitution\nIgnore the first point of fatigue each half"),
+      G("Lf", "Left-Footed", "Body", "Common", "Recessive", "+1 to shots with your left foot", "Ambidextrous: no weak-foot penalty, +1 to all shots"),
+      G("Gt", "Grit", "Mind", "Common", "Dominant", "Once per match, reroll a failed physical contest", "Twice per match"),
+      // Uncommon
+      G("Ft", "Fast-Twitch Muscle", "Body", "Uncommon", "Codominant", "+3 ft to stride", "+5 ft to stride, +1 Dexterity"),
+      G("Ht", "Height Gene", "Body", "Uncommon", "Dominant", "+2 to headers and aerial duels", "+3 to headers; you can intercept passes up to 10 ft overhead"),
+      G("Fx", "Flexible Body", "Body", "Uncommon", "Recessive", "+2 to Dodge", "+2 to Trap\nTackles can't stagger you"),
+      G("Fv", "Field Vision", "Mind", "Uncommon", "Recessive", "+2 to pass reads", "+3 to passing\nOnce per half, the GM reveals one hidden play"),
+      G("Pb", "Power Build", "Body", "Uncommon", "Dominant", "+1 Strength", "+1 Strength, Maximum is now 21\n+2 to physical contests"),
+      // Rare
+      G("Sa", "Spatial Awareness", "Mind", "Rare", "Recessive", "+3 to intercepts and pass reads", "Once per turn, ask the GM where one player is about to move"),
+      G("Eg", "Egoist Gene", "Mind", "Rare", "Dominant", "+2 to scoring when you shoot instead of passing to an open teammate", "+3 instead, and every goal gives +1 to your next roll"),
+      G("Cm", "Chameleon Gene", "Mind", "Rare", "Codominant", "Once per match, copy a Common or Uncommon weapon you've seen for 3 turns", "Copy weapons up to Rare, twice per match"),
+      G("Pi", "Predator Instinct", "Instinct", "Rare", "Recessive", "+3 to steals and to scoring on rebounds", "After a successful steal, you may shoot as a free action"),
+      G("Bc", "Balance Core", "Body", "Rare", "Codominant", "+2 to physical contests\nA failed contest can't knock you down", "Your turn movement is 270 Degrees"),
+      G("Kr", "Keeper Reflex", "Instinct", "Rare", "Codominant", "+3 to saves and blocks", "Once per half, automatically block one shot"),
+      // Legendary
+      G("Mo", "Monster Gene", "Instinct", "Legendary", "Recessive", "Add half your intelligence to dribbling", "Add your full intelligence to creative dribbling, and +1 ft stride"),
+      G("Kb", "King's Body", "Body", "Legendary", "Dominant", "+1 Strength, Maximum is now 22", "+2 Strength instead\n+2 to shot power"),
+      G("Fl", "Flow Gene", "Mind", "Legendary", "Recessive", "Once per match, enter Flow for 3 turns: +3 to every roll", "Flow lasts 5 turns and gives +5 ft stride"),
+      G("Tg", "Trap Genius", "Body", "Legendary", "Recessive", "+3 to trap rolls", "+4 to trap rolls instead, and traps can be a bonus action"),
+      G("Wc", "World-Class Physique", "Body", "Legendary", "Codominant", "+1 Strength, +1 Dexterity", "Maximum Strength and Dexterity are now 22"),
+      // Mythical
+      G("It", "Itoshi Blood", "Lineage", "Mythical", "Codominant", "+4 to Shooting or Passing (choose one)", "+4 to both\nYour shots go 20 feet farther"),
+      G("Em", "Emperor Gene", "Lineage", "Mythical", "Dominant", "+4 to shooting, and your shots go 20 feet farther", "Your shots can't be intercepted within 20 ft of the release"),
+      G("Mv", "Meta Vision Gene", "Mind", "Mythical", "Recessive", "+4 to pass reads and shooting\nOnce per turn, learn one opponent's planned action", "Know every player's planned action\n+2 to intercepts"),
+      G("Ls", "Lightspeed Gene", "Body", "Mythical", "Recessive", "+10 ft to stride", "Doubled stride when chasing a loose ball"),
+      // Master's League
+      G("Bl", "Blue Lock Prototype", "Lineage", "Master's League", "Recessive", "+2 to all abilities, Maximum is now 22", "Once per turn, reroll any check"),
+    ],
+    combos: [
+      { a: "Sa", b: "Mv", name: "Meta Vision Awakened", bonus: "Once per turn, after any player moves, you may move 10 ft as a free reaction" },
+      { a: "Mo", b: "Fl", name: "Monster Flow", bonus: "While in Flow, anyone who fails to steal from you is staggered" },
+      { a: "Eg", b: "Pi", name: "Predator King", bonus: "+3 to scoring right after a steal; each goal gives +1 Strength for the rest of the match (max 22)" },
+      { a: "Ft", b: "Fx", name: "Speed Star", bonus: "Once per turn, double your stride in a straight line" },
+      { a: "Ht", b: "Pb", name: "Aerial Tank", bonus: "Headers go 20 ft farther and can't be blocked by shorter players" },
+      { a: "It", b: "Fl", name: "Destroyer", bonus: "Once per half, enter Destructive Flow: +5 to all rolls for 3 turns" },
+      { a: "Tg", b: "Fv", name: "Fake Volley", bonus: "Once per turn, fake a shot as a free action; defenders who fail a DC 15 read are staggered" },
+      { a: "Em", b: "Eg", name: "Emperor's Ego", bonus: "Your shots ignore one defender's block" },
+      { a: "Cm", b: "Sa", name: "Perfect Copy", bonus: "Once per match, copy any weapon up to Legendary that you've seen" },
+      { a: "Bc", b: "Mo", name: "Creative Core", bonus: "Add your full intelligence to creative dribbling, and your turn movement is 270 Degrees" },
+    ],
+  },
+};
+
+// ---------------- state ----------------
+let uid = 0;
+const newId = () => "i" + Date.now().toString(36) + (uid++);
+function fromDefaults() {
+  const s = JSON.parse(JSON.stringify(DEFAULTS));
+  for (const list of [s.weapons, s.families, s.genes.factors]) list.forEach(x => x.id = newId());
+  const byCode = Object.fromEntries(s.genes.factors.map(f => [f.code, f.id]));
+  s.genes.combos = s.genes.combos.map(c => ({ a: byCode[c.a], b: byCode[c.b], name: c.name, bonus: c.bonus }));
+  return s;
+}
+function valid(s) { return s && Array.isArray(s.rarities) && Array.isArray(s.weapons) && Array.isArray(s.families) && s.genes && Array.isArray(s.genes.factors) && s.genes.factors.length; }
+let state;
+try { state = JSON.parse(localStorage.getItem(STORE_KEY)); } catch (e) { state = null; }
+if (!valid(state)) state = fromDefaults();
+state.genes.combos = state.genes.combos || [];
+function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} }
+
+// ---------------- helpers ----------------
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const rIdx = name => Math.max(0, state.rarities.findIndex(r => r.name === name));
+const rOf = x => state.rarities[rIdx(x.rarity)];
+const byRarity = list => [...list].sort((a, b) => rIdx(a.rarity) - rIdx(b.rarity));
+const opts = (list, cur) => list.map(v => `<option ${v === cur ? "selected" : ""}>${esc(v)}</option>`).join("");
+const isML = r => r === "Master's League";
+
+function rollFrom(list) {
+  const live = state.rarities.filter(r => r.weight > 0 && list.some(x => x.rarity === r.name));
+  if (!live.length) return pick(list);
+  const total = live.reduce((s, r) => s + Number(r.weight), 0);
+  let n = Math.random() * total;
+  for (const r of live) { n -= r.weight; if (n < 0) return pick(list.filter(x => x.rarity === r.name)); }
+  return pick(list.filter(x => x.rarity === live[0].name));
+}
+function ratesHtml(list) {
+  const live = state.rarities.filter(r => r.weight > 0 && list.some(x => x.rarity === r.name));
+  const total = live.reduce((s, r) => s + Number(r.weight), 0) || 1;
+  return state.rarities.map(r => {
+    const n = list.filter(x => x.rarity === r.name).length;
+    const pct = live.includes(r) ? (r.weight / total * 100) : 0;
+    return `<div class="rate"><b style="color:${r.color}">${esc(r.name)}</b><span>${pct < 1 && pct > 0 ? pct.toFixed(2) : pct.toFixed(1)}% · ${n} ${n === 1 ? "entry" : "entries"}</span></div>`;
+  }).join("");
+}
+function glow(card, rarity) {
+  card.classList.remove("g3", "g4", "g5");
+  const i = rIdx(rarity);
+  if (i >= 3) card.classList.add("g" + Math.min(i, 5));
+}
+function targetOpts(sel) {
+  const cur = sel.value;
+  sel.innerHTML = state.rarities.map((r, i) => `<option value="${i}">${esc(r.name)}</option>`).join("");
+  sel.value = cur && Number(cur) < state.rarities.length ? cur : String(Math.min(3, state.rarities.length - 1));
+}
+
+// ---------------- tabs ----------------
+let curTab = "weapons";
+try { curTab = localStorage.getItem(STORE_KEY + ":tab") || "weapons"; } catch (e) {}
+function showTab(t) {
+  if (!$("tab-" + t)) t = "weapons";
+  curTab = t;
+  document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === t));
+  document.querySelectorAll("section[id^=tab-]").forEach(s => s.hidden = s.id !== "tab-" + t);
+  try { localStorage.setItem(STORE_KEY + ":tab", t); } catch (e) {}
+}
+$("tabs").onclick = e => { const b = e.target.closest("button"); if (b) showTab(b.dataset.tab); };
+
+// ---------------- Weapons & Families (shared spinner) ----------------
+const POOLS = {
+  weapons:  { label: "Weapon", plural: "Weapons", who: "Signature of", whoPh: "e.g. Isagi", effectPh: "e.g. +3 to trap rolls, traps as a bonus action" },
+  families: { label: "Family", plural: "Families", who: "Known members", whoPh: "e.g. Isagi Yoichi", effectPh: "e.g. +2 Dexterity, +1 Intelligence\nFamily trait: ..." },
+};
+
+function buildPool(k) {
+  const P = POOLS[k];
+  $("tab-" + k).innerHTML = `
+    <div class="top">
+      <div class="panel card" id="${k}-card">
+        <div id="${k}-result"><p class="empty">Press <b>Spin ${P.label}</b> to roll.</p></div>
+        <div class="row" style="margin-top:16px">
+          <button class="primary" id="${k}-spin">🎲 Spin ${P.label}</button>
+          <button id="${k}-auto">Auto-spin until</button><select class="auto" id="${k}-target"></select><span class="note">or better</span>
+        </div>
+        <div class="note" id="${k}-count" style="margin-top:8px">Spins: 0</div>
+      </div>
+      <div class="panel">
+        <h3 style="margin-top:0">Drop Rates</h3><div class="rates" id="${k}-rates"></div>
+        <h3>History</h3><div class="hist" id="${k}-hist"><span class="empty">No spins yet.</span></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="row" style="justify-content:space-between"><h2 style="margin:0">${P.plural} Editor</h2><button class="small" id="${k}-add">+ Add ${P.label.toLowerCase()}</button></div>
+      <p class="note">Change anything here — names, rarities and effects. Spins use whatever is in this list.</p>
+      <div class="ed-wrap"><table class="ed" id="${k}-ed"></table></div>
+    </div>`;
+
+  const hist = [];
+  let spins = 0, auto = false;
+
+  function show(item) {
+    const r = rOf(item);
+    $(k + "-result").innerHTML = `
+      <span class="badge" style="color:${r.color}">${esc(r.name)}</span>
+      <div class="big" style="color:${r.color}">${isML(item.rarity) ? `<span class="ml-tag">[Master's League]</span>` : ""}${esc(item.name)}${k === "families" ? " Family" : ""}</div>
+      <div class="who">${item.who ? `${esc(P.who)}: ${esc(item.who)}` : ""}</div>
+      <div class="effect" style="--c:${r.color}">${esc(item.effect) || '<span class="note">No effect written yet — add one in the editor below.</span>'}</div>`;
+    glow($(k + "-card"), item.rarity);
+  }
+
+  async function spin() {
+    const list = state[k];
+    if (!list.length) { alert(`Add at least one ${P.label.toLowerCase()} first.`); return null; }
+    $(k + "-spin").disabled = true;
+    const card = $(k + "-card");
+    card.classList.add("shake");
+    for (let t = 0; t < 13; t++) {
+      const f = pick(list), r = rOf(f);
+      $(k + "-result").innerHTML = `<span class="badge" style="color:${r.color}">${esc(r.name)}</span><div class="big" style="color:${r.color}">${esc(f.name)}</div>`;
+      await sleep(60);
+    }
+    card.classList.remove("shake");
+    const item = rollFrom(list);
+    show(item);
+    spins++; $(k + "-count").textContent = `Spins: ${spins}`;
+    hist.unshift(item); if (hist.length > 50) hist.pop();
+    $(k + "-hist").innerHTML = hist.map((h, i) => `<div data-h="${i}"><span>${esc(h.name)}</span><b style="color:${rOf(h).color}">${esc(h.rarity)}</b></div>`).join("");
+    $(k + "-spin").disabled = false;
+    return item;
+  }
+
+  $(k + "-spin").onclick = spin;
+  $(k + "-hist").onclick = e => { const d = e.target.closest("[data-h]"); if (d) show(hist[d.dataset.h]); };
+  $(k + "-auto").onclick = async () => {
+    if (auto) { auto = false; return; }
+    auto = true; $(k + "-auto").textContent = "⏹ Stop";
+    const target = Number($(k + "-target").value);
+    let guard = 0;
+    while (auto && guard++ < 500) { const it = await spin(); if (!it || rIdx(it.rarity) >= target) break; }
+    auto = false; $(k + "-auto").textContent = "Auto-spin until";
+  };
+
+  function renderEditor() {
+    const rn = state.rarities.map(r => r.name);
+    $(k + "-ed").innerHTML = `<tr><th>Name</th><th>Rarity</th><th>${esc(P.who)}</th><th>Effect</th><th></th></tr>` +
+      byRarity(state[k]).map(x => `<tr data-id="${x.id}">
+        <td class="w-name"><input data-k="name" value="${esc(x.name)}"></td>
+        <td class="w-sel"><select data-k="rarity" style="color:${rOf(x).color}">${opts(rn, x.rarity)}</select></td>
+        <td class="w-who"><input data-k="who" value="${esc(x.who)}" placeholder="${esc(P.whoPh)}"></td>
+        <td><textarea data-k="effect" rows="${Math.min(8, Math.max(2, (x.effect || "").split("\n").length + 1))}" placeholder="${esc(P.effectPh)}">${esc(x.effect)}</textarea></td>
+        <td><button class="small" data-del title="Remove">✕</button></td></tr>`).join("");
+  }
+  const find = id => state[k].find(x => x.id === id);
+  $(k + "-ed").addEventListener("input", e => {
+    const tr = e.target.closest("tr[data-id]"), f = e.target.dataset.k; if (!tr || !f) return;
+    find(tr.dataset.id)[f] = e.target.value; save();
+  });
+  $(k + "-ed").addEventListener("change", e => {
+    if (e.target.dataset.k === "rarity") { renderEditor(); $(k + "-rates").innerHTML = ratesHtml(state[k]); }
+  });
+  $(k + "-ed").addEventListener("click", e => {
+    if (!e.target.hasAttribute("data-del")) return;
+    const x = find(e.target.closest("tr").dataset.id);
+    if (!confirm(`Remove "${x.name}"?`)) return;
+    state[k] = state[k].filter(y => y !== x); save(); refresh();
+  });
+  $(k + "-add").onclick = () => {
+    state[k].push({ id: newId(), name: `New ${P.label}`, rarity: state.rarities[0].name, who: "", effect: "" });
+    save(); refresh();
+  };
+
+  function refresh() { renderEditor(); $(k + "-rates").innerHTML = ratesHtml(state[k]); targetOpts($(k + "-target")); }
+  return { refresh };
+}
+
+// ---------------- Genes ----------------
+const gf = () => state.genes.factors;
+const gById = id => gf().find(f => f.id === id);
+const tag = f => `<span class="mono" style="color:${rOf(f).color}">${esc(f.code)}</span>`;
+
+function cross(a, b) {
+  if (a.id === b.id) return { type: "pure", genes: [{ f: a, status: "Pure" }] };
+  const ra = a.dominance === "Recessive", rb = b.dominance === "Recessive";
+  if (ra && rb) return { type: "latent", genes: [{ f: a, status: "Carrier" }, { f: b, status: "Carrier" }] };
+  if (!ra && !rb) return { type: "co", genes: [{ f: a, status: "Expressed" }, { f: b, status: "Expressed" }] };
+  const [dom, rec] = ra ? [b, a] : [a, b];
+  if (dom.dominance === "Codominant") return { type: "partial", genes: [{ f: dom, status: "Expressed" }, { f: rec, status: "Partial" }] };
+  return { type: "masked", genes: [{ f: dom, status: "Expressed" }, { f: rec, status: "Carrier" }] };
+}
+function offspringRarity(c) {
+  const active = c.genes.filter(g => g.status !== "Carrier");
+  const pool = active.length ? active : c.genes;
+  return pool.reduce((best, g) => rIdx(g.f.rarity) > rIdx(best.rarity) ? g.f : best, pool[0].f).rarity;
+}
+
+function showGene(a, b, fromSpin) {
+  const c = cross(a, b);
+  const r = state.rarities[rIdx(offspringRarity(c))];
+  const combo = state.genes.combos.find(k => (k.a === a.id && k.b === b.id) || (k.a === b.id && k.b === a.id));
+  const sc = { Pure: "var(--pure)", Expressed: "var(--co)", Partial: "var(--partial)", Carrier: "var(--latent)" };
+  const genes = c.genes.map(({ f, status }) => {
+    let body;
+    if (status === "Carrier") body = `<div class="none">Dormant — carried and can pass on to your kids, but gives no bonus.</div>`;
+    else if (status === "Partial") body = f.bonus ? `<div class="bonus">${esc(f.bonus.split("\n")[0])}</div><div class="note"><i>Partial: only the first line of this gene's bonus applies.</i></div>` : `<div class="none">No bonus written yet.</div>`;
+    else {
+      const parts = [];
+      if (f.bonus) parts.push(`<div class="bonus">${esc(f.bonus)}</div>`);
+      if (status === "Pure" && f.pureBonus) parts.push(`<div class="bonus"><b>Pure:</b> ${esc(f.pureBonus)}</div>`);
+      body = parts.join("") || `<div class="none">No bonus written yet — add one in the Gene Editor.</div>`;
+    }
+    return `<div class="gene" style="--c:${rOf(f).color}">
+      <div class="row" style="justify-content:space-between"><span class="n">${esc(f.name)} ${tag(f)}</span>
+      <span class="badge" style="color:${sc[status]}">${status}${status === "Pure" ? " ×2" : ""}</span></div>
+      <div class="note">${esc(f.category)} · ${esc(f.dominance)} · ${esc(f.rarity)}</div>${body}</div>`;
+  }).join("");
+  const comboHtml = combo ? `<div class="gene" style="--c:#fff"><div class="row" style="justify-content:space-between"><span class="n">✦ ${esc(combo.name || "Gene Combo")}</span><span class="badge" style="color:#fff">Combo</span></div>
+    ${combo.bonus ? `<div class="bonus">${esc(combo.bonus)}</div>` : `<div class="none">No bonus written yet.</div>`}</div>` : "";
+  $("g-result").innerHTML = `<h2>Offspring ${fromSpin ? "" : '<span class="note">(preview)</span>'}</h2>
+    <div class="geno mono">${tag(a)} / ${tag(b)}</div>
+    <div class="row" style="margin:6px 0 4px"><span class="badge" style="color:${r.color}">${esc(r.name)}</span>
+    <span class="badge" style="color:${TYPE_COLOR[c.type]}">${TYPE_NAME[c.type]}</span></div>${genes}${comboHtml}`;
+  highlight(a, b);
+}
+
+function renderMatrix() {
+  const fs = byRarity(gf());
+  let h = `<thead><tr><th class="corner rowh">A \\ B</th>${fs.map(f =>
+    `<th class="colh" style="color:${rOf(f).color}" title="${esc(f.name)}">${esc(f.code)} · ${esc(f.name)}</th>`).join("")}</tr></thead><tbody>`;
+  for (const a of fs) {
+    h += `<tr><th class="rowh" style="color:${rOf(a).color}"><span class="mono">${esc(a.code)}</span> ${esc(a.name)}</th>`;
+    for (const b of fs) {
+      const c = cross(a, b);
+      h += `<td><div class="x mono" data-a="${a.id}" data-b="${b.id}" style="background:${TYPE_COLOR[c.type]}" title="${esc(a.name)} × ${esc(b.name)} — ${TYPE_NAME[c.type]}">${esc(a.code)}${esc(b.code)}</div></td>`;
+    }
+    h += "</tr>";
+  }
+  $("matrix").innerHTML = h + "</tbody>";
+}
+function highlight(a, b) {
+  document.querySelectorAll(".matrix .x.hit").forEach(e => e.classList.remove("hit"));
+  const el = document.querySelector(`.matrix .x[data-a="${a.id}"][data-b="${b.id}"]`);
+  if (!el || $("tab-genes").hidden) return;
+  el.classList.add("hit");
+  const wrap = document.querySelector(".matrix-wrap"), er = el.getBoundingClientRect(), wr = wrap.getBoundingClientRect();
+  wrap.scrollBy({ left: er.left - wr.left - wr.width / 2, top: er.top - wr.top - wr.height / 2, behavior: "smooth" });
+}
+$("matrix").addEventListener("click", e => { const x = e.target.closest(".x"); if (x) showGene(gById(x.dataset.a), gById(x.dataset.b), false); });
+
+function renderGeneEditor() {
+  const rn = state.rarities.map(r => r.name);
+  $("g-ed").innerHTML = `<tr><th>Code</th><th>Name</th><th>Type</th><th>Rarity</th><th>Dominance</th><th>Bonus</th><th>Pure bonus (×2)</th><th></th></tr>` +
+    byRarity(gf()).map(f => `<tr data-id="${f.id}">
+      <td><input class="w-code mono" data-k="code" value="${esc(f.code)}" maxlength="4"></td>
+      <td><input data-k="name" value="${esc(f.name)}"></td>
+      <td><select class="w-sel" data-k="category">${opts([...new Set([...CATEGORIES, f.category])], f.category)}</select></td>
+      <td><select class="w-sel" data-k="rarity" style="color:${rOf(f).color}">${opts(rn, f.rarity)}</select></td>
+      <td><select class="w-sel" data-k="dominance">${opts(DOMINANCE, f.dominance)}</select></td>
+      <td><textarea data-k="bonus" placeholder="e.g. +3 ft to stride">${esc(f.bonus)}</textarea></td>
+      <td><textarea data-k="pureBonus" placeholder="e.g. Doubled stride off the ball">${esc(f.pureBonus)}</textarea></td>
+      <td><button class="small" data-del title="Remove">✕</button></td></tr>`).join("");
+}
+let mt;
+$("g-ed").addEventListener("input", e => {
+  const tr = e.target.closest("tr[data-id]"), k = e.target.dataset.k; if (!tr || !k) return;
+  gById(tr.dataset.id)[k] = e.target.value; save();
+  if (k !== "bonus" && k !== "pureBonus") { clearTimeout(mt); mt = setTimeout(() => { renderMatrix(); renderCombos(); }, 300); }
+});
+$("g-ed").addEventListener("change", e => { if (e.target.dataset.k === "rarity") { renderGeneEditor(); renderMatrix(); } });
+$("g-ed").addEventListener("click", e => {
+  if (!e.target.hasAttribute("data-del")) return;
+  if (gf().length <= 1) return alert("You need at least one gene.");
+  const id = e.target.closest("tr").dataset.id, f = gById(id);
+  if (!confirm(`Remove "${f.name}"?`)) return;
+  state.genes.factors = gf().filter(x => x.id !== id);
+  state.genes.combos = state.genes.combos.filter(c => c.a !== id && c.b !== id);
+  save(); refreshGenes();
+});
+$("g-add").onclick = () => {
+  gf().push({ id: newId(), code: "Nw", name: "New Gene", category: "Body", rarity: state.rarities[0].name, dominance: "Recessive", bonus: "", pureBonus: "" });
+  save(); refreshGenes();
+};
+
+function renderCombos() {
+  const fo = cur => byRarity(gf()).map(f => `<option value="${f.id}" ${f.id === cur ? "selected" : ""}>${esc(f.code)} · ${esc(f.name)}</option>`).join("");
+  const cs = state.genes.combos;
+  $("c-ed").innerHTML = `<tr><th>Gene A</th><th>Gene B</th><th>Combo name</th><th>Bonus</th><th></th></tr>` +
+    (cs.length ? cs.map((c, i) => `<tr data-ci="${i}">
+      <td><select data-k="a">${fo(c.a)}</select></td><td><select data-k="b">${fo(c.b)}</select></td>
+      <td><input data-k="name" value="${esc(c.name)}"></td>
+      <td><textarea data-k="bonus">${esc(c.bonus)}</textarea></td>
+      <td><button class="small" data-del>✕</button></td></tr>`).join("") : `<tr><td colspan="5" class="note">No combos yet.</td></tr>`);
+}
+$("c-ed").addEventListener("input", e => {
+  const tr = e.target.closest("tr[data-ci]"), k = e.target.dataset.k; if (!tr || !k) return;
+  state.genes.combos[tr.dataset.ci][k] = e.target.value; save();
+});
+$("c-ed").addEventListener("click", e => {
+  if (!e.target.hasAttribute("data-del")) return;
+  state.genes.combos.splice(e.target.closest("tr").dataset.ci, 1); save(); renderCombos();
+});
+$("c-add").onclick = () => {
+  const fs = byRarity(gf());
+  state.genes.combos.push({ a: fs[0].id, b: fs[Math.min(1, fs.length - 1)].id, name: "", bonus: "" }); save(); renderCombos();
+};
+
+const alleleHtml = f => `<span class="allele mono" style="color:${rOf(f).color}" title="${esc(f.name)}">${esc(f.code)}</span>`;
+function renderPunnett(A, B) {
+  const cell = (i, j) => {
+    if (!A) return `<div class="cell"></div>`;
+    const c = cross(A[i], B[j]);
+    return `<div class="cell mono" data-c="${i}${j}" style="color:${TYPE_COLOR[c.type]}">${esc(A[i].code)}/${esc(B[j].code)}</div>`;
+  };
+  $("punnett").innerHTML = `<div class="hd">A \\ B</div><div class="hd">${B ? alleleHtml(B[0]) : ""}</div><div class="hd">${B ? alleleHtml(B[1]) : ""}</div>
+    <div class="hd">${A ? alleleHtml(A[0]) : ""}</div>${cell(0, 0)}${cell(0, 1)}
+    <div class="hd">${A ? alleleHtml(A[1]) : ""}</div>${cell(1, 0)}${cell(1, 1)}`;
+}
+
+let gSpins = 0, gAuto = false; const gHist = [];
+async function spinGenes() {
+  $("g-spin").disabled = true;
+  const A = [rollFrom(gf()), rollFrom(gf())], B = [rollFrom(gf()), rollFrom(gf())];
+  renderPunnett(null, null);
+  for (let t = 0; t < 14; t++) {
+    $("pA").innerHTML = alleleHtml(pick(gf())) + alleleHtml(pick(gf()));
+    $("pB").innerHTML = alleleHtml(pick(gf())) + alleleHtml(pick(gf()));
+    await sleep(55);
+  }
+  $("pA").innerHTML = A.map(alleleHtml).join(""); $("pB").innerHTML = B.map(alleleHtml).join("");
+  renderPunnett(A, B);
+  const keys = ["00", "01", "10", "11"], win = pick(keys);
+  for (let t = 0; t < 10; t++) {
+    document.querySelectorAll(".punnett .cell").forEach(c => c.classList.toggle("flash", c.dataset.c === keys[t % 4]));
+    await sleep(70 + t * 12);
+  }
+  document.querySelectorAll(".punnett .cell").forEach(c => { c.classList.remove("flash"); c.classList.toggle("win", c.dataset.c === win); });
+  const a = A[+win[0]], b = B[+win[1]];
+  showGene(a, b, true);
+  const rName = offspringRarity(cross(a, b));
+  gSpins++; $("g-count").textContent = `Spins: ${gSpins}`;
+  gHist.unshift({ a, b, rName }); if (gHist.length > 50) gHist.pop();
+  $("g-hist").innerHTML = gHist.map((h, i) => `<div data-h="${i}"><span class="mono">${esc(h.a.code)} / ${esc(h.b.code)} <span class="note">${esc(h.a.name)} × ${esc(h.b.name)}</span></span>
+    <b style="color:${state.rarities[rIdx(h.rName)].color}">${esc(h.rName)}</b></div>`).join("");
+  $("g-spin").disabled = false;
+  return rName;
+}
+$("g-spin").onclick = spinGenes;
+$("g-hist").onclick = e => { const d = e.target.closest("[data-h]"); if (!d) return; const h = gHist[d.dataset.h]; if (gById(h.a.id) && gById(h.b.id)) showGene(h.a, h.b, true); };
+$("g-auto").onclick = async () => {
+  if (gAuto) { gAuto = false; return; }
+  gAuto = true; $("g-auto").textContent = "⏹ Stop";
+  const target = Number($("g-target").value); let guard = 0;
+  while (gAuto && guard++ < 500) { if (rIdx(await spinGenes()) >= target) break; }
+  gAuto = false; $("g-auto").textContent = "Auto-spin until";
+};
+function refreshGenes() { renderMatrix(); renderGeneEditor(); renderCombos(); targetOpts($("g-target")); }
+
+// ---------------- settings ----------------
+function renderWeights() {
+  $("weights").innerHTML = state.rarities.map((r, i) => `<div style="background:var(--panel2);border-radius:10px;padding:8px 10px">
+    <b style="color:${r.color}">${esc(r.name)}</b><input type="number" min="0" step="0.1" value="${r.weight}" data-ri="${i}" style="margin-top:4px"></div>`).join("");
+}
+$("weights").addEventListener("input", e => {
+  const i = e.target.dataset.ri; if (i === undefined) return;
+  state.rarities[i].weight = Math.max(0, Number(e.target.value) || 0); save();
+  pools.weapons.refresh(); pools.families.refresh();
+});
+$("exportBtn").onclick = () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "egoist-roll.json"; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+$("importBtn").onclick = () => $("importFile").click();
+$("importFile").onchange = async e => {
+  const file = e.target.files[0]; if (!file) return;
+  try {
+    const s = JSON.parse(await file.text());
+    if (!valid(s)) throw new Error("bad");
+    s.genes.combos = s.genes.combos || [];
+    for (const list of [s.weapons, s.families, s.genes.factors]) list.forEach(x => { if (!x.id) x.id = newId(); });
+    state = s; save(); renderAll();
+  } catch (err) { alert("That file doesn't look like an Egoist Roll export."); }
+  e.target.value = "";
+};
+$("resetBtn").onclick = () => {
+  if (!confirm("Reset ALL weapons, families and genes to the defaults? Your edits will be erased.")) return;
+  state = fromDefaults(); save(); renderAll();
+};
+
+const pools = { weapons: buildPool("weapons"), families: buildPool("families") };
+function renderAll() { pools.weapons.refresh(); pools.families.refresh(); refreshGenes(); renderPunnett(null, null); renderWeights(); }
+renderAll();
+showTab(curTab);
+</script>
+</body>
+</html>
