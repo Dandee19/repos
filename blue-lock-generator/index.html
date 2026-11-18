@@ -7,7 +7,7 @@
 <style>
   :root {
     --bg: #060a17; --panel: #0d1430; --panel2: #141d40; --text: #e9eefc; --muted: #8f9bc4; --line: #22305e; --accent: #2f6bff;
-    --pure: #ffd23f; --co: #4fd06b; --partial: #3fc6c6; --masked: #7b8cff; --latent: #5d6688;
+    --pure: #ffd23f; --co: #4fd06b; --awakened: #3fc6c6; --suppressed: #7b8cff; --hidden: #c08bff;
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: radial-gradient(1200px 500px at 50% -200px, #12245e 0%, var(--bg) 70%) fixed, var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
@@ -38,11 +38,11 @@
 
   /* spin cards */
   .card { min-height: 300px; position: relative; overflow: hidden; }
-  .card.g3 { box-shadow: 0 0 26px -6px #ffb52e; }
-  .card.g4 { box-shadow: 0 0 34px -4px #ff4f8b; animation: pulseM 2s infinite; }
-  .card.g5 { box-shadow: 0 0 40px -2px #3df5ff; animation: pulseML 1.6s infinite; border-color: #3df5ff; }
-  @keyframes pulseM { 50% { box-shadow: 0 0 52px 0 #ff4f8b; } }
-  @keyframes pulseML { 50% { box-shadow: 0 0 64px 4px #3df5ff; } }
+  .card.g3 { box-shadow: 0 0 26px -6px var(--glow); }
+  .card.g4 { box-shadow: 0 0 34px -4px var(--glow); animation: pulseM 2s infinite; }
+  .card.g5 { box-shadow: 0 0 40px -2px var(--glow); animation: pulseML 1.6s infinite; border-color: var(--glow); }
+  @keyframes pulseM { 50% { box-shadow: 0 0 52px 0 var(--glow); } }
+  @keyframes pulseML { 50% { box-shadow: 0 0 64px 4px var(--glow); } }
   .shake { animation: shake .08s linear infinite; }
   @keyframes shake { 0%{transform:translateX(0)} 50%{transform:translateX(2px)} 100%{transform:translateX(-2px)} }
   .badge { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; border: 1px solid currentColor; }
@@ -143,11 +143,11 @@
     <div class="panel">
       <h2>Gene Crossing Table</h2>
       <div class="legend">
-        <span style="--k:var(--pure)">Pure — same gene twice</span>
-        <span style="--k:var(--co)">Co-expressed — both genes active</span>
-        <span style="--k:var(--partial)">Partial — codominant unlocks the first line of a recessive’s bonus</span>
-        <span style="--k:var(--masked)">Masked — dominant hides recessive (carrier)</span>
-        <span style="--k:var(--latent)">Latent — two different recessives, both dormant</span>
+        <span style="--k:var(--pure)">Pure — same gene twice: full bonus + pure bonus</span>
+        <span style="--k:var(--co)">Co-expressed — both genes give their full bonus</span>
+        <span style="--k:var(--awakened)">Awakened — codominant fully awakens a recessive: both full</span>
+        <span style="--k:var(--suppressed)">Suppressed — dominant gives full; recessive gives its first line</span>
+        <span style="--k:var(--hidden)">Hidden Pair — two recessives: each gives its first line</span>
       </div>
       <div class="matrix-wrap"><table class="matrix" id="matrix"></table></div>
     </div>
@@ -194,161 +194,188 @@
 const STORE_KEY = "blue-lock-egoist-roll-v1";
 const DOMINANCE = ["Dominant", "Codominant", "Recessive"];
 const CATEGORIES = ["Body", "Mind", "Lineage", "Instinct"];
-const TYPE_COLOR = { pure: "var(--pure)", co: "var(--co)", partial: "var(--partial)", masked: "var(--masked)", latent: "var(--latent)" };
-const TYPE_NAME = { pure: "Pure", co: "Co-expressed", partial: "Partial", masked: "Masked", latent: "Latent" };
+const TYPE_COLOR = { pure: "var(--pure)", co: "var(--co)", awakened: "var(--awakened)", suppressed: "var(--suppressed)", hidden: "var(--hidden)" };
+const TYPE_NAME = { pure: "Pure", co: "Co-expressed", awakened: "Awakened", suppressed: "Suppressed", hidden: "Hidden Pair" };
 
 const W = (name, rarity, who, effect) => ({ name, rarity, who, effect });
 const G = (code, name, category, rarity, dominance, bonus, pureBonus) => ({ code, name, category, rarity, dominance, bonus, pureBonus });
 
 const DEFAULTS = {
-  version: 1,
+  version: 2,
   rarities: [
     { name: "Common", color: "#b8b8b8", weight: 45 },
     { name: "Uncommon", color: "#4fd06b", weight: 28 },
     { name: "Rare", color: "#3fa0ff", weight: 15 },
     { name: "Legendary", color: "#ffb52e", weight: 8 },
-    { name: "Mythical", color: "#ff4f8b", weight: 3.5 },
+    { name: "Mythical", color: "#ff4f8b", weight: 3 },
+    { name: "World Class", color: "#a46bff", weight: 1.5 },
     { name: "Master's League", color: "#3df5ff", weight: 0.5 },
   ],
 
+  // Power curve: Common +2-3 · Uncommon +3 · Rare +4 · Legendary +5 · Mythical +6
+  // World Class +7 with a Passive · Master's League = stat + Passive + Chain (like Samba)
   weapons: [
     // Common
-    W("Clean First Touch", "Common", "Every Blue Lock striker", "+1 to trap rolls."),
-    W("Long Ball", "Common", "Midfielders", "Your passes go 10 feet farther."),
-    W("Sliding Tackle", "Common", "Defenders", "+2 to steal rolls. If the steal fails, you lose 5 ft of stride on your next turn."),
-    W("Header", "Common", "Target strikers", "+2 to headers and aerial duels."),
-    W("Engine", "Common", "Box-to-box players", "Ignore the first point of fatigue each half."),
-    W("Shoulder Charge", "Common", "Physical players", "+2 to physical contests (shoulder-to-shoulder, holding off a defender)."),
+    W("Clean First Touch", "Common", "Every Blue Lock striker", "+2 to trap rolls."),
+    W("Long Ball", "Common", "Midfielders", "+1 to passing, and your passes go 15 feet farther."),
+    W("Sliding Tackle", "Common", "Defenders", "+3 to steal rolls. If the steal fails, you lose 5 ft of stride on your next turn."),
+    W("Header", "Common", "Target strikers", "+3 to headers and aerial duels."),
+    W("Engine", "Common", "Box-to-box players", "Ignore the first two points of fatigue each half."),
+    W("Shoulder Charge", "Common", "Physical players", "+3 to physical contests (shoulder-to-shoulder, holding off a defender)."),
     // Uncommon
     W("Good Body", "Uncommon", "Physical monsters", "+1 Strength, Maximum is now 22"),
-    W("Speed Burst", "Uncommon", "Wingers", "+5 ft to stride on your first move each turn."),
-    W("Body Feint", "Uncommon", "Bachira, Otoya", "+2 to Dodge. A defender who fails to steal from you can't intercept your next pass."),
-    W("Power Shot", "Uncommon", "Kunigami", "+2 to shooting, and your shots go 10 feet farther."),
-    W("Direct Shot", "Uncommon", "Isagi", "+2 to scoring on first-time shots (shooting in the same action you receive the ball)."),
-    W("Wall", "Uncommon", "Gagamaru, Raichi", "+2 to blocking shots. Allies within 10 ft gain +1 to intercepts."),
+    W("Speed Burst", "Uncommon", "Wingers", "+10 ft to stride on your first move each turn."),
+    W("Body Feint", "Uncommon", "Bachira, Otoya", "+3 to Dodge. A defender who fails to steal from you can't intercept your next pass."),
+    W("Power Shot", "Uncommon", "Kunigami", "+3 to shooting, and your shots go 15 feet farther."),
+    W("Direct Shot", "Uncommon", "Isagi", "+3 to scoring on first-time shots (shooting in the same action you receive the ball)."),
+    W("Wall", "Uncommon", "Gagamaru, Raichi", "+3 to blocking shots. Allies within 10 ft gain +2 to intercepts."),
     // Rare
     W("Core Control", "Rare", "Bachira", "Your turn movement is 270 Degrees"),
     W("Golden Zone", "Rare", "Strikers", "+3 to scoring in a 15 foot area of your choice"),
-    W("Spatial Awareness", "Rare", "Isagi", "+3 to intercepts and pass reads. Once per turn, ask the GM where one player is about to move."),
-    W("Top Speed", "Rare", "Chigiri", "+10 ft to stride when you have 30 ft of open space in front of you."),
-    W("Aerial Beauty", "Rare", "Aryu", "+3 to headers and aerial duels, and you may jump to intercept passes up to 10 ft overhead."),
-    W("Perfect Pass", "Rare", "Hiori", "+3 to passing, and your passes can curve around one defender."),
-    W("Phantom", "Rare", "Otoya", "Defenders get -3 to track or mark you while you're off the ball."),
-    W("Ball Stop", "Rare", "Karasu", "+3 to steal rolls. After a successful steal, you may pass as a free action."),
+    W("Spatial Awareness", "Rare", "Isagi", "+4 to intercepts and pass reads. Once per turn, ask the GM where one player is about to move."),
+    W("Top Speed", "Rare", "Chigiri", "+15 ft to stride when you have 30 ft of open space in front of you."),
+    W("Aerial Beauty", "Rare", "Aryu", "+4 to headers and aerial duels, and you may jump to intercept passes up to 15 ft overhead."),
+    W("Perfect Pass", "Rare", "Hiori", "+4 to passing, and your passes can curve around up to two defenders."),
+    W("Phantom", "Rare", "Otoya", "Defenders get -4 to track or mark you while you're off the ball."),
+    W("Ball Stop", "Rare", "Karasu", "+4 to steal rolls. After a successful steal, you may pass as a free action."),
     // Legendary
     W("Trap God", "Legendary", "Nagi", "Gain +4 to trap rolls, and may use traps as a bonus action"),
     W("Off the Ball", "Legendary", "Isagi, Otoya", "Doubled stride off the ball"),
-    W("Meta Vision", "Legendary", "Isagi", "+4 to pass reads and shooting. Once per turn, the GM tells you one opponent's planned action before it happens."),
-    W("Predator Eye", "Legendary", "Barou", "+4 to scoring on shots taken right after you steal or dribble past someone."),
-    W("Chameleon", "Legendary", "Reo", "Once per match, copy any Rare or lower weapon you've seen this match for 3 turns. +2 to all rolls while copying."),
-    W("Explosive Volley", "Legendary", "Shidou", "+4 to volleys, and you may volley from any body position (bicycle, scissor, flying)."),
-    W("Gyro Dribble", "Legendary", "Yukimiya", "+4 to dribbling. Any defender you dribble past loses their reaction this turn."),
-    W("Speed Star", "Legendary", "Chigiri", "Once per turn, double your stride for one straight-line move."),
-    W("Pinball Pass", "Legendary", "Kurona", "After you pass, you may move 15 ft and receive a return pass as part of the same action."),
+    W("Meta Vision", "Legendary", "Isagi", "+5 to pass reads and shooting. Once per turn, the GM tells you one opponent's planned action before it happens."),
+    W("Predator Eye", "Legendary", "Barou", "+5 to scoring on shots taken right after you steal or dribble past someone, and those shots go 15 feet farther."),
+    W("Chameleon", "Legendary", "Reo", "Twice per match, copy any Legendary or lower weapon you've seen this match for 3 turns. +2 to all rolls while copying."),
+    W("Explosive Volley", "Legendary", "Shidou", "+5 to volleys, and you may volley from any body position (bicycle, scissor, flying)."),
+    W("Gyro Dribble", "Legendary", "Yukimiya", "+5 to dribbling. Any defender you dribble past loses their reaction this turn."),
+    W("Speed Star", "Legendary", "Chigiri", "Once per turn, double your stride for one straight-line move, and gain +2 to your next shot after it."),
+    W("Pinball Pass", "Legendary", "Kurona", "After you pass, you may move 20 ft and receive a return pass as part of the same action, with +2 to your next shot."),
     // Mythical
     W("Finesse Shot", "Mythical", "Rin", "Your shots go 30 feet farther, and you may use strength to shoot."),
     W("Creative Dribbling", "Mythical", "Bachira", "You add your full intelligence to creative dribbling, and increase your stride by 1 ft."),
-    W("Destroyer", "Mythical", "Rin", "Once per half, enter Destructive Flow for 3 turns: +5 to all rolls, and anyone failing a check against you is staggered (can't react or intercept until next turn)."),
-    W("Emperor Impact", "Mythical", "Kaiser", "+5 to shooting, and your shots can't be intercepted within 20 ft of the release."),
-    W("Precision Pass", "Mythical", "Sae", "+5 to passing. Your passes ignore range penalties and land on any exact spot you choose within range."),
-    W("Fake Volley", "Mythical", "Nagi", "Once per turn, fake a shot as a free action. Defenders who fail a DC 15 read are staggered."),
-    W("Flow", "Mythical", "True Egoists", "Once per match, enter Flow for 5 turns: +3 to every roll and +5 ft stride."),
+    W("Destroyer", "Mythical", "Rin", "Once per half, enter Destructive Flow for 4 turns: +6 to all rolls, and anyone failing a check against you is staggered (can't react or intercept until next turn)."),
+    W("Emperor Impact", "Mythical", "Kaiser", "+6 to shooting, your shots go 20 feet farther, and they can't be intercepted within 20 ft of the release."),
+    W("Precision Pass", "Mythical", "Sae", "+6 to passing. Your passes ignore range penalties and land on any exact spot you choose within range."),
+    W("Fake Volley", "Mythical", "Nagi", "Once per turn, fake a shot as a free action. Defenders who fail a DC 16 read are staggered, and your next shot gains +3."),
+    W("Flow", "Mythical", "True Egoists", "Once per half, enter Flow for 5 turns: +4 to every roll and +10 ft stride."),
+    // World Class
+    W("Meta Direct Shot", "World Class", "Isagi",
+      "+7 to first-time shots, and they go 20 feet farther\n\nZero-Gap Instinct (Passive): Your first-time shots ignore one defender's block, and anyone who failed to mark you this turn is staggered."),
+    W("Five-Stage Trap", "World Class", "Nagi",
+      "+7 to trap rolls, and you may trap as a free action once per turn\n\nFive-Stage Fake (Passive): After a trap, you may fake up to 2 shots; every defender you fool is staggered and your next shot gains +3."),
+    W("Devil's Bang", "World Class", "Shidou",
+      "+7 to volleys, and your volleys go 25 feet farther\n\nBig Bang (Passive): When you score from a volley, every opponent within 15 ft is staggered until your team's next turn."),
+    W("Chaos Flow", "World Class", "Rin",
+      "+6 to Shooting and Dribbling\n\nUnleashed (Passive): Once per half, for 4 turns, anyone failing a check against you is staggered, and you gain +10 ft stride."),
+    W("Monster Dance", "World Class", "Bachira",
+      "+7 to Dribbling, and +2 ft stride while dribbling\n\nInner Monster (Passive): Every defender you dribble past is staggered, and after beating 2, your next shot or pass gains +4."),
     // Master's League
     W("Samba", "Master's League", "Lavinho",
       "+3ft to Stride\n\nElastic Rhythm (Passive): Gain +4 to Dribbling and Dodge, and anyone failing a steal vs you is staggered (can't react or intercept until next turn).\n\nDribble Chain: You may perform up to 3 dribble checks per turn, with each success letting you move 10 ft extra (stackable), and when dribbling past 2 players, gain +3 to your next shot or pass"),
     W("Emperor", "Master's League", "Kaiser",
-      "+20 ft to shot range\n\nEmperor's Aura (Passive): Gain +4 to Shooting and Trap, and defenders within 10 ft get -2 to block your shots.\n\nMagic Volley: Once per turn, after receiving an aerial pass you may shoot as a free action with +5, and if it scores, your next shot this match gains +2."),
+      "+25 ft to shot range\n\nEmperor's Aura (Passive): Gain +6 to Shooting and Trap, and defenders within 10 ft get -3 to block your shots.\n\nMagic Volley: Once per turn, after receiving an aerial pass you may shoot as a free action with +6, and if it scores, your next shot this match gains +3."),
     W("Total Vision", "Master's League", "Isagi",
-      "+1 Intelligence, Maximum is now 22\n\nMeta Field (Passive): You always know every player's position and intended move, and gain +4 to Passing and Intercepts.\n\nDirect Link: After a successful intercept, you may immediately pass or shoot as a free action with +3, and if that leads to a goal, you regain your bonus action."),
+      "+2 Intelligence, Maximum is now 22\n\nMeta Field (Passive): You always know every player's position and intended move, and gain +6 to Passing and Intercepts.\n\nDirect Link: After a successful intercept, you may immediately pass or shoot as a free action with +4, and if that leads to a goal, you regain your bonus action."),
     W("Lightspeed", "Master's League", "Loki",
-      "+5 ft to Stride, doubled when chasing a loose ball\n\nAfterimage (Passive): Gain +4 to Steal and Intercept, and anyone you sprint past can't react to you until next turn.\n\nBurst Chain: You may make up to 2 sprint moves per turn, and each one that beats a defender gives +2 to your next steal or shot."),
+      "+10 ft to Stride, doubled when chasing a loose ball\n\nAfterimage (Passive): Gain +6 to Steal and Intercept, and anyone you sprint past is staggered.\n\nBurst Chain: You may make up to 3 sprint moves per turn, and each one that beats a defender gives +2 to your next steal or shot (stackable)."),
   ],
 
+  // Ability points by rarity: Common 2 · Uncommon 3 · Rare 4 · Legendary 5 · Mythical 6 · World Class 7 · Master's League +3 to all
   families: [
     // Common
-    W("Igarashi", "Common", "Igarashi Gurimu", "+1 Constitution\nNever Give Up: once per match, reroll a failed check."),
-    W("Imamura", "Common", "Imamura Yudai", "+1 Dexterity\nAgile Feet: +2 to Dodge."),
-    W("Naruhaya", "Common", "Naruhaya Asahi", "+1 Dexterity\nOpportunist: +2 to scoring on rebounds and loose balls."),
-    W("Kuon", "Common", "Kuon Wataru", "+1 Strength\nAerial Fighter: +2 to headers."),
-    W("Iemon", "Common", "Iemon Okuhito", "+1 Wisdom\nKeeper's Hands: +2 to saves."),
-    W("Tsurugi", "Common", "Tsurugi Zantetsu", "+1 Dexterity\nInstinct Runner: +5 ft stride on counterattacks."),
-    W("Kira", "Common", "Kira Ryosuke", "+1 to any one ability\nFallen Prodigy: +1 to shooting."),
+    W("Igarashi", "Common", "Igarashi Gurimu", "+1 Constitution, +1 Charisma\nNever Give Up: twice per match, reroll a failed check."),
+    W("Imamura", "Common", "Imamura Yudai", "+2 Dexterity\nAgile Feet: +3 to Dodge."),
+    W("Naruhaya", "Common", "Naruhaya Asahi", "+1 Dexterity, +1 Wisdom\nOpportunist: +3 to scoring on rebounds and loose balls."),
+    W("Kuon", "Common", "Kuon Wataru", "+2 Strength\nAerial Fighter: +3 to headers."),
+    W("Iemon", "Common", "Iemon Okuhito", "+2 Wisdom\nKeeper's Hands: +3 to saves."),
+    W("Tsurugi", "Common", "Tsurugi Zantetsu", "+2 Dexterity\nInstinct Runner: +10 ft stride on counterattacks."),
+    W("Kira", "Common", "Kira Ryosuke", "+2 to any one ability\nFallen Prodigy: +2 to shooting."),
     // Uncommon
-    W("Raichi", "Uncommon", "Raichi Jingo", "+1 Strength, +1 Constitution\nPitbull: +2 to steals; a failed steal still slows the target by 5 ft."),
-    W("Gagamaru", "Uncommon", "Gagamaru Gin", "+1 Dexterity, +1 Constitution\nFlexible Keeper: +3 to saves and blocks."),
-    W("Tokimitsu", "Uncommon", "Tokimitsu Aoshi", "+1 Strength, +1 Constitution\nAnxious Monster: +2 to physical contests.\n⚠ -1 Wisdom"),
-    W("Niko", "Uncommon", "Niko Ikki", "+1 Intelligence, +1 Wisdom\nHeart Eye: +2 to intercepts and reading plays."),
-    W("Otoya", "Uncommon", "Otoya Eita", "+1 Dexterity, +1 Charisma\nNinja Bloodline: defenders get -1 to mark you off the ball."),
-    W("Karasu", "Uncommon", "Karasu Tabito", "+1 Intelligence, +1 Dexterity\nAnalyst: once per half, learn an opponent's best weapon."),
-    W("Kurona", "Uncommon", "Kurona Ranze", "+1 Dexterity, +1 Wisdom\nShark Positioning: +2 to receiving passes in open space."),
-    W("Aryu", "Uncommon", "Aryu Jyubei", "+1 Strength, +1 Dexterity\nTall & Beautiful: +2 to headers and aerial intercepts."),
+    W("Raichi", "Uncommon", "Raichi Jingo", "+2 Strength, +1 Constitution\nPitbull: +3 to steals; a failed steal still slows the target by 10 ft."),
+    W("Gagamaru", "Uncommon", "Gagamaru Gin", "+2 Dexterity, +1 Constitution\nFlexible Keeper: +4 to saves and blocks."),
+    W("Tokimitsu", "Uncommon", "Tokimitsu Aoshi", "+2 Strength, +2 Constitution\nAnxious Monster: +3 to physical contests.\n⚠ -1 Wisdom"),
+    W("Niko", "Uncommon", "Niko Ikki", "+2 Intelligence, +1 Wisdom\nHeart Eye: +3 to intercepts and reading plays."),
+    W("Otoya", "Uncommon", "Otoya Eita", "+2 Dexterity, +1 Charisma\nNinja Bloodline: defenders get -2 to mark you off the ball."),
+    W("Karasu", "Uncommon", "Karasu Tabito", "+2 Intelligence, +1 Dexterity\nAnalyst: once per half, learn an opponent's best weapon and gain +2 against them for 3 turns."),
+    W("Kurona", "Uncommon", "Kurona Ranze", "+2 Dexterity, +1 Wisdom\nShark Positioning: +3 to receiving passes in open space."),
+    W("Aryu", "Uncommon", "Aryu Jyubei", "+2 Strength, +1 Dexterity\nTall & Beautiful: +3 to headers and aerial intercepts."),
     // Rare
-    W("Kunigami", "Rare", "Kunigami Rensuke", "+2 Strength, +1 Constitution\nHero's Left: +3 to left-foot shots, and they go 10 ft farther."),
-    W("Chigiri", "Rare", "Chigiri Hyoma", "+2 Dexterity, +1 Charisma\nPrincess Speed: +10 ft stride on straight lines.\n⚠ Old Knee Injury: -2 to stamina checks after 3 sprints in one half."),
-    W("Hiori", "Rare", "Hiori Yo", "+2 Intelligence, +1 Dexterity\nPass Mapping: +3 to passing; once per turn, a pass may change direction once."),
-    W("Yukimiya", "Rare", "Yukimiya Kenyu", "+2 Dexterity, +1 Charisma\nGyro Balance: +3 to dribbling.\n⚠ Fading Eyesight: -1 to long-range reads."),
-    W("Mikage", "Rare", "Mikage Reo", "+1 to three abilities of your choice\nWealthy Prodigy: once per match, use any Uncommon weapon you've seen this match."),
-    W("Barou", "Rare", "Barou Shoei", "+2 Strength, +1 Charisma\nKing's Pride: +3 to scoring when you shoot instead of passing.\n⚠ -2 to passing."),
+    W("Kunigami", "Rare", "Kunigami Rensuke", "+2 Strength, +2 Constitution\nHero's Left: +4 to left-foot shots, and they go 15 ft farther."),
+    W("Chigiri", "Rare", "Chigiri Hyoma", "+3 Dexterity, +1 Charisma\nPrincess Speed: +15 ft stride on straight lines.\n⚠ Old Knee Injury: -2 to stamina checks after 3 sprints in one half."),
+    W("Hiori", "Rare", "Hiori Yo", "+3 Intelligence, +1 Dexterity\nPass Mapping: +4 to passing; once per turn, a pass may change direction once."),
+    W("Yukimiya", "Rare", "Yukimiya Kenyu", "+3 Dexterity, +1 Charisma\nGyro Balance: +4 to dribbling.\n⚠ Fading Eyesight: -1 to long-range reads."),
+    W("Mikage", "Rare", "Mikage Reo", "+1 to four abilities of your choice\nWealthy Prodigy: twice per match, use any Rare or lower weapon you've seen this match."),
+    W("Barou", "Rare", "Barou Shoei", "+3 Strength, +1 Charisma\nKing's Pride: +4 to scoring when you shoot instead of passing.\n⚠ -2 to passing."),
     // Legendary
-    W("Isagi", "Legendary", "Isagi Yoichi", "+2 Intelligence, +1 Wisdom\nAdaptive Genius: once per match, add +4 to a roll after seeing the result.\nDirect Shot: +2 to first-time shots."),
-    W("Bachira", "Legendary", "Bachira Meguru", "+2 Dexterity, +1 Intelligence\nThe Monster Within: add half your Intelligence to dribbling, and +3 ft stride while dribbling."),
-    W("Nagi", "Legendary", "Nagi Seishiro", "+2 Dexterity, +1 Intelligence\nLazy Genius: +3 to trap rolls, and your first trap each turn is free.\n⚠ -2 to stamina checks."),
-    W("Shidou", "Legendary", "Shidou Ryusei", "+2 Strength, +2 Dexterity\nDevil's Instinct: +3 to volleys and shots inside the box.\n⚠ -2 to passing."),
-    W("Ness", "Legendary", "Alexis Ness", "+2 Intelligence, +1 Dexterity\nMagic Pass: +3 to passing, and through balls curve around one defender."),
-    W("Lavinho", "Legendary", "Lavinho", "+2 Dexterity, +1 Charisma\nSamba Blood: +3 to Dribbling and Dodge."),
+    W("Isagi", "Legendary", "Isagi Yoichi", "+3 Intelligence, +2 Wisdom\nAdaptive Genius: twice per match, add +5 to a roll after seeing the result.\nDirect Shot: +3 to first-time shots."),
+    W("Bachira", "Legendary", "Bachira Meguru", "+3 Dexterity, +2 Intelligence\nThe Monster Within: add half your Intelligence to dribbling, and +3 ft stride while dribbling."),
+    W("Nagi", "Legendary", "Nagi Seishiro", "+3 Dexterity, +2 Intelligence\nLazy Genius: +4 to trap rolls, and your first trap each turn is free.\n⚠ -2 to stamina checks."),
+    W("Shidou", "Legendary", "Shidou Ryusei", "+3 Strength, +2 Dexterity\nDevil's Instinct: +4 to volleys and shots inside the box.\n⚠ -2 to passing."),
+    W("Ness", "Legendary", "Alexis Ness", "+3 Intelligence, +2 Dexterity\nMagic Pass: +4 to passing, and through balls curve around one defender."),
+    W("Lavinho", "Legendary", "Lavinho", "+3 Dexterity, +2 Charisma\nSamba Blood: +4 to Dribbling and Dodge."),
     // Mythical
-    W("Itoshi", "Mythical", "Itoshi Rin, Itoshi Sae", "+2 to two abilities, Maximum is now 22\nProdigy Siblings: +4 to Shooting or Passing (choose one).\nOnce per match, succeed on a check you failed by 3 or less."),
-    W("Kaiser", "Mythical", "Michael Kaiser", "+2 Strength, +2 Dexterity, Maximum is now 22\nEmperor: +4 to shooting, and your shots go 20 ft farther."),
-    W("Loki", "Mythical", "Julian Loki", "+3 Dexterity, Maximum is now 22\nWorld's Fastest: +10 ft stride, and you can't be outrun in a chase."),
+    W("Itoshi", "Mythical", "Itoshi Rin, Itoshi Sae", "+3 to two abilities, Maximum is now 22\nProdigy Siblings: +5 to Shooting or Passing (choose one).\nOnce per match, succeed on a check you failed by 4 or less."),
+    W("Kaiser", "Mythical", "Michael Kaiser", "+3 Strength, +3 Dexterity, Maximum is now 22\nEmperor: +5 to shooting, and your shots go 25 ft farther."),
+    W("Loki", "Mythical", "Julian Loki", "+4 Dexterity, +2 Strength, Maximum is now 22\nWorld's Fastest: +15 ft stride, and you can't be outrun in a chase."),
+    // World Class
+    W("Prince", "World Class", "Chris Prince", "+4 Strength, +3 Constitution, Maximum is now 22\n\nPhysical Perfection (Passive): +6 to physical contests and headers, and you can't be staggered."),
+    W("Snuffy", "World Class", "Marc Snuffy", "+4 Intelligence, +3 Wisdom, Maximum is now 22\n\nMaster Tactician (Passive): +5 to passing and pass reads, and once per half you may move up to 3 teammates 15 ft each as a free action."),
+    W("Lorenzo", "World Class", "Don Lorenzo", "+4 Dexterity, +3 Strength, Maximum is now 22\n\nZombie Defense (Passive): +6 to steals and blocks, and anyone who fails to dribble past you is staggered."),
     // Master's League
-    W("Noa", "Master's League", "Noel Noa", "+2 to all abilities, Maximum is now 22\n\nStrongest in the World (Passive): Gain +3 to Shooting, Passing, Dribbling and Trap.\n\nPerfect Logic: Once per turn, reroll any check, and if the reroll succeeds, your next check this turn gains +2."),
+    W("Noa", "Master's League", "Noel Noa", "+3 to all abilities, Maximum is now 22\n\nStrongest in the World (Passive): Gain +5 to Shooting, Passing, Dribbling and Trap.\n\nPerfect Logic: Once per turn, reroll any check, and if the reroll succeeds, your next check this turn gains +3."),
   ],
 
+  // Every gene gives a bonus. "Pure bonus" is added on top when you get two copies.
   genes: {
     factors: [
       // Common
-      G("Av", "Average Athlete", "Body", "Common", "Dominant", "+1 to one ability of your choice", "+1 to two abilities of your choice"),
-      G("Lu", "Big Lungs", "Body", "Common", "Codominant", "+1 Constitution", "+1 Constitution\nIgnore the first point of fatigue each half"),
-      G("Lf", "Left-Footed", "Body", "Common", "Recessive", "+1 to shots with your left foot", "Ambidextrous: no weak-foot penalty, +1 to all shots"),
-      G("Gt", "Grit", "Mind", "Common", "Dominant", "Once per match, reroll a failed physical contest", "Twice per match"),
+      G("Av", "Average Athlete", "Body", "Common", "Dominant", "+2 to one ability of your choice", "+1 to two more abilities of your choice"),
+      G("Lu", "Big Lungs", "Body", "Common", "Codominant", "+2 Constitution", "Ignore the first two points of fatigue each half"),
+      G("Lf", "Left-Footed", "Body", "Common", "Recessive", "+2 to shots with your left foot", "Ambidextrous: no weak-foot penalty, +2 to all shots"),
+      G("Gt", "Grit", "Mind", "Common", "Dominant", "Once per match, reroll a failed physical contest with +2", "Twice per match instead"),
       // Uncommon
-      G("Ft", "Fast-Twitch Muscle", "Body", "Uncommon", "Codominant", "+3 ft to stride", "+5 ft to stride, +1 Dexterity"),
-      G("Ht", "Height Gene", "Body", "Uncommon", "Dominant", "+2 to headers and aerial duels", "+3 to headers; you can intercept passes up to 10 ft overhead"),
-      G("Fx", "Flexible Body", "Body", "Uncommon", "Recessive", "+2 to Dodge", "+2 to Trap\nTackles can't stagger you"),
-      G("Fv", "Field Vision", "Mind", "Uncommon", "Recessive", "+2 to pass reads", "+3 to passing\nOnce per half, the GM reveals one hidden play"),
-      G("Pb", "Power Build", "Body", "Uncommon", "Dominant", "+1 Strength", "+1 Strength, Maximum is now 21\n+2 to physical contests"),
+      G("Ft", "Fast-Twitch Muscle", "Body", "Uncommon", "Codominant", "+5 ft to stride", "+5 more ft to stride, +1 Dexterity"),
+      G("Ht", "Height Gene", "Body", "Uncommon", "Dominant", "+3 to headers and aerial duels", "You can intercept passes up to 10 ft overhead"),
+      G("Fx", "Flexible Body", "Body", "Uncommon", "Recessive", "+3 to Dodge", "+3 to Trap\nTackles can't stagger you"),
+      G("Fv", "Field Vision", "Mind", "Uncommon", "Recessive", "+3 to pass reads", "+3 to passing\nOnce per half, the GM reveals one hidden play"),
+      G("Pb", "Power Build", "Body", "Uncommon", "Dominant", "+2 Strength", "Maximum Strength is now 21\n+3 to physical contests"),
       // Rare
-      G("Sa", "Spatial Awareness", "Mind", "Rare", "Recessive", "+3 to intercepts and pass reads", "Once per turn, ask the GM where one player is about to move"),
-      G("Eg", "Egoist Gene", "Mind", "Rare", "Dominant", "+2 to scoring when you shoot instead of passing to an open teammate", "+3 instead, and every goal gives +1 to your next roll"),
-      G("Cm", "Chameleon Gene", "Mind", "Rare", "Codominant", "Once per match, copy a Common or Uncommon weapon you've seen for 3 turns", "Copy weapons up to Rare, twice per match"),
-      G("Pi", "Predator Instinct", "Instinct", "Rare", "Recessive", "+3 to steals and to scoring on rebounds", "After a successful steal, you may shoot as a free action"),
-      G("Bc", "Balance Core", "Body", "Rare", "Codominant", "+2 to physical contests\nA failed contest can't knock you down", "Your turn movement is 270 Degrees"),
-      G("Kr", "Keeper Reflex", "Instinct", "Rare", "Codominant", "+3 to saves and blocks", "Once per half, automatically block one shot"),
+      G("Sa", "Spatial Awareness", "Mind", "Rare", "Recessive", "+4 to intercepts and pass reads", "Once per turn, ask the GM where one player is about to move"),
+      G("Eg", "Egoist Gene", "Mind", "Rare", "Dominant", "+3 to scoring when you shoot instead of passing to an open teammate", "+2 more, and every goal gives +2 to your next roll"),
+      G("Cm", "Chameleon Gene", "Mind", "Rare", "Codominant", "Once per match, copy a Rare or lower weapon you've seen for 3 turns", "Copy weapons up to Legendary, twice per match"),
+      G("Pi", "Predator Instinct", "Instinct", "Rare", "Recessive", "+4 to steals and to scoring on rebounds", "After a successful steal, you may shoot as a free action"),
+      G("Bc", "Balance Core", "Body", "Rare", "Codominant", "+3 to physical contests\nA failed contest can't knock you down", "Your turn movement is 270 Degrees"),
+      G("Kr", "Keeper Reflex", "Instinct", "Rare", "Codominant", "+4 to saves and blocks", "Once per half, automatically block one shot"),
       // Legendary
-      G("Mo", "Monster Gene", "Instinct", "Legendary", "Recessive", "Add half your intelligence to dribbling", "Add your full intelligence to creative dribbling, and +1 ft stride"),
-      G("Kb", "King's Body", "Body", "Legendary", "Dominant", "+1 Strength, Maximum is now 22", "+2 Strength instead\n+2 to shot power"),
-      G("Fl", "Flow Gene", "Mind", "Legendary", "Recessive", "Once per match, enter Flow for 3 turns: +3 to every roll", "Flow lasts 5 turns and gives +5 ft stride"),
-      G("Tg", "Trap Genius", "Body", "Legendary", "Recessive", "+3 to trap rolls", "+4 to trap rolls instead, and traps can be a bonus action"),
-      G("Wc", "World-Class Physique", "Body", "Legendary", "Codominant", "+1 Strength, +1 Dexterity", "Maximum Strength and Dexterity are now 22"),
+      G("Mo", "Monster Gene", "Instinct", "Legendary", "Recessive", "Add half your intelligence to dribbling, and +1 ft stride", "Add your full intelligence to creative dribbling instead"),
+      G("Kb", "King's Body", "Body", "Legendary", "Dominant", "+2 Strength, Maximum is now 22", "+1 more Strength\n+3 to shot power"),
+      G("Fl", "Flow Gene", "Mind", "Legendary", "Recessive", "Once per match, enter Flow for 3 turns: +4 to every roll", "Flow lasts 5 turns and gives +10 ft stride"),
+      G("Tg", "Trap Genius", "Body", "Legendary", "Recessive", "+4 to trap rolls", "+1 more to trap rolls, and traps can be a bonus action"),
+      G("Wc", "Elite Physique", "Body", "Legendary", "Codominant", "+2 Strength, +1 Dexterity", "Maximum Strength and Dexterity are now 22"),
       // Mythical
-      G("It", "Itoshi Blood", "Lineage", "Mythical", "Codominant", "+4 to Shooting or Passing (choose one)", "+4 to both\nYour shots go 20 feet farther"),
-      G("Em", "Emperor Gene", "Lineage", "Mythical", "Dominant", "+4 to shooting, and your shots go 20 feet farther", "Your shots can't be intercepted within 20 ft of the release"),
-      G("Mv", "Meta Vision Gene", "Mind", "Mythical", "Recessive", "+4 to pass reads and shooting\nOnce per turn, learn one opponent's planned action", "Know every player's planned action\n+2 to intercepts"),
-      G("Ls", "Lightspeed Gene", "Body", "Mythical", "Recessive", "+10 ft to stride", "Doubled stride when chasing a loose ball"),
+      G("It", "Itoshi Blood", "Lineage", "Mythical", "Codominant", "+5 to Shooting or Passing (choose one)", "+5 to the other as well\nYour shots go 25 feet farther"),
+      G("Em", "Emperor Gene", "Lineage", "Mythical", "Dominant", "+5 to shooting, and your shots go 25 feet farther", "Your shots can't be intercepted within 20 ft of the release"),
+      G("Mv", "Meta Vision Gene", "Mind", "Mythical", "Recessive", "+5 to pass reads and shooting\nOnce per turn, learn one opponent's planned action", "Know every player's planned action\n+3 to intercepts"),
+      G("Ls", "Lightspeed Gene", "Body", "Mythical", "Recessive", "+15 ft to stride", "Doubled stride when chasing a loose ball"),
+      // World Class
+      G("Wg", "World-Class Gene", "Lineage", "World Class", "Dominant", "+2 to two abilities, Maximum is now 22\n+3 to Shooting, Passing and Dribbling", "Once per half, automatically succeed on one check"),
+      G("Ng", "Neo Egoist Gene", "Mind", "World Class", "Recessive", "+6 to scoring\nEach goal gives +2 to every roll on your next turn", "Once per match, after scoring, take an extra turn"),
+      G("Ab", "Apex Body", "Body", "World Class", "Codominant", "+3 Strength, +2 Dexterity, Maximum is now 22\n+10 ft to stride", "You can't be staggered or knocked down"),
       // Master's League
-      G("Bl", "Blue Lock Prototype", "Lineage", "Master's League", "Recessive", "+2 to all abilities, Maximum is now 22", "Once per turn, reroll any check"),
+      G("Bl", "Blue Lock Prototype", "Lineage", "Master's League", "Recessive", "+3 to all abilities, Maximum is now 22", "Once per turn, reroll any check with +2"),
     ],
     combos: [
-      { a: "Sa", b: "Mv", name: "Meta Vision Awakened", bonus: "Once per turn, after any player moves, you may move 10 ft as a free reaction" },
-      { a: "Mo", b: "Fl", name: "Monster Flow", bonus: "While in Flow, anyone who fails to steal from you is staggered" },
-      { a: "Eg", b: "Pi", name: "Predator King", bonus: "+3 to scoring right after a steal; each goal gives +1 Strength for the rest of the match (max 22)" },
+      { a: "Sa", b: "Mv", name: "Meta Vision Awakened", bonus: "Once per turn, after any player moves, you may move 15 ft as a free reaction, with +2 to your next pass or shot" },
+      { a: "Mo", b: "Fl", name: "Monster Flow", bonus: "While in Flow, anyone who fails to steal from you is staggered, and you get +5 ft stride while dribbling" },
+      { a: "Eg", b: "Pi", name: "Predator King", bonus: "+4 to scoring right after a steal; each goal gives +1 Strength for the rest of the match (max 22)" },
       { a: "Ft", b: "Fx", name: "Speed Star", bonus: "Once per turn, double your stride in a straight line" },
-      { a: "Ht", b: "Pb", name: "Aerial Tank", bonus: "Headers go 20 ft farther and can't be blocked by shorter players" },
-      { a: "It", b: "Fl", name: "Destroyer", bonus: "Once per half, enter Destructive Flow: +5 to all rolls for 3 turns" },
-      { a: "Tg", b: "Fv", name: "Fake Volley", bonus: "Once per turn, fake a shot as a free action; defenders who fail a DC 15 read are staggered" },
-      { a: "Em", b: "Eg", name: "Emperor's Ego", bonus: "Your shots ignore one defender's block" },
-      { a: "Cm", b: "Sa", name: "Perfect Copy", bonus: "Once per match, copy any weapon up to Legendary that you've seen" },
+      { a: "Ht", b: "Pb", name: "Aerial Tank", bonus: "Headers go 25 ft farther and can't be blocked by shorter players" },
+      { a: "It", b: "Fl", name: "Destroyer", bonus: "Once per half, enter Destructive Flow: +6 to all rolls for 4 turns" },
+      { a: "Tg", b: "Fv", name: "Fake Volley", bonus: "Once per turn, fake a shot as a free action; defenders who fail a DC 16 read are staggered" },
+      { a: "Em", b: "Eg", name: "Emperor's Ego", bonus: "+2 to shooting, and your shots ignore one defender's block" },
+      { a: "Cm", b: "Sa", name: "Perfect Copy", bonus: "Twice per match, copy any weapon up to Mythical that you've seen" },
       { a: "Bc", b: "Mo", name: "Creative Core", bonus: "Add your full intelligence to creative dribbling, and your turn movement is 270 Degrees" },
+      { a: "Ng", b: "Eg", name: "True Egoist", bonus: "After your first goal, +3 to every roll for the rest of the match" },
+      { a: "Wg", b: "Kb", name: "World Stage Body", bonus: "+2 Strength, Maximum is now 24" },
+      { a: "Ab", b: "Ls", name: "Unstoppable", bonus: "+15 ft to stride, and nobody can steal from you during a sprint" },
     ],
   },
 };
@@ -368,6 +395,48 @@ let state;
 try { state = JSON.parse(localStorage.getItem(STORE_KEY)); } catch (e) { state = null; }
 if (!valid(state)) state = fromDefaults();
 state.genes.combos = state.genes.combos || [];
+
+// Upgrade older saves: add new rarities and entries, and refresh any text that is still an old
+// default. Anything you wrote or changed yourself is kept.
+const hashText = t => { let x = 5381; for (const c of t) x = ((x * 33) ^ c.codePointAt(0)) >>> 0; return x.toString(36); };
+const OLD_DEFAULT_TEXT = new Set(["44c4lv","zomg8o","hxu8kt","dom5tj","7eo1p0","pwf9n7","w2z80i","js36vc","jid4yy","1ltemx2","xbxo7m","hf2vz4","1iqvmgy","9aplkv","1j3sv2s","106pz6k","ue7b3o","zla87f","148gnqh","sgu5s3","1y7suec","exyby4","1t3ajk","1ujiokg","1cyzifz","1fr4lih","aivka6","umzhhk","1143mh7","z505vx","t9s8gq","112yjji","1lyuyrb","1ikpnn5","iknlm5","qyh46l","q5xosm","mmgvza","1q2i90v","1fmmw82","21tiz7","14h07r8","4m24z9","1gzlzx7","1e9aklu","1i9ilog","tv034m","179as73","vskqzl","1si7vut","19uflk3","jhtexr","1hlyohf","boq7k4","hh7hbg","hl7v8p","lcdsa2","16qj4qj","ubnfoq","103hohy","y1vmc5","sqll76","n1uuod","qmbu47","1vqgupi","17t8iim","1w4nvr8","1s1xf30","js8cu6","1rmzvj9","zsmvxq","vqwa29","mytocf","xz8f0u","9w93iz","1cn4231","1lxx04s","1lqw55f","1mgjg2l","1192p49","196ih3b","ujrhdl","oivys","8wvvl6","18iiwsw","m0k6af","dimx5d","9vacxm","1uipvor","k894dk","1ui3yux","15woxyi","1e8v6ti","6v3r2u","11co9fj","fw9cgg","fafcjj","1nxsr7p","a7qy5h","iqn7k2","dmyazv","uonqgi","mmnbke","resian","r1444h","10cxn8f","1ow7cui","ks4qdu","1u44ipp","8imrei","1v724gu","ad5xd9","nphxhw","17time1","dy7sd9","928vi3","dbdjto","12rtubu","1nzi8fi","p58kht","1vjev3v","18bjpqd","gx5b0j","8l4zbe","103uoiy","zk50ba","1js0yyh","hzpxgd","r1eyo"]);
+const stale = v => !v || OLD_DEFAULT_TEXT.has(hashText(v));
+if ((state.version || 1) < DEFAULTS.version) {
+  const d = fromDefaults();
+  const oldWeights = { Common: 45, Uncommon: 28, Rare: 15, Legendary: 8, Mythical: 3.5, "Master's League": 0.5 };
+  const untouched = state.rarities.every(r => oldWeights[r.name] === r.weight);
+  for (const dr of d.rarities) {
+    if (state.rarities.some(r => r.name === dr.name)) continue;
+    const ml = state.rarities.findIndex(r => r.name === "Master's League");
+    state.rarities.splice(ml < 0 ? state.rarities.length : ml, 0, dr);
+  }
+  if (untouched) state.rarities.forEach(r => { const dr = d.rarities.find(x => x.name === r.name); if (dr) r.weight = dr.weight; });
+  for (const k of ["weapons", "families"]) {
+    for (const di of d[k]) {
+      const cur = state[k].find(x => x.name === di.name);
+      if (!cur) state[k].push(di);
+      else if (stale(cur.effect)) cur.effect = di.effect;
+    }
+  }
+  const byCode = c => state.genes.factors.find(f => f.code === c);
+  for (const df of d.genes.factors) {
+    const cur = byCode(df.code);
+    if (!cur) { state.genes.factors.push(df); continue; }
+    if (cur.name === "World-Class Physique") cur.name = df.name;
+    if (stale(cur.bonus)) cur.bonus = df.bonus;
+    if (stale(cur.pureBonus)) cur.pureBonus = df.pureBonus;
+  }
+  const code = id => (d.genes.factors.find(f => f.id === id) || {}).code;
+  for (const dc of d.genes.combos) {
+    const a = byCode(code(dc.a)), b = byCode(code(dc.b));
+    if (!a || !b) continue;
+    const cur = state.genes.combos.find(c => (c.a === a.id && c.b === b.id) || (c.a === b.id && c.b === a.id));
+    if (!cur) state.genes.combos.push({ a: a.id, b: b.id, name: dc.name, bonus: dc.bonus });
+    else if (stale(cur.bonus)) cur.bonus = dc.bonus;
+  }
+  state.version = DEFAULTS.version;
+  save();
+}
 function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} }
 
 // ---------------- helpers ----------------
@@ -400,8 +469,11 @@ function ratesHtml(list) {
 }
 function glow(card, rarity) {
   card.classList.remove("g3", "g4", "g5");
-  const i = rIdx(rarity);
-  if (i >= 3) card.classList.add("g" + Math.min(i, 5));
+  const i = rIdx(rarity), n = state.rarities.length;
+  card.style.setProperty("--glow", state.rarities[i].color);
+  if (i >= 5 || (i === n - 1 && n > 4)) card.classList.add("g5");
+  else if (i === 4) card.classList.add("g4");
+  else if (i === 3) card.classList.add("g3");
 }
 function targetOpts(sel) {
   const cur = sel.value;
@@ -557,30 +629,28 @@ const gf = () => state.genes.factors;
 const gById = id => gf().find(f => f.id === id);
 const tag = f => `<span class="mono" style="color:${rOf(f).color}">${esc(f.code)}</span>`;
 
+// Every gene always gives something. Dominance only decides full bonus vs. first line.
 function cross(a, b) {
   if (a.id === b.id) return { type: "pure", genes: [{ f: a, status: "Pure" }] };
   const ra = a.dominance === "Recessive", rb = b.dominance === "Recessive";
-  if (ra && rb) return { type: "latent", genes: [{ f: a, status: "Carrier" }, { f: b, status: "Carrier" }] };
+  if (ra && rb) return { type: "hidden", genes: [{ f: a, status: "Weakened" }, { f: b, status: "Weakened" }] };
   if (!ra && !rb) return { type: "co", genes: [{ f: a, status: "Expressed" }, { f: b, status: "Expressed" }] };
   const [dom, rec] = ra ? [b, a] : [a, b];
-  if (dom.dominance === "Codominant") return { type: "partial", genes: [{ f: dom, status: "Expressed" }, { f: rec, status: "Partial" }] };
-  return { type: "masked", genes: [{ f: dom, status: "Expressed" }, { f: rec, status: "Carrier" }] };
+  if (dom.dominance === "Codominant") return { type: "awakened", genes: [{ f: dom, status: "Expressed" }, { f: rec, status: "Awakened" }] };
+  return { type: "suppressed", genes: [{ f: dom, status: "Expressed" }, { f: rec, status: "Weakened" }] };
 }
 function offspringRarity(c) {
-  const active = c.genes.filter(g => g.status !== "Carrier");
-  const pool = active.length ? active : c.genes;
-  return pool.reduce((best, g) => rIdx(g.f.rarity) > rIdx(best.rarity) ? g.f : best, pool[0].f).rarity;
+  return c.genes.reduce((best, g) => rIdx(g.f.rarity) > rIdx(best.rarity) ? g.f : best, c.genes[0].f).rarity;
 }
 
 function showGene(a, b, fromSpin, chosen) {
   const c = cross(a, b);
   const r = state.rarities[rIdx(offspringRarity(c))];
   const combo = state.genes.combos.find(k => (k.a === a.id && k.b === b.id) || (k.a === b.id && k.b === a.id));
-  const sc = { Pure: "var(--pure)", Expressed: "var(--co)", Partial: "var(--partial)", Carrier: "var(--latent)" };
+  const sc = { Pure: "var(--pure)", Expressed: "var(--co)", Awakened: "var(--awakened)", Weakened: "var(--suppressed)" };
   const genes = c.genes.map(({ f, status }) => {
     let body;
-    if (status === "Carrier") body = `<div class="none">Dormant — carried and can pass on to your kids, but gives no bonus.</div>`;
-    else if (status === "Partial") body = f.bonus ? `<div class="bonus">${esc(f.bonus.split("\n")[0])}</div><div class="note"><i>Partial: only the first line of this gene's bonus applies.</i></div>` : `<div class="none">No bonus written yet.</div>`;
+    if (status === "Weakened") body = f.bonus ? `<div class="bonus">${esc(f.bonus.split("\n")[0])}</div>${f.bonus.includes("\n") ? `<div class="note"><i>Weakened: you get the first line. Pair it with a codominant gene or a second copy to unlock the rest.</i></div>` : ""}` : `<div class="none">No bonus written yet.</div>`;
     else {
       const parts = [];
       if (f.bonus) parts.push(`<div class="bonus">${esc(f.bonus)}</div>`);
