@@ -1,0 +1,968 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bloodline Roller</title>
+<style>
+  :root {
+    --bg: #110d0a; --panel: #1c1611; --panel2: #271f18; --text: #f1e8dc; --muted: #a8998a; --line: #3a2e24; --accent: #c8482f; --gold: #d9a54a;
+    --pure: #ffd23f; --co: #4fd06b; --awakened: #3fc6c6; --suppressed: #7b8cff; --hidden: #c08bff;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: radial-gradient(1100px 480px at 50% -220px, #3a1f14 0%, var(--bg) 70%) fixed, var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { margin: 0 0 4px; font-size: 30px; font-family: Georgia, "Times New Roman", serif; letter-spacing: .5px; }
+  h1 span { color: var(--gold); }
+  h2 { font-size: 18px; margin: 0 0 10px; font-family: Georgia, serif; }
+  h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin: 14px 0 8px; }
+  .sub { color: var(--muted); margin: 0 0 16px; }
+  .note { color: var(--muted); font-size: 13px; }
+  .empty { color: var(--muted); }
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+  .top { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; }
+  @media (max-width: 860px) { .top { grid-template-columns: 1fr; } }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  button { font: inherit; font-weight: 700; border-radius: 10px; padding: 10px 16px; cursor: pointer; background: var(--panel2); color: var(--text); border: 1px solid var(--line); }
+  button.primary { background: linear-gradient(135deg, #c8482f, #7d2416); color: #fff; border: 0; padding: 12px 20px; flex: 1; min-width: 150px; }
+  button.keep { background: #2c3b23; border-color: #4d6b3a; }
+  button:disabled { opacity: .6; cursor: wait; }
+  button.small { padding: 5px 10px; font-size: 13px; }
+  input, select, textarea { font: inherit; color: var(--text); background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; width: 100%; }
+  select.auto { width: auto; }
+  textarea { resize: vertical; min-height: 38px; }
+
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tabs button { border-radius: 999px; }
+  .tabs button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* character sheet */
+  .sheet { display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 12px; }
+  @media (max-width: 860px) { .sheet { grid-template-columns: 1fr; } }
+  .slot { background: var(--panel2); border-radius: 10px; padding: 10px 12px; }
+  .slot h3 { margin: 0 0 6px; display: flex; justify-content: space-between; }
+  .pick { border-left: 3px solid var(--c, #666); padding: 4px 8px; margin-top: 6px; }
+  .pick .t { display: flex; justify-content: space-between; gap: 6px; font-weight: 800; }
+  .pick .d { white-space: pre-wrap; font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .x-btn { background: none; border: 0; color: var(--muted); padding: 0 4px; font-size: 14px; }
+
+  /* spin cards */
+  .card { min-height: 300px; position: relative; overflow: hidden; }
+  .card.g3 { box-shadow: 0 0 26px -6px var(--glow); }
+  .card.g4 { box-shadow: 0 0 34px -4px var(--glow); animation: pulseA 2s infinite; }
+  .card.g5 { box-shadow: 0 0 42px -2px var(--glow); animation: pulseB 1.6s infinite; border-color: var(--glow); }
+  @keyframes pulseA { 50% { box-shadow: 0 0 52px 0 var(--glow); } }
+  @keyframes pulseB { 50% { box-shadow: 0 0 64px 4px var(--glow); } }
+  .shake { animation: shake .08s linear infinite; }
+  @keyframes shake { 0%{transform:translateX(0)} 50%{transform:translateX(2px)} 100%{transform:translateX(-2px)} }
+  .badge { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; border: 1px solid currentColor; }
+  .big { font-size: 34px; font-weight: 900; margin: 10px 0 2px; line-height: 1.1; font-family: Georgia, serif; }
+  .who { color: var(--muted); margin-bottom: 10px; }
+  .effect { background: var(--panel2); border-radius: 10px; padding: 12px 14px; white-space: pre-wrap; line-height: 1.5; border-left: 4px solid var(--c, #666); }
+  .rates { display: grid; gap: 6px; }
+  .rate { display: flex; justify-content: space-between; font-size: 14px; gap: 8px; }
+  .hist { display: grid; gap: 4px; max-height: 260px; overflow: auto; font-size: 14px; }
+  .hist div { display: flex; justify-content: space-between; gap: 8px; padding: 5px 8px; background: var(--panel2); border-radius: 6px; cursor: pointer; }
+  .hist div:hover { filter: brightness(1.2); }
+  .tag { font-size: 11px; color: var(--muted); font-weight: 600; margin-left: 6px; }
+  .choose { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); }
+  .choose select { flex: 1; min-width: 160px; }
+  .filter { margin-bottom: 10px; }
+
+  /* history tab */
+  table.log { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .log th { text-align: left; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; padding: 6px; border-bottom: 1px solid var(--line); }
+  .log td { padding: 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .log tr[data-hi] { cursor: pointer; }
+  .log tr[data-hi]:hover td { background: var(--panel2); }
+
+  /* editors */
+  .ed-wrap { overflow-x: auto; }
+  table.ed { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 860px; }
+  .ed th { text-align: left; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; padding: 6px; border-bottom: 1px solid var(--line); }
+  .ed td { padding: 5px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .w-code { width: 64px; } .w-sel { width: 140px; } .w-name { width: 190px; } .w-who { width: 190px; }
+
+  /* genes */
+  .parents { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .parent { background: var(--panel2); border-radius: 10px; padding: 10px; text-align: center; }
+  .parent .lbl { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+  .alleles { display: flex; justify-content: center; gap: 6px; margin-top: 6px; }
+  .allele { min-width: 48px; padding: 6px 8px; border-radius: 8px; font-weight: 800; border: 2px solid currentColor; background: #0006; }
+  .punnett { display: grid; grid-template-columns: 56px 1fr 1fr; gap: 4px; margin-top: 12px; }
+  .punnett > div { background: var(--panel2); border-radius: 8px; padding: 10px 4px; text-align: center; min-height: 44px; font-weight: 700; }
+  .punnett .hd { background: transparent; color: var(--muted); }
+  .punnett .cell.win { outline: 3px solid #fff; }
+  .punnett .cell.flash { outline: 2px dashed #fff8; }
+  .gene { background: var(--panel2); border-radius: 10px; padding: 10px 12px; margin-top: 8px; border-left: 4px solid var(--c, #666); }
+  .gene .n { font-weight: 800; }
+  .gene .bonus { white-space: pre-wrap; margin-top: 4px; }
+  .gene .none { color: var(--muted); font-style: italic; font-size: 14px; margin-top: 4px; }
+  .geno { font-size: 30px; font-weight: 900; }
+  .matrix-wrap { overflow: auto; max-height: 72vh; border-radius: 10px; border: 1px solid var(--line); }
+  table.matrix { border-collapse: separate; border-spacing: 0; font-size: 12px; }
+  .matrix th, .matrix td { padding: 0; }
+  .matrix thead th { position: sticky; top: 0; z-index: 2; background: var(--panel); }
+  .matrix th.rowh { position: sticky; left: 0; z-index: 1; background: var(--panel); text-align: left; padding: 0 8px; white-space: nowrap; }
+  .matrix thead th.corner { left: 0; z-index: 3; }
+  .matrix th.colh { min-width: 46px; padding: 6px 2px; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; font-weight: 700; }
+  .matrix td .x { width: 46px; height: 34px; display: grid; place-items: center; cursor: pointer; border: 1px solid var(--bg); font-weight: 700; color: #110d0a; }
+  .matrix td .x:hover { filter: brightness(1.25); }
+  .matrix td .x.hit { outline: 3px solid #fff; outline-offset: -3px; animation: blink .5s 4; position: relative; z-index: 1; }
+  @keyframes blink { 50% { filter: brightness(1.8); } }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); margin: 10px 0; }
+  .legend span::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: var(--k); margin-right: 6px; vertical-align: -2px; }
+  .wgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🎲 Bloodline <span>Roller</span></h1>
+  <p class="sub">A D&amp;D 5e homebrew roller for <b>Races</b>, class <b>Traits</b> and <b>Genes</b>. Spin or choose, press <b>📌 Keep</b> to add a result to your character, and look back at every roll in <b>History</b>. Everything is editable and saves in this browser.</p>
+
+  <div class="panel">
+    <div class="row" style="justify-content:space-between;margin-bottom:8px">
+      <h2 style="margin:0">📜 My Character</h2>
+      <button class="small" id="sheetClear">Clear character</button>
+    </div>
+    <div class="sheet" id="sheet"></div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button data-tab="races" class="on">🧝 Races</button>
+    <button data-tab="traits">⚔️ Traits</button>
+    <button data-tab="genes">🧬 Genes</button>
+    <button data-tab="history">🕑 History</button>
+    <button data-tab="settings">⚙️ Rarities &amp; Save</button>
+  </div>
+
+  <section id="tab-races"></section>
+  <section id="tab-traits" hidden></section>
+
+  <section id="tab-genes" hidden>
+    <div class="top">
+      <div class="panel">
+        <h2>Spin Your Bloodline</h2>
+        <div class="parents">
+          <div class="parent"><div class="lbl">Parent A</div><div class="alleles" id="pA"><span class="allele">?</span><span class="allele">?</span></div></div>
+          <div class="parent"><div class="lbl">Parent B</div><div class="alleles" id="pB"><span class="allele">?</span><span class="allele">?</span></div></div>
+        </div>
+        <div class="punnett" id="punnett"></div>
+        <div class="row" style="margin-top:14px">
+          <button class="primary" id="g-spin">🎲 Spin Genes</button>
+          <button id="g-auto">Auto-spin until</button><select class="auto" id="g-target"></select><span class="note">or better</span>
+        </div>
+        <div class="note" id="g-count" style="margin-top:8px">Spins this session: 0</div>
+        <div class="row choose">
+          <span class="note" style="width:100%">Or choose exactly which two genes you get:</span>
+          <select id="g-chooseA"></select><select id="g-chooseB"></select>
+          <button id="g-take">✅ Take these genes</button>
+        </div>
+        <h3>Previous gene spins</h3>
+        <div class="hist" id="g-hist"></div>
+      </div>
+      <div class="panel" id="g-result">
+        <h2>Offspring</h2>
+        <p class="empty">Spin, choose, or click any square in the crossing table to see what that bloodline gives.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Gene Crossing Table</h2>
+      <div class="legend">
+        <span style="--k:var(--pure)">Pure — same gene twice: full bonus + pure bonus</span>
+        <span style="--k:var(--co)">Co-expressed — both genes give their full bonus</span>
+        <span style="--k:var(--awakened)">Awakened — codominant fully awakens a recessive</span>
+        <span style="--k:var(--suppressed)">Suppressed — dominant is full; recessive gives its first line</span>
+        <span style="--k:var(--hidden)">Hidden Pair — two recessives: each gives its first line</span>
+      </div>
+      <div class="matrix-wrap"><table class="matrix" id="matrix"></table></div>
+    </div>
+
+    <div class="panel">
+      <div class="row" style="justify-content:space-between">
+        <h2 style="margin:0">Gene Editor</h2>
+        <button class="small" id="g-add">+ Add gene</button>
+      </div>
+      <p class="note"><b>Bonus</b> applies whenever you have the gene (a weakened gene gives only its first line). <b>Pure bonus</b> is added when you have two copies.</p>
+      <div class="ed-wrap"><table class="ed" id="g-ed" style="min-width:1000px"></table></div>
+    </div>
+
+    <div class="panel">
+      <div class="row" style="justify-content:space-between">
+        <h2 style="margin:0">Bloodline Combos</h2>
+        <button class="small" id="c-add">+ Add combo</button>
+      </div>
+      <p class="note">Extra bonus when a specific pair of genes meets (either order).</p>
+      <div class="ed-wrap"><table class="ed" id="c-ed" style="min-width:720px"></table></div>
+    </div>
+  </section>
+
+  <section id="tab-history" hidden>
+    <div class="panel">
+      <div class="row" style="justify-content:space-between">
+        <h2 style="margin:0">🕑 Everything You've Spun</h2>
+        <div class="row">
+          <select class="auto" id="h-filter"><option value="">All</option><option value="races">Races</option><option value="traits">Traits</option><option value="genes">Genes</option></select>
+          <button class="small" id="h-clear">Clear history</button>
+        </div>
+      </div>
+      <p class="note">Saved in this browser (last 300 rolls). Click a row to open that result again.</p>
+      <div class="ed-wrap"><table class="log" id="h-log"></table></div>
+    </div>
+  </section>
+
+  <section id="tab-settings" hidden>
+    <div class="panel">
+      <h2>Rarity Weights</h2>
+      <p class="note">Shared by races, traits and genes. Higher weight = more common. A rarity with nothing in it is skipped.</p>
+      <div class="wgrid" id="weights"></div>
+    </div>
+    <div class="panel">
+      <h2>Save &amp; Share</h2>
+      <p class="note">Everything (lists, character and history) saves in this browser automatically. Export a file to back it up or move it to another device.</p>
+      <div class="row">
+        <button id="exportBtn">Export JSON</button>
+        <button id="importBtn">Import JSON</button>
+        <input type="file" id="importFile" accept=".json,application/json" hidden>
+        <button id="resetBtn">Reset lists to defaults</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+const STORE_KEY = "dnd-bloodline-roller-v1";
+const DOMINANCE = ["Dominant", "Codominant", "Recessive"];
+const CATEGORIES = ["Lineage", "Blood", "Body", "Sense", "Arcane"];
+const CLASSES = ["Artificer", "Barbarian", "Bard", "Cleric", "Druid", "Fighter", "Monk", "Paladin", "Ranger", "Rogue", "Sorcerer", "Warlock", "Wizard"];
+const TYPE_COLOR = { pure: "var(--pure)", co: "var(--co)", awakened: "var(--awakened)", suppressed: "var(--suppressed)", hidden: "var(--hidden)" };
+const TYPE_NAME = { pure: "Pure", co: "Co-expressed", awakened: "Awakened", suppressed: "Suppressed", hidden: "Hidden Pair" };
+const MAX_TRAITS = 3;
+
+const W = (name, rarity, who, effect) => ({ name, rarity, who, effect });
+const G = (code, name, category, rarity, dominance, bonus, pureBonus) => ({ code, name, category, rarity, dominance, bonus, pureBonus });
+
+const DEFAULTS = {
+  version: 1,
+  rarities: [
+    { name: "Common", color: "#b8b8b8", weight: 40 },
+    { name: "Uncommon", color: "#4fd06b", weight: 28 },
+    { name: "Rare", color: "#3fa0ff", weight: 17 },
+    { name: "Epic", color: "#a66bff", weight: 9 },
+    { name: "Legendary", color: "#ffb52e", weight: 4.5 },
+    { name: "Mythical", color: "#ff4f6b", weight: 1.5 },
+  ],
+
+  races: [
+    // Common
+    W("Human", "Common", "Humanoid · Medium · 30 ft",
+      "+1 to every ability score\nVersatile: proficiency in one skill of your choice\nThe most common folk in the realm: no special gifts, no drawbacks"),
+    // Uncommon
+    W("Forge Dwarf", "Uncommon", "Humanoid · Medium · 25 ft",
+      "+2 Constitution, +1 Wisdom\nDarkvision 60 ft; resistance to poison damage\nMaster Crafter: proficiency with smith's and tinker's tools; crafting costs you half the usual gold and time\nFine Make: when you finish crafting an item, roll a d4. On a 4, it comes out one rarity higher (DM's call)"),
+    // Rare
+    W("Half-Orc", "Rare", "Humanoid · Medium · 30 ft",
+      "+2 Strength, +1 Constitution\nDarkvision 60 ft\nGrants the Born Fighter trait: proficiency with martial weapons and medium armor, and once per short rest you add 1d6 to a weapon damage roll"),
+    W("Wildkin Shifter", "Rare", "Humanoid · Medium · 30 ft",
+      "+2 Constitution, +1 Strength\nDarkvision 60 ft\nBestial Hide: HP max +1 per level\nCrushing Blows: +2 to bludgeoning damage rolls (unarmed strikes deal 1d6)"),
+    W("Goblin", "Rare", "Humanoid · Small · 30 ft",
+      "+2 Dexterity, +1 Constitution\nDarkvision 60 ft\nNimble Escape: Disengage or Hide as a bonus action\nGrants the Gold Fever trait: advantage on checks to find or appraise treasure, and you find 25% more gold"),
+    // Epic
+    W("Earth Genasi", "Epic", "Humanoid · Medium · 30 ft",
+      "+2 Constitution, +2 Strength\nStone Body: HP max +2 per level\nResistance to bludgeoning damage\nEarth Walk: difficult terrain made of earth or stone costs no extra movement"),
+    W("Half-Elf", "Epic", "Humanoid · Medium · 30 ft",
+      "+2 Dexterity, +2 Intelligence\nDarkvision 60 ft; Fey Ancestry (advantage against being charmed, magic can't put you to sleep)\nKeen Edge: +1 to damage rolls with piercing and slashing weapons\nArcane Reserve: one extra 1st-level spell slot"),
+    W("Verdant Firbolg", "Epic", "Humanoid · Medium · 30 ft",
+      "+2 Wisdom, +2 Constitution\nLifebloom: healing spells you cast restore 50% more HP\nSpeech of Beast and Leaf\nOne True Form: this lineage has a single look; rerolling appearance changes nothing"),
+    W("Medusan", "Epic", "Humanoid · Medium · 30 ft",
+      "+2 Dexterity, +1 Charisma\nImmune to poison damage and the poisoned and petrified conditions\nScaled Hide: +2 AC while not wearing heavy armor\nSerpent Strike: once per turn, add 1d6 to piercing damage you deal\nSerpent Eyes: rerolling appearance only changes skin colour"),
+    W("Tiefling", "Epic", "Humanoid · Medium · 30 ft",
+      "+2 Constitution, +1 Strength, +1 Charisma\nDarkvision 60 ft; resistance to fire damage\nInfernal Legacy: Thaumaturgy cantrip, and Hellish Rebuke once per long rest"),
+    // Legendary
+    W("Drow", "Legendary", "Humanoid · Medium · 30 ft",
+      "+3 Intelligence, +1 Dexterity\nSuperior Darkvision 120 ft; Fey Ancestry\nUnderdark Flame: fire spells and attacks deal +1 damage per die\n⚠ Sunlight Sensitivity: disadvantage on attacks and sight-based Perception in direct sunlight"),
+    W("High Elf", "Legendary", "Humanoid · Medium · 30 ft",
+      "+3 Intelligence, +1 Dexterity\nOne wizard cantrip; Fey Ancestry; Trance\nArcane Might: once per turn, add +2 to the damage of a spell\nDeep Reserves: one extra spell slot of your highest level (regained on a long rest)"),
+    W("Ironhide Orc", "Legendary", "Humanoid · Medium · 30 ft",
+      "+4 Strength, +1 Constitution (Strength max 22)\nDarkvision 60 ft; Powerful Build\nRelentless Endurance: when you drop to 0 HP, drop to 1 instead (1/long rest)\nSavage Attacks: roll one extra weapon damage die on a critical hit"),
+    W("Hearthforge Dwarf", "Legendary", "Humanoid · Medium · 25 ft",
+      "+4 Constitution (max 22)\nDarkvision 60 ft; resistance to poison damage\nRune-Kindled: +1 to spell attack rolls and one extra 2nd-level spell slot\nHearth Cook: proficiency with cook's utensils; meals you cook on a short rest give everyone who eats 1d8 + your level temporary HP\nQuick Study: +10% XP (if your table uses XP)"),
+    W("Frostpelt Tabaxi", "Legendary", "Humanoid · Medium · 35 ft",
+      "+3 Dexterity, +1 Wisdom\nDarkvision 60 ft; climbing speed 20 ft\nGrants the Frostward trait: resistance to cold damage and immunity to extreme cold\nGrants the Feline Reflexes trait: add your proficiency bonus to initiative, and once per short rest use your reaction to halve the damage from an attack you can see"),
+    W("Warborn Leonin", "Legendary", "Humanoid · Medium · 35 ft",
+      "+2 Strength, +2 Dexterity, +2 Constitution\nHP max +3 per level\nGrants the Zenith Surge trait: while below half HP, +2 to all damage rolls; below a quarter, +4\nA proud cosmetic tail"),
+    W("Grove Satyr", "Legendary", "Fey · Medium · 35 ft",
+      "+2 Wisdom, +2 Constitution\nVerdant Healing: healing spells you cast restore 75% more HP\nRam: your horns are a natural weapon (1d6 bludgeoning)\nGrants the Nature's Bond trait: in a forest or wild grove, +2 to Strength and Dexterity attacks, checks and saves (a crown of green leaves appears around your head)"),
+    // Mythical
+    W("Oni-Blooded", "Mythical", "Humanoid · Medium · 30 ft",
+      "+3 Constitution, +2 Strength (max 22)\nGrants the High-Speed Regeneration trait: regain HP equal to your Constitution modifier at the start of each of your turns while you have at least 1 HP; out of combat, Hit Dice heal double\nCursed Arms: your unarmed strikes deal 1d10 slashing, and you can make one extra unarmed strike as a bonus action\nInner Reserve: one extra 1st-level spell slot"),
+    W("Eternal Warforged", "Mythical", "Construct · Medium · 30 ft",
+      "+3 Constitution, +2 Wisdom (max 22)\nDeep Core: one extra spell slot of 1st and 2nd level\nGrants the Adaptive Resistance trait: when you take damage, you gain resistance to that damage type until you take a different type. After three hits of the same type in a row, you're immune to it until the end of your next turn (the wheel on your back turns each time)"),
+    W("Dreadwyrm Dragonborn", "Mythical", "Humanoid · Medium · 30 ft",
+      "+3 Strength, +3 Constitution, +1 Intelligence (max 22)\nResistance to slashing and bludgeoning damage from nonmagical attacks\nHP max +2 per level\nDragon's Fear (action, 1/short rest): each creature of your choice within 30 ft must pass a Wisdom save (DC 8 + proficiency + Con) or be frightened for 1 minute"),
+    W("Astral Elf", "Mythical", "Humanoid · Medium · 30 ft",
+      "+4 Intelligence, +1 Constitution (Intelligence max 24)\nStarlit Mind: one extra spell slot of your highest level\nResistance to damage from spells\nAstral Trance: you only need 4 hours of rest for a long rest"),
+    W("Pridelord Leonin", "Mythical", "Humanoid · Medium (large build) · 40 ft",
+      "+3 Strength, +3 Dexterity, +3 Constitution (max 22)\nTowering Frame: Powerful Build, and your reach is 5 ft longer with melee weapons\nHP max +4 per level\nGrants the Greater Zenith Surge trait: while below half HP, +3 to all damage rolls; below a quarter, +6"),
+    W("Siphon Gith", "Mythical", "Humanoid · Medium · 30 ft",
+      "+2 Intelligence, +3 Constitution (max 22)\nSiphon Body: regain 1 HP at the start of each of your turns\nMana Drinker: on a short rest, recover spell slots with a combined level of up to half your level (rounded up)\nMaterial Absorption (action, 1/short rest): touch a material and take on its nature for 1 hour. Stone: resistance to bludgeoning. Metal: +2 AC. Wood: regain 1d8 HP each turn while you have at least 1 HP"),
+    W("Titanblood Human", "Mythical", "Humanoid · Medium · 35 ft",
+      "+3 Strength, +3 Dexterity, +2 Constitution (max 22)\nHP max +2 per level\nPrimordial Vigor: advantage on Strength and Dexterity saving throws\nOld Blood: proficiency in one skill and one saving throw of your choice"),
+    W("Sunborn Aasimar", "Mythical", "Humanoid · Medium · 30 ft, fly 30 ft",
+      "+2 Dexterity, +2 Intelligence, +3 Constitution (max 22)\nImmune to fire damage\nSunwings: flying speed 30 ft while not wearing heavy armor\nRadiant Soul (bonus action, 1/long rest): for 1 minute, once per turn add your proficiency bonus as radiant damage to one attack or spell"),
+  ],
+
+  traits: [
+    // Common
+    W("Tough Hide", "Common", "Barbarian, Fighter, Paladin", "Your HP maximum increases by 1 per level."),
+    W("Quick Hands", "Common", "Rogue, Monk, Artificer", "You can use an object or make a Sleight of Hand check as a bonus action."),
+    W("Bookworm", "Common", "Wizard, Artificer, Bard", "Proficiency in Arcana or History, and advantage on checks to recall lore you've read about."),
+    W("Devout", "Common", "Cleric, Paladin", "Once per long rest, add 1d4 to a saving throw after you roll."),
+    W("Light Sleeper", "Common", "Any", "You can't be surprised while asleep, and you wake instantly."),
+    W("Trailwise", "Common", "Ranger, Druid", "Proficiency in Survival, and you can't become lost except by magic."),
+    W("Silver Tongue", "Common", "Bard, Warlock, Sorcerer", "Proficiency in Persuasion or Deception (your choice)."),
+    // Uncommon
+    W("Born Fighter", "Uncommon", "Fighter, Barbarian, Paladin", "Proficiency with martial weapons and medium armor. Once per short rest, add 1d6 to a weapon damage roll."),
+    W("Gold Fever", "Uncommon", "Rogue, Bard, Artificer", "Advantage on checks to find treasure or appraise items, and you find 25% more gold in loot."),
+    W("Far Caster", "Uncommon", "Sorcerer, Warlock, Wizard", "The range of your spell attacks doubles, and they ignore half cover."),
+    W("Battle Medic", "Uncommon", "Cleric, Druid, Paladin", "When you heal a creature with a spell, it also gains temporary HP equal to your proficiency bonus."),
+    W("Shadow Step", "Uncommon", "Rogue, Monk, Ranger", "+2 to Stealth checks, and you can Hide while only lightly obscured."),
+    W("Iron Will", "Uncommon", "Any", "Advantage on saving throws against being frightened."),
+    W("Frostward", "Uncommon", "Ranger, Druid, Barbarian", "Resistance to cold damage, and you're unaffected by extreme cold."),
+    // Rare
+    W("Feline Reflexes", "Rare", "Rogue, Monk, Ranger", "Add your proficiency bonus to initiative. Once per short rest, use your reaction to halve the damage from an attack you can see."),
+    W("Arcane Reservoir", "Rare", "Wizard, Sorcerer, Warlock", "Once per long rest, when you finish a short rest, regain one expended spell slot of 3rd level or lower."),
+    W("Unbreakable", "Rare", "Barbarian, Fighter", "When you drop to 0 HP, make a DC 10 Constitution save. On a success you drop to 1 HP instead. The DC rises by 5 each time until you finish a long rest."),
+    W("Predator's Focus", "Rare", "Ranger, Rogue, Fighter", "Once per turn, when you hit a creature you already hit this turn, deal an extra 1d6 damage."),
+    W("Holy Bulwark", "Rare", "Paladin, Cleric", "Allies within 10 ft of you gain +1 to AC."),
+    W("Wild Attunement", "Rare", "Druid, Ranger", "Wild Shape lasts twice as long, and you keep one racial trait while transformed."),
+    W("Rallying Voice", "Rare", "Bard, Paladin", "When you roll initiative, each ally within 30 ft who can hear you regains 1d6 + your Charisma modifier HP."),
+    W("Gadgeteer", "Rare", "Artificer", "You know one extra infusion, and items you infuse with a +1 bonus get +2 instead."),
+    // Epic
+    W("Zenith Surge", "Epic", "Barbarian, Fighter, Monk", "While below half HP, +2 to all damage rolls. Below a quarter of your HP, +4 instead."),
+    W("Spellblade", "Epic", "Fighter, Paladin, Warlock", "After you cast a spell as an action, you can make one weapon attack as a bonus action."),
+    W("Nature's Bond", "Epic", "Druid, Ranger", "In a forest or wild grove, +2 to Strength and Dexterity attack rolls, checks and saves."),
+    W("Overchannel Spark", "Epic", "Sorcerer, Wizard", "Once per long rest, deal maximum damage with a spell of 3rd level or lower instead of rolling."),
+    W("Assassin's Instinct", "Epic", "Rogue", "Your Sneak Attack dice become d8s."),
+    W("Stillmind", "Epic", "Monk", "+2 ki points, and your Stunning Strike save DC increases by 1."),
+    W("Divine Favor", "Epic", "Cleric, Paladin", "You get one extra use of Channel Divinity per short rest."),
+    // Legendary
+    W("High-Speed Regeneration", "Legendary", "Barbarian, Fighter, Monk", "Regain HP equal to your Constitution modifier (minimum 1) at the start of each of your turns while you have at least 1 HP."),
+    W("Adaptive Resistance", "Legendary", "Any", "When you take damage, you gain resistance to that damage type until you take a different type."),
+    W("Archmage's Echo", "Legendary", "Wizard, Sorcerer", "Once per long rest, immediately after casting a spell of 5th level or lower, cast it again without using a slot."),
+    W("Warlord", "Legendary", "Fighter, Paladin", "Bonus action: one ally within 30 ft can use their reaction to make a weapon attack (proficiency bonus uses per long rest)."),
+    W("Song of Legends", "Legendary", "Bard", "Your Bardic Inspiration die is one size larger, and you regain all uses on a short rest."),
+    W("Phantom Blade", "Legendary", "Rogue, Ranger", "Once per turn, when you miss with an attack, you can reroll it."),
+    // Mythical
+    W("Avatar of War", "Mythical", "Fighter, Barbarian, Paladin", "You make one additional attack whenever you take the Attack action."),
+    W("Sorcerous Wellspring", "Mythical", "Sorcerer, Wizard, Warlock", "One extra spell slot of every level you can cast. Once per long rest, cast a spell without any components."),
+    W("Undying", "Mythical", "Any", "Once per long rest, when you would die, you instead return to life with half your HP."),
+    W("Godspeaker", "Mythical", "Cleric, Paladin, Druid", "Once per long rest, your call for Divine Intervention automatically succeeds."),
+    W("Shadow Sovereign", "Mythical", "Rogue, Monk, Warlock", "Bonus action: teleport up to 30 ft from one shadow to another. Your first attack after teleporting has advantage."),
+  ],
+
+  // Every gene gives a bonus. "Pure bonus" is added on top when you have two copies.
+  genes: {
+    factors: [
+      // Common
+      G("Hm", "Hardy Mortal", "Lineage", "Common", "Dominant", "+1 Constitution", "+1 Strength or Dexterity"),
+      G("Ks", "Keen Senses", "Sense", "Common", "Recessive", "Proficiency in Perception", "+5 to passive Perception"),
+      G("Ll", "Long-Lived", "Lineage", "Common", "Codominant", "Advantage on saves against disease", "You age at half the normal rate; +1 Wisdom"),
+      G("Sf", "Sturdy Frame", "Body", "Common", "Dominant", "Carrying capacity doubled", "+1 Strength"),
+      // Uncommon
+      G("Dv", "Darkvision Gene", "Sense", "Uncommon", "Dominant", "Darkvision 60 ft", "Darkvision 120 ft"),
+      G("Fa", "Fey Ancestry", "Blood", "Uncommon", "Recessive", "Advantage on saves against being charmed", "Magic can't put you to sleep; +1 Charisma"),
+      G("Sb", "Stoneblood", "Blood", "Uncommon", "Codominant", "Resistance to poison damage", "Advantage on saves against poison; +1 Constitution"),
+      G("Ag", "Agile Build", "Body", "Uncommon", "Codominant", "+1 Dexterity", "+5 ft walking speed"),
+      G("Mn", "Mana Spark", "Arcane", "Uncommon", "Recessive", "Learn one cantrip of your choice", "Cast one 1st-level spell of your choice once per long rest"),
+      // Rare
+      G("Gb", "Giant's Blood", "Blood", "Rare", "Dominant", "+2 Strength\nPowerful Build", "Once per turn, your weapon attacks deal +1d4 damage"),
+      G("Ce", "Celestial Spark", "Blood", "Rare", "Recessive", "Resistance to radiant damage; you know the Light cantrip", "Healing Hands: touch a creature to restore HP equal to your level (1/long rest)"),
+      G("It", "Infernal Taint", "Blood", "Rare", "Codominant", "Resistance to fire damage", "Cast Hellish Rebuke once per long rest"),
+      G("Ly", "Lycan Strain", "Blood", "Rare", "Recessive", "+1 Strength; advantage on Perception checks using smell", "Once per long rest, gain resistance to nonmagical bludgeoning, piercing and slashing damage for 1 minute"),
+      G("Wm", "Wild Magic Gene", "Arcane", "Rare", "Recessive", "Once per long rest, reroll a spell's damage dice", "One extra 1st-level spell slot; after you cast a leveled spell, the DM may roll on the Wild Magic table"),
+      // Epic
+      G("Dr", "Dragon Blood", "Blood", "Epic", "Dominant", "+2 Constitution or Charisma\nResistance to one damage type of your choice", "Breath Weapon (1/short rest): 15 ft cone, 3d6 damage of your chosen type, Dex save for half"),
+      G("Ab", "Aberrant Mind", "Arcane", "Epic", "Recessive", "Telepathy 30 ft", "+1 Intelligence; cast Detect Thoughts once per long rest"),
+      G("Ec", "Elemental Core", "Blood", "Epic", "Codominant", "Resistance to one element of your choice (fire, cold, lightning or thunder)", "Once per turn, your attacks and spells of that element deal +1d6 damage"),
+      G("Vs", "Vampiric Strain", "Blood", "Epic", "Recessive", "Darkvision 60 ft; bite attack (1d6 piercing)", "Your bite heals you for the damage it deals\n⚠ Disadvantage on attack rolls in direct sunlight"),
+      // Legendary
+      G("Th", "Titan's Heritage", "Lineage", "Legendary", "Dominant", "+2 Strength, Maximum is now 22", "HP max +2 per level; advantage on Strength saves"),
+      G("Af", "Archfey Blood", "Blood", "Legendary", "Recessive", "+2 Charisma\nMisty Step once per short rest", "Immune to being charmed; cast Hypnotic Pattern once per long rest"),
+      G("Px", "Phoenix Ember", "Blood", "Legendary", "Codominant", "Resistance to fire damage; when you take fire damage, regain 1d6 HP", "Once per long rest, when you drop to 0 HP, burst into flame (4d6 fire to creatures within 10 ft) and stand back up with half your HP"),
+      G("Ss", "Soulsight", "Sense", "Legendary", "Recessive", "Truesight 10 ft", "Truesight 30 ft"),
+      // Mythical
+      G("Pm", "Primordial Blood", "Lineage", "Mythical", "Dominant", "+2 to two ability scores, Maximum is now 22", "HP max +2 per level; advantage on saves against magic"),
+      G("Sr", "Starborn Spark", "Arcane", "Mythical", "Recessive", "One extra spell slot of your highest level\nResistance to damage from spells", "Once per long rest, cast a spell you know as if using a slot 2 levels higher"),
+      G("Dg", "Divine Spark", "Blood", "Mythical", "Codominant", "+2 Wisdom or Charisma\nCast Revivify once per long rest without components", "Godly Presence: allies within 10 ft get +1 to saving throws"),
+      G("Vt", "Void-Touched", "Arcane", "Mythical", "Recessive", "Resistance to force and necrotic damage", "Bonus action: teleport up to 30 ft (proficiency bonus uses per long rest)"),
+    ],
+    combos: [
+      { a: "Dr", b: "Px", name: "Solar Wyrm", bonus: "Your Breath Weapon deals fire AND radiant damage (roll both) and recharges on a 5–6 at the start of your turn" },
+      { a: "Gb", b: "Th", name: "Colossus", bonus: "You count as Large for grappling and carrying, and your melee reach is 5 ft longer" },
+      { a: "Ce", b: "It", name: "Nephilim Paradox", bonus: "Resistance to radiant and necrotic damage. Once per long rest, take a Celestial or Infernal form for 1 minute: +1d8 radiant or fire damage on your attacks" },
+      { a: "Fa", b: "Af", name: "Court of the Fey", bonus: "Misty Step twice per short rest, and your first attack after teleporting has advantage" },
+      { a: "Ly", b: "Vs", name: "Nightstalker", bonus: "Darkvision 120 ft; when your bite hits, regain an extra 1d8 HP" },
+      { a: "Mn", b: "Wm", name: "Surge Mage", bonus: "Once per turn, reroll any 1s on a spell's damage dice" },
+      { a: "Pm", b: "Th", name: "Primordial Titan", bonus: "Strength maximum is now 24; advantage on grapple checks" },
+      { a: "Sr", b: "Vt", name: "Astral Drifter", bonus: "Cast Dimension Door once per long rest without a spell slot" },
+      { a: "Dg", b: "Ce", name: "Chosen of the Gods", bonus: "Revivify twice per long rest; once per turn your attacks deal +1d6 radiant damage" },
+      { a: "Ec", b: "Dr", name: "Elemental Wyrm", bonus: "Your Breath Weapon deals +2d6 damage and uses your Elemental Core element" },
+      { a: "Ab", b: "Ss", name: "All-Seeing", bonus: "You can't be surprised, and you see invisible creatures within 30 ft" },
+      { a: "Hm", b: "Pm", name: "First Folk", bonus: "+1 to every ability score" },
+    ],
+  },
+};
+
+// ---------------- state ----------------
+let uid = 0;
+const newId = () => "i" + Date.now().toString(36) + (uid++);
+function fromDefaults() {
+  const s = JSON.parse(JSON.stringify(DEFAULTS));
+  for (const list of [s.races, s.traits, s.genes.factors]) list.forEach(x => x.id = newId());
+  const byCode = Object.fromEntries(s.genes.factors.map(f => [f.code, f.id]));
+  s.genes.combos = s.genes.combos.map(c => ({ a: byCode[c.a], b: byCode[c.b], name: c.name, bonus: c.bonus }));
+  s.character = { race: null, traits: [], genes: null };
+  s.history = [];
+  return s;
+}
+function valid(s) { return s && Array.isArray(s.rarities) && Array.isArray(s.races) && Array.isArray(s.traits) && s.genes && Array.isArray(s.genes.factors) && s.genes.factors.length; }
+function normalize(s) {
+  s.genes.combos = s.genes.combos || [];
+  s.character = s.character || { race: null, traits: [], genes: null };
+  s.character.traits = s.character.traits || [];
+  s.history = Array.isArray(s.history) ? s.history : [];
+  for (const list of [s.races, s.traits, s.genes.factors]) list.forEach(x => { if (!x.id) x.id = newId(); });
+  return s;
+}
+let state;
+try { state = JSON.parse(localStorage.getItem(STORE_KEY)); } catch (e) { state = null; }
+state = normalize(valid(state) ? state : fromDefaults());
+function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} }
+
+// ---------------- helpers ----------------
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const rIdx = name => Math.max(0, state.rarities.findIndex(r => r.name === name));
+const rOf = x => state.rarities[rIdx(x.rarity)];
+const rColor = name => state.rarities[rIdx(name)].color;
+const byRarity = list => [...list].sort((a, b) => rIdx(a.rarity) - rIdx(b.rarity));
+const opts = (list, cur) => list.map(v => `<option ${v === cur ? "selected" : ""}>${esc(v)}</option>`).join("");
+const when = t => { const d = new Date(t), now = new Date(); const tm = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); return d.toDateString() === now.toDateString() ? tm : d.toLocaleDateString([], { month: "short", day: "numeric" }) + " " + tm; };
+
+function rollFrom(list) {
+  const live = state.rarities.filter(r => r.weight > 0 && list.some(x => x.rarity === r.name));
+  if (!live.length) return pick(list);
+  const total = live.reduce((s, r) => s + Number(r.weight), 0);
+  let n = Math.random() * total;
+  for (const r of live) { n -= r.weight; if (n < 0) return pick(list.filter(x => x.rarity === r.name)); }
+  return pick(list.filter(x => x.rarity === live[0].name));
+}
+function ratesHtml(list) {
+  const live = state.rarities.filter(r => r.weight > 0 && list.some(x => x.rarity === r.name));
+  const total = live.reduce((s, r) => s + Number(r.weight), 0) || 1;
+  return state.rarities.map(r => {
+    const n = list.filter(x => x.rarity === r.name).length;
+    const pct = live.includes(r) ? (r.weight / total * 100) : 0;
+    return `<div class="rate"><b style="color:${r.color}">${esc(r.name)}</b><span>${pct > 0 && pct < 1 ? pct.toFixed(2) : pct.toFixed(1)}% · ${n} ${n === 1 ? "entry" : "entries"}</span></div>`;
+  }).join("");
+}
+function glow(card, rarity) {
+  card.classList.remove("g3", "g4", "g5");
+  const i = rIdx(rarity), n = state.rarities.length;
+  card.style.setProperty("--glow", state.rarities[i].color);
+  if (i === n - 1 && n > 3) card.classList.add("g5");
+  else if (i === n - 2 && n > 3) card.classList.add("g4");
+  else if (i === n - 3 && n > 3) card.classList.add("g3");
+}
+function targetOpts(sel) {
+  const cur = sel.value;
+  sel.innerHTML = state.rarities.map((r, i) => `<option value="${i}">${esc(r.name)}</option>`).join("");
+  sel.value = cur && Number(cur) < state.rarities.length ? cur : String(Math.max(0, state.rarities.length - 3));
+}
+function choiceHtml(list, label) {
+  return state.rarities.map(r => {
+    const items = list.filter(x => x.rarity === r.name);
+    return items.length ? `<optgroup label="${esc(r.name)}">${items.map(x => `<option value="${x.id}">${esc(label(x))}</option>`).join("")}</optgroup>` : "";
+  }).join("");
+}
+function fillSelect(sel, html) { const cur = sel.value; sel.innerHTML = html; if (cur && [...sel.options].some(o => o.value === cur)) sel.value = cur; }
+
+// ---------------- history ----------------
+function addHistory(entry) {
+  state.history.unshift({ ...entry, at: Date.now() });
+  if (state.history.length > 300) state.history.length = 300;
+  save(); renderHistory();
+}
+function histLabel(h) {
+  return h.kind === "genes" ? `${h.codes} — ${h.name}` : h.name;
+}
+function renderHistory() {
+  for (const k of ["races", "traits"]) {
+    const rows = state.history.map((h, i) => [h, i]).filter(([h]) => h.kind === k).slice(0, 40);
+    $(k + "-hist").innerHTML = rows.length ? rows.map(([h, i]) => `<div data-hi="${i}"><span>${esc(h.name)}${h.chosen ? '<span class="tag">✅ chosen</span>' : ""}<span class="tag">${when(h.at)}</span></span><b style="color:${rColor(h.rarity)}">${esc(h.rarity)}</b></div>`).join("") : `<span class="empty">Nothing yet.</span>`;
+  }
+  const g = state.history.map((h, i) => [h, i]).filter(([h]) => h.kind === "genes").slice(0, 40);
+  $("g-hist").innerHTML = g.length ? g.map(([h, i]) => `<div data-hi="${i}"><span class="mono">${esc(h.codes)} <span class="note">${esc(h.name)}</span>${h.chosen ? '<span class="tag">✅ chosen</span>' : ""}<span class="tag">${when(h.at)}</span></span><b style="color:${rColor(h.rarity)}">${esc(h.rarity)}</b></div>`).join("") : `<span class="empty">Nothing yet.</span>`;
+  const f = $("h-filter").value;
+  const all = state.history.map((h, i) => [h, i]).filter(([h]) => !f || h.kind === f);
+  const kindName = { races: "🧝 Race", traits: "⚔️ Trait", genes: "🧬 Genes" };
+  $("h-log").innerHTML = `<tr><th>When</th><th>Type</th><th>Result</th><th>Rarity</th><th>How</th></tr>` +
+    (all.length ? all.map(([h, i]) => `<tr data-hi="${i}"><td class="note">${when(h.at)}</td><td>${kindName[h.kind]}</td>
+      <td><b>${esc(histLabel(h))}</b>${h.extra ? `<div class="note">${esc(h.extra)}</div>` : ""}</td>
+      <td><b style="color:${rColor(h.rarity)}">${esc(h.rarity)}</b></td><td class="note">${h.chosen ? "✅ Chosen" : "🎲 Spun"}</td></tr>`).join("")
+      : `<tr><td colspan="5" class="empty">No rolls yet. Go spin something!</td></tr>`);
+}
+function openHistory(i) {
+  const h = state.history[i]; if (!h) return;
+  if (h.kind === "genes") {
+    const a = gById(h.a), b = gById(h.b);
+    showTab("genes");
+    if (a && b) showGene(a, b, true, h.chosen); else alert("One of those genes has since been removed from the list.");
+  } else {
+    const item = state[h.kind].find(x => x.id === h.id);
+    showTab(h.kind);
+    if (item) pools[h.kind].show(item, h.chosen); else alert(`"${h.name}" has since been removed from the list.`);
+  }
+}
+document.addEventListener("click", e => {
+  const d = e.target.closest("[data-hi]");
+  if (d && (d.closest(".hist") || d.closest("#h-log"))) openHistory(Number(d.dataset.hi));
+});
+$("h-filter").onchange = renderHistory;
+$("h-clear").onclick = () => { if (confirm("Clear your whole roll history?")) { state.history = []; save(); renderHistory(); } };
+
+// ---------------- tabs ----------------
+let curTab = "races";
+try { curTab = localStorage.getItem(STORE_KEY + ":tab") || "races"; } catch (e) {}
+function showTab(t) {
+  if (!$("tab-" + t)) t = "races";
+  curTab = t;
+  document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === t));
+  document.querySelectorAll("section[id^=tab-]").forEach(s => s.hidden = s.id !== "tab-" + t);
+  try { localStorage.setItem(STORE_KEY + ":tab", t); } catch (e) {}
+}
+$("tabs").onclick = e => { const b = e.target.closest("button"); if (b) showTab(b.dataset.tab); };
+
+// ---------------- character sheet ----------------
+function renderSheet() {
+  const ch = state.character;
+  const race = ch.race && state.races.find(x => x.id === ch.race);
+  const traits = ch.traits.map(id => state.traits.find(x => x.id === id)).filter(Boolean);
+  const ga = ch.genes && gById(ch.genes[0]), gb = ch.genes && gById(ch.genes[1]);
+  const item = (x, kind) => `<div class="pick" style="--c:${rOf(x).color}"><div class="t"><span style="color:${rOf(x).color}">${esc(x.name)}</span>
+    <span><span class="tag">${esc(x.rarity)}</span><button class="x-btn" data-unkeep="${kind}" data-id="${x.id}" title="Remove">✕</button></span></div>
+    <div class="d">${esc(x.effect)}</div></div>`;
+  let genesHtml = `<div class="empty note">Spin or choose genes, then press 📌 Keep.</div>`;
+  if (ga && gb) {
+    const c = cross(ga, gb);
+    genesHtml = `<div class="pick" style="--c:${TYPE_COLOR[c.type]}"><div class="t"><span class="mono">${tag(ga)} / ${tag(gb)}</span>
+      <span><span class="tag">${TYPE_NAME[c.type]}</span><button class="x-btn" data-unkeep="genes" title="Remove">✕</button></span></div>
+      <div class="d">${esc(geneSummary(ga, gb))}</div></div>`;
+  }
+  $("sheet").innerHTML = `
+    <div class="slot"><h3><span>Race</span></h3>${race ? item(race, "races") : `<div class="empty note">Spin or choose a race, then press 📌 Keep.</div>`}</div>
+    <div class="slot"><h3><span>Traits</span><span>${traits.length}/${MAX_TRAITS}</span></h3>${traits.length ? traits.map(t => item(t, "traits")).join("") : `<div class="empty note">Keep up to ${MAX_TRAITS} traits.</div>`}</div>
+    <div class="slot"><h3><span>Genes</span></h3>${genesHtml}</div>`;
+}
+$("sheet").addEventListener("click", e => {
+  const b = e.target.closest("[data-unkeep]"); if (!b) return;
+  const k = b.dataset.unkeep;
+  if (k === "races") state.character.race = null;
+  else if (k === "traits") state.character.traits = state.character.traits.filter(id => id !== b.dataset.id);
+  else state.character.genes = null;
+  save(); renderSheet();
+});
+$("sheetClear").onclick = () => { if (confirm("Clear your character's race, traits and genes? (History is kept.)")) { state.character = { race: null, traits: [], genes: null }; save(); renderSheet(); } };
+function keep(kind, item) {
+  const ch = state.character;
+  if (kind === "races") ch.race = item.id;
+  else if (kind === "traits") {
+    if (ch.traits.includes(item.id)) return alert("Your character already has that trait.");
+    if (ch.traits.length >= MAX_TRAITS) return alert(`Your character already has ${MAX_TRAITS} traits. Remove one from My Character first.`);
+    ch.traits.push(item.id);
+  }
+  save(); renderSheet();
+}
+
+// ---------------- Races & Traits (shared spinner) ----------------
+const POOLS = {
+  races:  { label: "Race", plural: "Races", who: "Type · Size · Speed", whoPh: "e.g. Humanoid · Medium · 30 ft", effectPh: "e.g. +2 Dexterity, +1 Wisdom\nDarkvision 60 ft" },
+  traits: { label: "Trait", plural: "Traits", who: "Best for", whoPh: "e.g. Rogue, Ranger (or Any)", effectPh: "e.g. Add your proficiency bonus to initiative", filter: true },
+};
+const fitsClass = (x, cls) => !cls || /\bany\b/i.test(x.who || "") || new RegExp("\\b" + cls + "\\b", "i").test(x.who || "");
+
+function buildPool(k) {
+  const P = POOLS[k];
+  $("tab-" + k).innerHTML = `
+    <div class="top">
+      <div class="panel card" id="${k}-card">
+        ${P.filter ? `<div class="row filter"><span class="note">Spin for class:</span><select class="auto" id="${k}-class"><option value="">Any class</option>${CLASSES.map(c => `<option>${c}</option>`).join("")}</select></div>` : ""}
+        <div id="${k}-result"><p class="empty">Press <b>Spin ${P.label}</b> to roll.</p></div>
+        <div class="row" style="margin-top:16px">
+          <button class="primary" id="${k}-spin">🎲 Spin ${P.label}</button>
+          <button id="${k}-auto">Auto-spin until</button><select class="auto" id="${k}-target"></select><span class="note">or better</span>
+        </div>
+        <div class="note" id="${k}-count" style="margin-top:8px">Spins this session: 0</div>
+        <div class="row choose">
+          <span class="note" style="width:100%">Or choose exactly what you get:</span>
+          <select id="${k}-choose"></select>
+          <button id="${k}-take">✅ Take this ${P.label.toLowerCase()}</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h3 style="margin-top:0">Drop Rates${P.filter ? ` <span id="${k}-rlabel"></span>` : ""}</h3><div class="rates" id="${k}-rates"></div>
+        <h3>Previous ${P.label.toLowerCase()} spins</h3><div class="hist" id="${k}-hist"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="row" style="justify-content:space-between"><h2 style="margin:0">${P.plural} Editor</h2><button class="small" id="${k}-add">+ Add ${P.label.toLowerCase()}</button></div>
+      <p class="note">Change anything here: names, rarities and effects. Spins use whatever is in this list.${P.filter ? " List classes in “Best for” (or write Any) so the class filter can find it." : ""}</p>
+      <div class="ed-wrap"><table class="ed" id="${k}-ed"></table></div>
+    </div>`;
+
+  let spins = 0, auto = false, current = null;
+  const pool = () => P.filter ? state[k].filter(x => fitsClass(x, $(k + "-class").value)) : state[k];
+
+  function show(item, chosen) {
+    current = item;
+    const r = rOf(item);
+    $(k + "-result").innerHTML = `
+      <span class="badge" style="color:${r.color}">${esc(r.name)}</span>${chosen ? '<span class="tag">✅ Chosen</span>' : ""}
+      <div class="big" style="color:${r.color}">${esc(item.name)}</div>
+      <div class="who">${item.who ? `${esc(P.who)}: ${esc(item.who)}` : ""}</div>
+      <div class="effect" style="--c:${r.color}">${esc(item.effect) || '<span class="note">No effect written yet — add one in the editor below.</span>'}</div>
+      <div class="row" style="margin-top:10px"><button class="small keep" id="${k}-keep">📌 Keep on character</button></div>`;
+    $(k + "-keep").onclick = () => keep(k, item);
+    glow($(k + "-card"), item.rarity);
+  }
+
+  async function spin() {
+    const list = pool();
+    if (!list.length) { alert(`No ${P.plural.toLowerCase()} match. Add one or change the filter.`); return null; }
+    $(k + "-spin").disabled = true;
+    const card = $(k + "-card");
+    card.classList.add("shake");
+    for (let t = 0; t < 13; t++) {
+      const f = pick(list), r = rOf(f);
+      $(k + "-result").innerHTML = `<span class="badge" style="color:${r.color}">${esc(r.name)}</span><div class="big" style="color:${r.color}">${esc(f.name)}</div>`;
+      await sleep(60);
+    }
+    card.classList.remove("shake");
+    const item = rollFrom(list);
+    show(item, false);
+    spins++; $(k + "-count").textContent = `Spins this session: ${spins}`;
+    addHistory({ kind: k, id: item.id, name: item.name, rarity: item.rarity, chosen: false, extra: P.filter && $(k + "-class").value ? `Spun for ${$(k + "-class").value}` : "" });
+    $(k + "-spin").disabled = false;
+    return item;
+  }
+
+  $(k + "-spin").onclick = spin;
+  $(k + "-auto").onclick = async () => {
+    if (auto) { auto = false; return; }
+    auto = true; $(k + "-auto").textContent = "⏹ Stop";
+    const target = Number($(k + "-target").value);
+    let guard = 0;
+    while (auto && guard++ < 500) { const it = await spin(); if (!it || rIdx(it.rarity) >= target) break; }
+    auto = false; $(k + "-auto").textContent = "Auto-spin until";
+  };
+  $(k + "-take").onclick = () => {
+    const item = state[k].find(x => x.id === $(k + "-choose").value);
+    if (!item) return;
+    show(item, true);
+    addHistory({ kind: k, id: item.id, name: item.name, rarity: item.rarity, chosen: true });
+  };
+  if (P.filter) $(k + "-class").onchange = () => { renderChoose(); renderRates(); };
+
+  function renderChoose() { fillSelect($(k + "-choose"), choiceHtml(pool(), x => x.name)); }
+  function renderRates() {
+    $(k + "-rates").innerHTML = ratesHtml(pool());
+    if (P.filter) $(k + "-rlabel").textContent = $(k + "-class").value ? `(${$(k + "-class").value})` : "";
+  }
+  function renderEditor() {
+    const rn = state.rarities.map(r => r.name);
+    $(k + "-ed").innerHTML = `<tr><th>Name</th><th>Rarity</th><th>${esc(P.who)}</th><th>Effect</th><th></th></tr>` +
+      byRarity(state[k]).map(x => `<tr data-id="${x.id}">
+        <td class="w-name"><input data-k="name" value="${esc(x.name)}"></td>
+        <td class="w-sel"><select data-k="rarity" style="color:${rOf(x).color}">${opts(rn, x.rarity)}</select></td>
+        <td class="w-who"><input data-k="who" value="${esc(x.who)}" placeholder="${esc(P.whoPh)}"></td>
+        <td><textarea data-k="effect" rows="${Math.min(8, Math.max(2, (x.effect || "").split("\n").length + 1))}" placeholder="${esc(P.effectPh)}">${esc(x.effect)}</textarea></td>
+        <td><button class="small" data-del title="Remove">✕</button></td></tr>`).join("");
+  }
+  const find = id => state[k].find(x => x.id === id);
+  $(k + "-ed").addEventListener("input", e => {
+    const tr = e.target.closest("tr[data-id]"), f = e.target.dataset.k; if (!tr || !f) return;
+    find(tr.dataset.id)[f] = e.target.value; save();
+    if (f === "name" || f === "who") { renderChoose(); renderRates(); }
+    if (f !== "rarity") renderSheet();
+  });
+  $(k + "-ed").addEventListener("change", e => {
+    if (e.target.dataset.k === "rarity") { renderEditor(); renderChoose(); renderRates(); renderSheet(); }
+  });
+  $(k + "-ed").addEventListener("click", e => {
+    if (!e.target.hasAttribute("data-del")) return;
+    const x = find(e.target.closest("tr").dataset.id);
+    if (!confirm(`Remove "${x.name}"?`)) return;
+    state[k] = state[k].filter(y => y !== x);
+    if (k === "races" && state.character.race === x.id) state.character.race = null;
+    if (k === "traits") state.character.traits = state.character.traits.filter(id => id !== x.id);
+    save(); refresh(); renderSheet();
+  });
+  $(k + "-add").onclick = () => {
+    state[k].push({ id: newId(), name: `New ${P.label}`, rarity: state.rarities[0].name, who: k === "traits" ? "Any" : "", effect: "" });
+    save(); refresh();
+  };
+
+  function refresh() { renderEditor(); renderChoose(); renderRates(); targetOpts($(k + "-target")); }
+  return { refresh, show };
+}
+
+// ---------------- Genes ----------------
+const gf = () => state.genes.factors;
+const gById = id => gf().find(f => f.id === id);
+const tag = f => `<span class="mono" style="color:${rOf(f).color}">${esc(f.code)}</span>`;
+
+// Every gene always gives something. Dominance only decides full bonus vs. first line.
+function cross(a, b) {
+  if (a.id === b.id) return { type: "pure", genes: [{ f: a, status: "Pure" }] };
+  const ra = a.dominance === "Recessive", rb = b.dominance === "Recessive";
+  if (ra && rb) return { type: "hidden", genes: [{ f: a, status: "Weakened" }, { f: b, status: "Weakened" }] };
+  if (!ra && !rb) return { type: "co", genes: [{ f: a, status: "Expressed" }, { f: b, status: "Expressed" }] };
+  const [dom, rec] = ra ? [b, a] : [a, b];
+  if (dom.dominance === "Codominant") return { type: "awakened", genes: [{ f: dom, status: "Expressed" }, { f: rec, status: "Awakened" }] };
+  return { type: "suppressed", genes: [{ f: dom, status: "Expressed" }, { f: rec, status: "Weakened" }] };
+}
+function offspringRarity(c) { return c.genes.reduce((best, g) => rIdx(g.f.rarity) > rIdx(best.rarity) ? g.f : best, c.genes[0].f).rarity; }
+const comboFor = (a, b) => state.genes.combos.find(k => (k.a === a.id && k.b === b.id) || (k.a === b.id && k.b === a.id));
+function geneText(f, status) {
+  if (status === "Weakened") return (f.bonus || "").split("\n")[0];
+  if (status === "Pure") return [f.bonus, f.pureBonus].filter(Boolean).join("\n");
+  return f.bonus || "";
+}
+function geneSummary(a, b) {
+  const c = cross(a, b), combo = comboFor(a, b);
+  const lines = c.genes.map(g => `${g.f.name}${g.status === "Pure" ? " ×2" : g.status === "Weakened" ? " (weakened)" : ""}: ${geneText(g.f, g.status).replace(/\n/g, "; ")}`);
+  if (combo) lines.push(`✦ ${combo.name || "Combo"}: ${(combo.bonus || "").replace(/\n/g, "; ")}`);
+  return lines.join("\n");
+}
+
+let gCurrent = null;
+function showGene(a, b, fromSpin, chosen) {
+  gCurrent = [a, b];
+  const c = cross(a, b);
+  const r = state.rarities[rIdx(offspringRarity(c))];
+  const combo = comboFor(a, b);
+  const sc = { Pure: "var(--pure)", Expressed: "var(--co)", Awakened: "var(--awakened)", Weakened: "var(--suppressed)" };
+  const genes = c.genes.map(({ f, status }) => {
+    let body;
+    if (status === "Weakened") body = f.bonus ? `<div class="bonus">${esc(f.bonus.split("\n")[0])}</div>${f.bonus.includes("\n") ? `<div class="note"><i>Weakened: you get the first line. Pair it with a codominant gene or a second copy to unlock the rest.</i></div>` : ""}` : `<div class="none">No bonus written yet.</div>`;
+    else {
+      const parts = [];
+      if (f.bonus) parts.push(`<div class="bonus">${esc(f.bonus)}</div>`);
+      if (status === "Pure" && f.pureBonus) parts.push(`<div class="bonus"><b>Pure:</b> ${esc(f.pureBonus)}</div>`);
+      body = parts.join("") || `<div class="none">No bonus written yet — add one in the Gene Editor.</div>`;
+    }
+    return `<div class="gene" style="--c:${rOf(f).color}">
+      <div class="row" style="justify-content:space-between"><span class="n">${esc(f.name)} ${tag(f)}</span>
+      <span class="badge" style="color:${sc[status]}">${status}${status === "Pure" ? " ×2" : ""}</span></div>
+      <div class="note">${esc(f.category)} · ${esc(f.dominance)} · ${esc(f.rarity)}</div>${body}</div>`;
+  }).join("");
+  const comboHtml = combo ? `<div class="gene" style="--c:#fff"><div class="row" style="justify-content:space-between"><span class="n">✦ ${esc(combo.name || "Bloodline Combo")}</span><span class="badge" style="color:#fff">Combo</span></div>
+    ${combo.bonus ? `<div class="bonus">${esc(combo.bonus)}</div>` : `<div class="none">No bonus written yet.</div>`}</div>` : "";
+  $("g-result").innerHTML = `<h2>Offspring ${chosen ? '<span class="tag">✅ Chosen</span>' : fromSpin ? "" : '<span class="note">(preview)</span>'}</h2>
+    <div class="geno mono">${tag(a)} / ${tag(b)}</div>
+    <div class="row" style="margin:6px 0 4px"><span class="badge" style="color:${r.color}">${esc(r.name)}</span>
+    <span class="badge" style="color:${TYPE_COLOR[c.type]}">${TYPE_NAME[c.type]}</span></div>${genes}${comboHtml}
+    <div class="row" style="margin-top:10px"><button class="small keep" id="g-keep">📌 Keep on character</button></div>`;
+  $("g-keep").onclick = () => { state.character.genes = [a.id, b.id]; save(); renderSheet(); };
+  highlight(a, b);
+}
+function recordGene(a, b, chosen) {
+  const c = cross(a, b), combo = comboFor(a, b);
+  addHistory({ kind: "genes", a: a.id, b: b.id, codes: `${a.code}/${b.code}`, name: `${a.name} × ${b.name}`, rarity: offspringRarity(c), chosen, extra: TYPE_NAME[c.type] + (combo ? ` · ✦ ${combo.name}` : "") });
+}
+
+function renderMatrix() {
+  const fs = byRarity(gf());
+  let h = `<thead><tr><th class="corner rowh">A \\ B</th>${fs.map(f =>
+    `<th class="colh" style="color:${rOf(f).color}" title="${esc(f.name)}">${esc(f.code)} · ${esc(f.name)}</th>`).join("")}</tr></thead><tbody>`;
+  for (const a of fs) {
+    h += `<tr><th class="rowh" style="color:${rOf(a).color}"><span class="mono">${esc(a.code)}</span> ${esc(a.name)}</th>`;
+    for (const b of fs) {
+      const c = cross(a, b);
+      h += `<td><div class="x mono" data-a="${a.id}" data-b="${b.id}" style="background:${TYPE_COLOR[c.type]}" title="${esc(a.name)} × ${esc(b.name)} — ${TYPE_NAME[c.type]}${comboFor(a, b) ? " ✦" : ""}">${esc(a.code)}${esc(b.code)}</div></td>`;
+    }
+    h += "</tr>";
+  }
+  $("matrix").innerHTML = h + "</tbody>";
+}
+function highlight(a, b) {
+  document.querySelectorAll(".matrix .x.hit").forEach(e => e.classList.remove("hit"));
+  const el = document.querySelector(`.matrix .x[data-a="${a.id}"][data-b="${b.id}"]`);
+  if (!el || $("tab-genes").hidden) return;
+  el.classList.add("hit");
+  const wrap = document.querySelector(".matrix-wrap"), er = el.getBoundingClientRect(), wr = wrap.getBoundingClientRect();
+  wrap.scrollBy({ left: er.left - wr.left - wr.width / 2, top: er.top - wr.top - wr.height / 2, behavior: "smooth" });
+}
+$("matrix").addEventListener("click", e => { const x = e.target.closest(".x"); if (x) showGene(gById(x.dataset.a), gById(x.dataset.b), false); });
+
+function renderGeneEditor() {
+  const rn = state.rarities.map(r => r.name);
+  $("g-ed").innerHTML = `<tr><th>Code</th><th>Name</th><th>Type</th><th>Rarity</th><th>Dominance</th><th>Bonus</th><th>Pure bonus (×2)</th><th></th></tr>` +
+    byRarity(gf()).map(f => `<tr data-id="${f.id}">
+      <td><input class="w-code mono" data-k="code" value="${esc(f.code)}" maxlength="4"></td>
+      <td><input data-k="name" value="${esc(f.name)}"></td>
+      <td><select class="w-sel" data-k="category">${opts([...new Set([...CATEGORIES, f.category])], f.category)}</select></td>
+      <td><select class="w-sel" data-k="rarity" style="color:${rOf(f).color}">${opts(rn, f.rarity)}</select></td>
+      <td><select class="w-sel" data-k="dominance">${opts(DOMINANCE, f.dominance)}</select></td>
+      <td><textarea data-k="bonus" placeholder="e.g. Darkvision 60 ft">${esc(f.bonus)}</textarea></td>
+      <td><textarea data-k="pureBonus" placeholder="e.g. Darkvision 120 ft">${esc(f.pureBonus)}</textarea></td>
+      <td><button class="small" data-del title="Remove">✕</button></td></tr>`).join("");
+}
+let mt;
+$("g-ed").addEventListener("input", e => {
+  const tr = e.target.closest("tr[data-id]"), k = e.target.dataset.k; if (!tr || !k) return;
+  gById(tr.dataset.id)[k] = e.target.value; save(); renderSheet();
+  if (k !== "bonus" && k !== "pureBonus") { clearTimeout(mt); mt = setTimeout(() => { renderMatrix(); renderCombos(); renderGeneChoose(); }, 300); }
+});
+$("g-ed").addEventListener("change", e => { if (e.target.dataset.k === "rarity") { renderGeneEditor(); renderMatrix(); renderGeneChoose(); } });
+$("g-ed").addEventListener("click", e => {
+  if (!e.target.hasAttribute("data-del")) return;
+  if (gf().length <= 1) return alert("You need at least one gene.");
+  const id = e.target.closest("tr").dataset.id, f = gById(id);
+  if (!confirm(`Remove "${f.name}"?`)) return;
+  state.genes.factors = gf().filter(x => x.id !== id);
+  state.genes.combos = state.genes.combos.filter(c => c.a !== id && c.b !== id);
+  if (state.character.genes && state.character.genes.includes(id)) state.character.genes = null;
+  save(); refreshGenes(); renderSheet();
+});
+$("g-add").onclick = () => {
+  gf().push({ id: newId(), code: "Nw", name: "New Gene", category: "Blood", rarity: state.rarities[0].name, dominance: "Recessive", bonus: "", pureBonus: "" });
+  save(); refreshGenes();
+};
+
+function renderCombos() {
+  const fo = cur => byRarity(gf()).map(f => `<option value="${f.id}" ${f.id === cur ? "selected" : ""}>${esc(f.code)} · ${esc(f.name)}</option>`).join("");
+  const cs = state.genes.combos;
+  $("c-ed").innerHTML = `<tr><th>Gene A</th><th>Gene B</th><th>Combo name</th><th>Bonus</th><th></th></tr>` +
+    (cs.length ? cs.map((c, i) => `<tr data-ci="${i}">
+      <td><select data-k="a">${fo(c.a)}</select></td><td><select data-k="b">${fo(c.b)}</select></td>
+      <td><input data-k="name" value="${esc(c.name)}"></td>
+      <td><textarea data-k="bonus">${esc(c.bonus)}</textarea></td>
+      <td><button class="small" data-del>✕</button></td></tr>`).join("") : `<tr><td colspan="5" class="note">No combos yet.</td></tr>`);
+}
+$("c-ed").addEventListener("input", e => {
+  const tr = e.target.closest("tr[data-ci]"), k = e.target.dataset.k; if (!tr || !k) return;
+  state.genes.combos[tr.dataset.ci][k] = e.target.value; save(); renderSheet();
+});
+$("c-ed").addEventListener("change", e => { if (e.target.dataset.k === "a" || e.target.dataset.k === "b") renderMatrix(); });
+$("c-ed").addEventListener("click", e => {
+  if (!e.target.hasAttribute("data-del")) return;
+  state.genes.combos.splice(e.target.closest("tr").dataset.ci, 1); save(); renderCombos(); renderMatrix(); renderSheet();
+});
+$("c-add").onclick = () => {
+  const fs = byRarity(gf());
+  state.genes.combos.push({ a: fs[0].id, b: fs[Math.min(1, fs.length - 1)].id, name: "", bonus: "" }); save(); renderCombos();
+};
+
+const alleleHtml = f => `<span class="allele mono" style="color:${rOf(f).color}" title="${esc(f.name)}">${esc(f.code)}</span>`;
+function renderPunnett(A, B) {
+  const cell = (i, j) => {
+    if (!A) return `<div class="cell"></div>`;
+    const c = cross(A[i], B[j]);
+    return `<div class="cell mono" data-c="${i}${j}" style="color:${TYPE_COLOR[c.type]}">${esc(A[i].code)}/${esc(B[j].code)}</div>`;
+  };
+  $("punnett").innerHTML = `<div class="hd">A \\ B</div><div class="hd">${B ? alleleHtml(B[0]) : ""}</div><div class="hd">${B ? alleleHtml(B[1]) : ""}</div>
+    <div class="hd">${A ? alleleHtml(A[0]) : ""}</div>${cell(0, 0)}${cell(0, 1)}
+    <div class="hd">${A ? alleleHtml(A[1]) : ""}</div>${cell(1, 0)}${cell(1, 1)}`;
+}
+function renderGeneChoose() {
+  const html = choiceHtml(gf(), f => `${f.code} · ${f.name}`);
+  fillSelect($("g-chooseA"), html); fillSelect($("g-chooseB"), html);
+}
+
+let gSpins = 0, gAuto = false;
+async function spinGenes() {
+  $("g-spin").disabled = true;
+  const A = [rollFrom(gf()), rollFrom(gf())], B = [rollFrom(gf()), rollFrom(gf())];
+  renderPunnett(null, null);
+  for (let t = 0; t < 14; t++) {
+    $("pA").innerHTML = alleleHtml(pick(gf())) + alleleHtml(pick(gf()));
+    $("pB").innerHTML = alleleHtml(pick(gf())) + alleleHtml(pick(gf()));
+    await sleep(55);
+  }
+  $("pA").innerHTML = A.map(alleleHtml).join(""); $("pB").innerHTML = B.map(alleleHtml).join("");
+  renderPunnett(A, B);
+  const keys = ["00", "01", "10", "11"], win = pick(keys);
+  for (let t = 0; t < 10; t++) {
+    document.querySelectorAll(".punnett .cell").forEach(c => c.classList.toggle("flash", c.dataset.c === keys[t % 4]));
+    await sleep(70 + t * 12);
+  }
+  document.querySelectorAll(".punnett .cell").forEach(c => { c.classList.remove("flash"); c.classList.toggle("win", c.dataset.c === win); });
+  const a = A[+win[0]], b = B[+win[1]];
+  showGene(a, b, true);
+  gSpins++; $("g-count").textContent = `Spins this session: ${gSpins}`;
+  recordGene(a, b, false);
+  $("g-spin").disabled = false;
+  return offspringRarity(cross(a, b));
+}
+$("g-spin").onclick = spinGenes;
+$("g-take").onclick = () => {
+  const a = gById($("g-chooseA").value), b = gById($("g-chooseB").value);
+  if (!a || !b) return;
+  $("pA").innerHTML = alleleHtml(a) + alleleHtml(a); $("pB").innerHTML = alleleHtml(b) + alleleHtml(b);
+  renderPunnett([a, a], [b, b]);
+  document.querySelectorAll(".punnett .cell").forEach(c => c.classList.toggle("win", c.dataset.c === "00"));
+  showGene(a, b, true, true); recordGene(a, b, true);
+};
+$("g-auto").onclick = async () => {
+  if (gAuto) { gAuto = false; return; }
+  gAuto = true; $("g-auto").textContent = "⏹ Stop";
+  const target = Number($("g-target").value); let guard = 0;
+  while (gAuto && guard++ < 500) { if (rIdx(await spinGenes()) >= target) break; }
+  gAuto = false; $("g-auto").textContent = "Auto-spin until";
+};
+function refreshGenes() { renderMatrix(); renderGeneEditor(); renderCombos(); renderGeneChoose(); targetOpts($("g-target")); }
+
+// ---------------- settings ----------------
+function renderWeights() {
+  $("weights").innerHTML = state.rarities.map((r, i) => `<div style="background:var(--panel2);border-radius:10px;padding:8px 10px">
+    <b style="color:${r.color}">${esc(r.name)}</b><input type="number" min="0" step="0.1" value="${r.weight}" data-ri="${i}" style="margin-top:4px"></div>`).join("");
+}
+$("weights").addEventListener("input", e => {
+  const i = e.target.dataset.ri; if (i === undefined) return;
+  state.rarities[i].weight = Math.max(0, Number(e.target.value) || 0); save();
+  pools.races.refresh(); pools.traits.refresh();
+});
+$("exportBtn").onclick = () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "bloodline-roller.json"; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+$("importBtn").onclick = () => $("importFile").click();
+$("importFile").onchange = async e => {
+  const file = e.target.files[0]; if (!file) return;
+  try {
+    const s = JSON.parse(await file.text());
+    if (!valid(s)) throw new Error("bad");
+    state = normalize(s); save(); renderAll();
+  } catch (err) { alert("That file doesn't look like a Bloodline Roller export."); }
+  e.target.value = "";
+};
+$("resetBtn").onclick = () => {
+  if (!confirm("Reset races, traits and genes to the defaults? Your list edits will be erased (history is kept).")) return;
+  const keepHist = state.history;
+  state = fromDefaults(); state.history = keepHist; save(); renderAll();
+};
+
+const pools = { races: buildPool("races"), traits: buildPool("traits") };
+function renderAll() { pools.races.refresh(); pools.traits.refresh(); refreshGenes(); renderPunnett(null, null); renderWeights(); renderHistory(); renderSheet(); }
+renderAll();
+showTab(curTab);
+</script>
+</body>
+</html>
