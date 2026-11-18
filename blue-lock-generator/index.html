@@ -91,6 +91,9 @@
   @keyframes blink { 50% { filter: brightness(1.8); } }
   .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); margin: 10px 0; }
   .legend span::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: var(--k); margin-right: 6px; vertical-align: -2px; }
+  .choose { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); }
+  .choose select { flex: 1; min-width: 160px; }
+  .chosen-tag { font-size: 11px; color: var(--muted); font-weight: 600; margin-left: 6px; }
   .wgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
 </style>
 </head>
@@ -123,6 +126,11 @@
           <button id="g-auto">Auto-spin until</button><select class="auto" id="g-target"></select><span class="note">or better</span>
         </div>
         <div class="note" id="g-count" style="margin-top:8px">Spins: 0</div>
+        <div class="row choose">
+          <span class="note" style="width:100%">Or choose exactly which two genes you get:</span>
+          <select id="g-chooseA"></select><select id="g-chooseB"></select>
+          <button id="g-take">✅ Take these genes</button>
+        </div>
         <h3>History</h3>
         <div class="hist" id="g-hist"><span class="empty">No spins yet.</span></div>
       </div>
@@ -430,6 +438,11 @@ function buildPool(k) {
           <button id="${k}-auto">Auto-spin until</button><select class="auto" id="${k}-target"></select><span class="note">or better</span>
         </div>
         <div class="note" id="${k}-count" style="margin-top:8px">Spins: 0</div>
+        <div class="row choose">
+          <span class="note" style="width:100%">Or choose exactly what you get:</span>
+          <select id="${k}-choose"></select>
+          <button id="${k}-take">✅ Take this ${P.label.toLowerCase()}</button>
+        </div>
       </div>
       <div class="panel">
         <h3 style="margin-top:0">Drop Rates</h3><div class="rates" id="${k}-rates"></div>
@@ -445,10 +458,10 @@ function buildPool(k) {
   const hist = [];
   let spins = 0, auto = false;
 
-  function show(item) {
+  function show(item, chosen) {
     const r = rOf(item);
     $(k + "-result").innerHTML = `
-      <span class="badge" style="color:${r.color}">${esc(r.name)}</span>
+      <span class="badge" style="color:${r.color}">${esc(r.name)}</span>${chosen ? '<span class="chosen-tag">✅ Chosen</span>' : ""}
       <div class="big" style="color:${r.color}">${isML(item.rarity) ? `<span class="ml-tag">[Master's League]</span>` : ""}${esc(item.name)}${k === "families" ? " Family" : ""}</div>
       <div class="who">${item.who ? `${esc(P.who)}: ${esc(item.who)}` : ""}</div>
       <div class="effect" style="--c:${r.color}">${esc(item.effect) || '<span class="note">No effect written yet — add one in the editor below.</span>'}</div>`;
@@ -470,14 +483,32 @@ function buildPool(k) {
     const item = rollFrom(list);
     show(item);
     spins++; $(k + "-count").textContent = `Spins: ${spins}`;
-    hist.unshift(item); if (hist.length > 50) hist.pop();
-    $(k + "-hist").innerHTML = hist.map((h, i) => `<div data-h="${i}"><span>${esc(h.name)}</span><b style="color:${rOf(h).color}">${esc(h.rarity)}</b></div>`).join("");
+    record(item, false);
     $(k + "-spin").disabled = false;
     return item;
   }
 
+  function record(item, chosen) {
+    hist.unshift({ item, chosen }); if (hist.length > 50) hist.pop();
+    $(k + "-hist").innerHTML = hist.map((h, i) => `<div data-h="${i}"><span>${esc(h.item.name)}${h.chosen ? '<span class="chosen-tag">✅ chosen</span>' : ""}</span><b style="color:${rOf(h.item).color}">${esc(h.item.rarity)}</b></div>`).join("");
+  }
+
+  function renderChoose() {
+    const sel = $(k + "-choose"), cur = sel.value;
+    sel.innerHTML = state.rarities.map(r => {
+      const items = state[k].filter(x => x.rarity === r.name);
+      return items.length ? `<optgroup label="${esc(r.name)}">${items.map(x => `<option value="${x.id}">${esc(x.name)}</option>`).join("")}</optgroup>` : "";
+    }).join("");
+    if (cur && state[k].some(x => x.id === cur)) sel.value = cur;
+  }
+  $(k + "-take").onclick = () => {
+    const item = state[k].find(x => x.id === $(k + "-choose").value);
+    if (!item) return;
+    show(item, true); record(item, true);
+  };
+
   $(k + "-spin").onclick = spin;
-  $(k + "-hist").onclick = e => { const d = e.target.closest("[data-h]"); if (d) show(hist[d.dataset.h]); };
+  $(k + "-hist").onclick = e => { const d = e.target.closest("[data-h]"); if (d) show(hist[d.dataset.h].item, hist[d.dataset.h].chosen); };
   $(k + "-auto").onclick = async () => {
     if (auto) { auto = false; return; }
     auto = true; $(k + "-auto").textContent = "⏹ Stop";
@@ -501,9 +532,10 @@ function buildPool(k) {
   $(k + "-ed").addEventListener("input", e => {
     const tr = e.target.closest("tr[data-id]"), f = e.target.dataset.k; if (!tr || !f) return;
     find(tr.dataset.id)[f] = e.target.value; save();
+    if (f === "name") renderChoose();
   });
   $(k + "-ed").addEventListener("change", e => {
-    if (e.target.dataset.k === "rarity") { renderEditor(); $(k + "-rates").innerHTML = ratesHtml(state[k]); }
+    if (e.target.dataset.k === "rarity") { renderEditor(); renderChoose(); $(k + "-rates").innerHTML = ratesHtml(state[k]); }
   });
   $(k + "-ed").addEventListener("click", e => {
     if (!e.target.hasAttribute("data-del")) return;
@@ -516,7 +548,7 @@ function buildPool(k) {
     save(); refresh();
   };
 
-  function refresh() { renderEditor(); $(k + "-rates").innerHTML = ratesHtml(state[k]); targetOpts($(k + "-target")); }
+  function refresh() { renderEditor(); renderChoose(); $(k + "-rates").innerHTML = ratesHtml(state[k]); targetOpts($(k + "-target")); }
   return { refresh };
 }
 
@@ -540,7 +572,7 @@ function offspringRarity(c) {
   return pool.reduce((best, g) => rIdx(g.f.rarity) > rIdx(best.rarity) ? g.f : best, pool[0].f).rarity;
 }
 
-function showGene(a, b, fromSpin) {
+function showGene(a, b, fromSpin, chosen) {
   const c = cross(a, b);
   const r = state.rarities[rIdx(offspringRarity(c))];
   const combo = state.genes.combos.find(k => (k.a === a.id && k.b === b.id) || (k.a === b.id && k.b === a.id));
@@ -562,7 +594,7 @@ function showGene(a, b, fromSpin) {
   }).join("");
   const comboHtml = combo ? `<div class="gene" style="--c:#fff"><div class="row" style="justify-content:space-between"><span class="n">✦ ${esc(combo.name || "Gene Combo")}</span><span class="badge" style="color:#fff">Combo</span></div>
     ${combo.bonus ? `<div class="bonus">${esc(combo.bonus)}</div>` : `<div class="none">No bonus written yet.</div>`}</div>` : "";
-  $("g-result").innerHTML = `<h2>Offspring ${fromSpin ? "" : '<span class="note">(preview)</span>'}</h2>
+  $("g-result").innerHTML = `<h2>Offspring ${chosen ? '<span class="chosen-tag">✅ Chosen</span>' : fromSpin ? "" : '<span class="note">(preview)</span>'}</h2>
     <div class="geno mono">${tag(a)} / ${tag(b)}</div>
     <div class="row" style="margin:6px 0 4px"><span class="badge" style="color:${r.color}">${esc(r.name)}</span>
     <span class="badge" style="color:${TYPE_COLOR[c.type]}">${TYPE_NAME[c.type]}</span></div>${genes}${comboHtml}`;
@@ -610,9 +642,9 @@ let mt;
 $("g-ed").addEventListener("input", e => {
   const tr = e.target.closest("tr[data-id]"), k = e.target.dataset.k; if (!tr || !k) return;
   gById(tr.dataset.id)[k] = e.target.value; save();
-  if (k !== "bonus" && k !== "pureBonus") { clearTimeout(mt); mt = setTimeout(() => { renderMatrix(); renderCombos(); }, 300); }
+  if (k !== "bonus" && k !== "pureBonus") { clearTimeout(mt); mt = setTimeout(() => { renderMatrix(); renderCombos(); renderGeneChoose(); }, 300); }
 });
-$("g-ed").addEventListener("change", e => { if (e.target.dataset.k === "rarity") { renderGeneEditor(); renderMatrix(); } });
+$("g-ed").addEventListener("change", e => { if (e.target.dataset.k === "rarity") { renderGeneEditor(); renderMatrix(); renderGeneChoose(); } });
 $("g-ed").addEventListener("click", e => {
   if (!e.target.hasAttribute("data-del")) return;
   if (gf().length <= 1) return alert("You need at least one gene.");
@@ -684,14 +716,37 @@ async function spinGenes() {
   showGene(a, b, true);
   const rName = offspringRarity(cross(a, b));
   gSpins++; $("g-count").textContent = `Spins: ${gSpins}`;
-  gHist.unshift({ a, b, rName }); if (gHist.length > 50) gHist.pop();
-  $("g-hist").innerHTML = gHist.map((h, i) => `<div data-h="${i}"><span class="mono">${esc(h.a.code)} / ${esc(h.b.code)} <span class="note">${esc(h.a.name)} × ${esc(h.b.name)}</span></span>
-    <b style="color:${state.rarities[rIdx(h.rName)].color}">${esc(h.rName)}</b></div>`).join("");
+  recordGene(a, b, false);
   $("g-spin").disabled = false;
   return rName;
 }
+function recordGene(a, b, chosen) {
+  const rName = offspringRarity(cross(a, b));
+  gHist.unshift({ a, b, rName, chosen }); if (gHist.length > 50) gHist.pop();
+  $("g-hist").innerHTML = gHist.map((h, i) => `<div data-h="${i}"><span class="mono">${esc(h.a.code)} / ${esc(h.b.code)} <span class="note">${esc(h.a.name)} × ${esc(h.b.name)}</span>${h.chosen ? '<span class="chosen-tag">✅ chosen</span>' : ""}</span>
+    <b style="color:${state.rarities[rIdx(h.rName)].color}">${esc(h.rName)}</b></div>`).join("");
+}
+function renderGeneChoose() {
+  const html = state.rarities.map(r => {
+    const items = gf().filter(f => f.rarity === r.name);
+    return items.length ? `<optgroup label="${esc(r.name)}">${items.map(f => `<option value="${f.id}">${esc(f.code)} · ${esc(f.name)}</option>`).join("")}</optgroup>` : "";
+  }).join("");
+  for (const id of ["g-chooseA", "g-chooseB"]) {
+    const sel = $(id), cur = sel.value;
+    sel.innerHTML = html;
+    if (cur && gById(cur)) sel.value = cur;
+  }
+}
+$("g-take").onclick = () => {
+  const a = gById($("g-chooseA").value), b = gById($("g-chooseB").value);
+  if (!a || !b) return;
+  $("pA").innerHTML = alleleHtml(a) + alleleHtml(a); $("pB").innerHTML = alleleHtml(b) + alleleHtml(b);
+  renderPunnett([a, a], [b, b]);
+  document.querySelectorAll(".punnett .cell").forEach(c => c.classList.toggle("win", c.dataset.c === "00"));
+  showGene(a, b, true, true); recordGene(a, b, true);
+};
 $("g-spin").onclick = spinGenes;
-$("g-hist").onclick = e => { const d = e.target.closest("[data-h]"); if (!d) return; const h = gHist[d.dataset.h]; if (gById(h.a.id) && gById(h.b.id)) showGene(h.a, h.b, true); };
+$("g-hist").onclick = e => { const d = e.target.closest("[data-h]"); if (!d) return; const h = gHist[d.dataset.h]; if (gById(h.a.id) && gById(h.b.id)) showGene(h.a, h.b, true, h.chosen); };
 $("g-auto").onclick = async () => {
   if (gAuto) { gAuto = false; return; }
   gAuto = true; $("g-auto").textContent = "⏹ Stop";
@@ -699,7 +754,7 @@ $("g-auto").onclick = async () => {
   while (gAuto && guard++ < 500) { if (rIdx(await spinGenes()) >= target) break; }
   gAuto = false; $("g-auto").textContent = "Auto-spin until";
 };
-function refreshGenes() { renderMatrix(); renderGeneEditor(); renderCombos(); targetOpts($("g-target")); }
+function refreshGenes() { renderMatrix(); renderGeneEditor(); renderCombos(); renderGeneChoose(); targetOpts($("g-target")); }
 
 // ---------------- settings ----------------
 function renderWeights() {
