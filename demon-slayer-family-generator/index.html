@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slayer Family Roll</title>
+<style>
+  :root {
+    --bg: #0f0d14; --panel: #1a1722; --panel2: #231f2e; --text: #ece8f4; --muted: #9b94ad; --line: #332d42;
+    --common: #b8b8b8; --uncommon: #4fd06b; --rare: #3fa0ff; --legendary: #ffb52e; --mythical: #ff4f8b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { margin: 0 0 4px; font-size: 28px; letter-spacing: .5px; }
+  .sub { color: var(--muted); margin: 0 0 20px; }
+  .grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+  .card { min-height: 360px; position: relative; overflow: hidden; }
+  .card.glow-legendary { box-shadow: 0 0 28px -6px var(--legendary); }
+  .card.glow-mythical { box-shadow: 0 0 36px -4px var(--mythical); animation: pulse 2s infinite; }
+  @keyframes pulse { 50% { box-shadow: 0 0 52px 0 var(--mythical); } }
+  .rarity { display: inline-block; font-weight: 800; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; border: 1px solid currentColor; }
+  .fname { font-size: 34px; font-weight: 800; margin: 10px 0 2px; }
+  .kanji { color: var(--muted); font-size: 15px; margin-bottom: 8px; }
+  .lore { color: var(--muted); font-style: italic; margin: 0 0 14px; }
+  h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin: 16px 0 8px; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+  .stat { background: var(--panel2); border-radius: 10px; padding: 8px 10px; display: flex; justify-content: space-between; }
+  .stat b { color: var(--uncommon); }
+  .list { display: grid; gap: 8px; }
+  .item { background: var(--panel2); border-radius: 10px; padding: 9px 12px; border-left: 3px solid var(--accent, #666); }
+  .item .n { font-weight: 700; }
+  .item .d { color: var(--muted); font-size: 14px; margin-top: 2px; }
+  .empty { color: var(--muted); font-size: 14px; }
+  .btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+  button { font: inherit; font-weight: 700; border: 0; border-radius: 10px; padding: 12px 18px; cursor: pointer; }
+  .spin { background: linear-gradient(135deg, #d4363f, #8e1d3a); color: #fff; flex: 1; min-width: 140px; }
+  .spin:disabled { opacity: .6; cursor: wait; }
+  .ghost { background: var(--panel2); color: var(--text); border: 1px solid var(--line); }
+  .counter { color: var(--muted); font-size: 14px; margin-top: 10px; }
+  .rates { display: grid; gap: 6px; }
+  .rate { display: flex; justify-content: space-between; font-size: 14px; }
+  .hist { display: grid; gap: 4px; max-height: 260px; overflow: auto; font-size: 14px; }
+  .hist div { display: flex; justify-content: space-between; padding: 4px 6px; border-radius: 6px; background: var(--panel2); }
+  .index { margin-top: 16px; }
+  .index details { border-top: 1px solid var(--line); padding: 8px 0; }
+  .index summary { cursor: pointer; font-weight: 700; }
+  .index .fam { padding: 4px 0 4px 12px; font-size: 14px; color: var(--muted); }
+  .shake { animation: shake .08s linear infinite; }
+  @keyframes shake { 0%{transform:translateX(0)} 50%{transform:translateX(2px)} 100%{transform:translateX(-2px)} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>⚔️ Slayer Family Roll</h1>
+  <p class="sub">Spin for your bloodline. Higher rarity = bigger stat bonuses, more traits and more passives (max 3 each).</p>
+
+  <div class="grid">
+    <div class="panel card" id="card">
+      <div id="result"><p class="empty">Press <b>Spin Family</b> to roll your bloodline.</p></div>
+      <div class="btns">
+        <button class="spin" id="spinBtn">🎲 Spin Family</button>
+        <button class="ghost" id="lockBtn" title="Keep spinning until Legendary or better">Auto-spin → Legendary+</button>
+      </div>
+      <div class="counter" id="counter">Spins: 0</div>
+    </div>
+
+    <div>
+      <div class="panel">
+        <h3 style="margin-top:0">Drop Rates</h3>
+        <div class="rates" id="rates"></div>
+      </div>
+      <div class="panel" style="margin-top:16px">
+        <h3 style="margin-top:0">Spin History</h3>
+        <div class="hist" id="hist"><span class="empty">No spins yet.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel index">
+    <h3 style="margin-top:0">Family Index</h3>
+    <div id="index"></div>
+  </div>
+</div>
+
+<script>
+const RARITIES = {
+  Common:    { weight: 50, color: "var(--common)",    statRange: [1, 3],   stats: 2, traits: [1, 1], passives: [1, 1] },
+  Uncommon:  { weight: 28, color: "var(--uncommon)",  statRange: [3, 6],   stats: 3, traits: [1, 2], passives: [1, 2] },
+  Rare:      { weight: 15, color: "var(--rare)",      statRange: [6, 10],  stats: 3, traits: [2, 2], passives: [2, 2] },
+  Legendary: { weight: 6,  color: "var(--legendary)", statRange: [10, 16], stats: 4, traits: [2, 3], passives: [2, 3] },
+  Mythical:  { weight: 1,  color: "var(--mythical)",  statRange: [16, 25], stats: 5, traits: [3, 3], passives: [3, 3] },
+};
+
+const STATS = ["Strength", "Speed", "Durability", "Breath Control", "Sword Mastery", "Stamina", "Critical Chance", "Health"];
+
+// Each family has a signature trait + passive pool it can roll from.
+const FAMILIES = {
+  Common: [
+    { name: "Tanaka",   kanji: "田中", lore: "Farmers who picked up blades when the night grew dangerous." },
+    { name: "Sato",     kanji: "佐藤", lore: "A sprawling family of village guards and lantern keepers." },
+    { name: "Suzuki",   kanji: "鈴木", lore: "Bell-ringers who warn the town of demons at dusk." },
+    { name: "Nakamura", kanji: "中村", lore: "Ordinary folk with an unusual stubborn streak." },
+    { name: "Kobayashi",kanji: "小林", lore: "Woodcutters who know the forests demons hide in." },
+    { name: "Yamada",   kanji: "山田", lore: "Mountain villagers hardened by long winters." },
+  ],
+  Uncommon: [
+    { name: "Hashibira", kanji: "嘴平", lore: "Wild mountain-raised fighters with keen senses." },
+    { name: "Kanzaki",   kanji: "神崎", lore: "Healers who tend to slayers between missions." },
+    { name: "Murata",    kanji: "村田", lore: "Reliable corps members who always survive somehow." },
+    { name: "Shinazugawa", kanji: "不死川", lore: "Scarred brawlers whose blood unsettles demons." },
+    { name: "Haganezuka", kanji: "鋼鐵塚", lore: "Swordsmiths obsessed with the perfect edge." },
+  ],
+  Rare: [
+    { name: "Agatsuma",  kanji: "我妻", lore: "One-form specialists with lightning-fast draws." },
+    { name: "Kocho",     kanji: "胡蝶", lore: "Butterfly-graceful slayers who master poisons." },
+    { name: "Tomioka",   kanji: "冨岡", lore: "Calm, quiet water users with unshakable focus." },
+    { name: "Kanroji",   kanji: "甘露寺", lore: "Gifted with unusually dense, flexible muscles." },
+    { name: "Iguro",     kanji: "伊黒", lore: "Serpent-like swordsmen with winding strikes." },
+  ],
+  Legendary: [
+    { name: "Rengoku",   kanji: "煉獄", lore: "Generations of flame-breathing Hashira." },
+    { name: "Tokito",    kanji: "時透", lore: "Prodigies who reach mastery in mere months." },
+    { name: "Uzui",      kanji: "宇髄", lore: "A flamboyant shinobi bloodline trained in poison resistance." },
+    { name: "Himejima",  kanji: "悲鳴嶼", lore: "Towering, devout warriors of immense strength." },
+  ],
+  Mythical: [
+    { name: "Tsugikuni", kanji: "継国", lore: "The bloodline of the first breath and the burning sun." },
+    { name: "Kamado",    kanji: "竈門", lore: "Charcoal burners who preserved the Hinokami Kagura dance." },
+    { name: "Ubuyashiki", kanji: "産屋敷", lore: "Leaders of the Corps with a voice that calms any heart." },
+  ],
+};
+
+// Traits = innate characteristics. Tiered so stronger families get stronger ones.
+const TRAITS = {
+  Common: [
+    ["Hard Worker", "+5% training XP"],
+    ["Light Sleeper", "Detect ambushes slightly earlier"],
+    ["Thick Skin", "-3% damage taken"],
+    ["Quick Learner", "Breathing forms unlock 5% faster"],
+  ],
+  Uncommon: [
+    ["Keen Nose", "Can smell nearby demons"],
+    ["Iron Stomach", "Immune to weak poisons"],
+    ["Wild Instinct", "+8% dodge chance at low HP"],
+    ["Steady Hands", "+6% sword damage"],
+  ],
+  Rare: [
+    ["Enhanced Hearing", "Hear demon heartbeats through walls"],
+    ["Dense Muscles", "+12% Strength scaling"],
+    ["Poison Blood", "Demons that bite you take damage"],
+    ["Total Concentration Talent", "Start with Total Concentration unlocked"],
+  ],
+  Legendary: [
+    ["Slayer Mark (Dormant)", "Mark awakens below 30% HP"],
+    ["Prodigy", "Learn any breathing style twice as fast"],
+    ["Marechi Blood", "Rare blood that intoxicates demons"],
+    ["Flame Heart", "+20% damage while burning"],
+  ],
+  Mythical: [
+    ["See-Through World", "See muscles and blood flow; perfect counters"],
+    ["Born Slayer Mark", "Permanent Demon Slayer Mark"],
+    ["Sun Lineage", "Access to Sun Breathing"],
+    ["Red Nichirin Affinity", "Blade turns crimson; halts demon regen"],
+  ],
+};
+
+// Passives = always-on combat effects.
+const PASSIVES = {
+  Common: [
+    ["Second Wind", "Regain 5% HP once per fight"],
+    ["Footwork", "+3% movement speed"],
+    ["Grit", "+5% stamina regen"],
+  ],
+  Uncommon: [
+    ["Counter Stance", "10% chance to counter attacks"],
+    ["Breath Recovery", "+10% breath regen"],
+    ["Adrenaline", "+8% damage below 50% HP"],
+  ],
+  Rare: [
+    ["Thunderclap", "First hit each fight is a guaranteed crit"],
+    ["Butterfly Dance", "+15% dodge after dodging"],
+    ["Still Water", "Take 15% less damage while blocking"],
+  ],
+  Legendary: [
+    ["Set Your Heart Ablaze", "Damage rises as HP falls (up to +30%)"],
+    ["Mist Veil", "Become harder to target for 3s after a skill"],
+    ["Sound Score", "Read enemy patterns; +20% crit after 3 hits"],
+  ],
+  Mythical: [
+    ["Hinokami Kagura", "Endless chain of 13 forms with no breath cost"],
+    ["Transparent World", "Ignore 40% of enemy defense"],
+    ["Sunlight Will", "Demons hit by you can't regenerate for 10s"],
+  ],
+};
+
+const ORDER = ["Common", "Uncommon", "Rare", "Legendary", "Mythical"];
+const $ = (id) => document.getElementById(id);
+const randInt = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+const shuffle = (arr) => arr.map(v => [Math.random(), v]).sort((a, b) => a[0] - b[0]).map(v => v[1]);
+
+function rollRarity() {
+  const total = ORDER.reduce((s, r) => s + RARITIES[r].weight, 0);
+  let n = Math.random() * total;
+  for (const r of ORDER) { n -= RARITIES[r].weight; if (n < 0) return r; }
+  return "Common";
+}
+
+// Pull from this tier plus one tier below for variety; always lead with the tier's own pool.
+function rollPool(pools, rarity, count) {
+  const i = ORDER.indexOf(rarity);
+  const own = shuffle(pools[rarity]).map(x => ({ v: x, tier: rarity }));
+  const lower = i > 0 ? shuffle(pools[ORDER[i - 1]]).map(x => ({ v: x, tier: ORDER[i - 1] })) : [];
+  return [own[0], ...shuffle([...own.slice(1), ...lower])].slice(0, Math.min(count, 3));
+}
+
+function generate() {
+  const rarity = rollRarity();
+  const cfg = RARITIES[rarity];
+  const fam = pick(FAMILIES[rarity]);
+  const stats = shuffle(STATS).slice(0, cfg.stats).map(s => ({ s, v: randInt(...cfg.statRange) }));
+  const traits = rollPool(TRAITS, rarity, randInt(...cfg.traits));
+  const passives = rollPool(PASSIVES, rarity, randInt(...cfg.passives));
+  return { rarity, fam, stats, traits, passives };
+}
+
+function render(r) {
+  const cfg = RARITIES[r.rarity];
+  const list = (items) => items.length ? items.map(({ v, tier }) =>
+    `<div class="item" style="--accent:${RARITIES[tier].color}"><div class="n">${v[0]}</div><div class="d">${v[1]}</div></div>`
+  ).join("") : `<div class="empty">None</div>`;
+  $("result").innerHTML = `
+    <span class="rarity" style="color:${cfg.color}">${r.rarity}</span>
+    <div class="fname" style="color:${cfg.color}">${r.fam.name}</div>
+    <div class="kanji">${r.fam.kanji} Family</div>
+    <p class="lore">${r.fam.lore}</p>
+    <h3>Stat Bonuses</h3>
+    <div class="stats">${r.stats.map(x => `<div class="stat"><span>${x.s}</span><b>+${x.v}%</b></div>`).join("")}</div>
+    <h3>Traits (${r.traits.length}/3)</h3><div class="list">${list(r.traits)}</div>
+    <h3>Passives (${r.passives.length}/3)</h3><div class="list">${list(r.passives)}</div>`;
+  const card = $("card");
+  card.className = "panel card" + (r.rarity === "Legendary" ? " glow-legendary" : r.rarity === "Mythical" ? " glow-mythical" : "");
+}
+
+let spins = 0;
+const history = [];
+function record(r) {
+  spins++;
+  $("counter").textContent = `Spins: ${spins}`;
+  history.unshift(r);
+  if (history.length > 50) history.pop();
+  $("hist").innerHTML = history.map(h =>
+    `<div><span>${h.fam.name}</span><span style="color:${RARITIES[h.rarity].color};font-weight:700">${h.rarity}</span></div>`).join("");
+}
+
+function spinOnce() {
+  return new Promise(resolve => {
+    const btn = $("spinBtn");
+    btn.disabled = true;
+    $("card").classList.add("shake");
+    let ticks = 0;
+    const iv = setInterval(() => {
+      const fake = pick(ORDER);
+      $("result").innerHTML = `<span class="rarity" style="color:${RARITIES[fake].color}">${fake}</span>
+        <div class="fname" style="color:${RARITIES[fake].color}">${pick(FAMILIES[fake]).name}</div>`;
+      if (++ticks > 12) {
+        clearInterval(iv);
+        $("card").classList.remove("shake");
+        const r = generate();
+        render(r); record(r);
+        btn.disabled = false;
+        resolve(r);
+      }
+    }, 60);
+  });
+}
+
+$("spinBtn").onclick = spinOnce;
+let auto = false;
+$("lockBtn").onclick = async () => {
+  if (auto) { auto = false; $("lockBtn").textContent = "Auto-spin → Legendary+"; return; }
+  auto = true; $("lockBtn").textContent = "⏹ Stop auto-spin";
+  while (auto) {
+    const r = await spinOnce();
+    if (r.rarity === "Legendary" || r.rarity === "Mythical") break;
+  }
+  auto = false; $("lockBtn").textContent = "Auto-spin → Legendary+";
+};
+
+// Static panels
+const total = ORDER.reduce((s, r) => s + RARITIES[r].weight, 0);
+$("rates").innerHTML = ORDER.map(r =>
+  `<div class="rate"><span style="color:${RARITIES[r].color};font-weight:700">${r}</span>
+   <span>${(RARITIES[r].weight / total * 100).toFixed(0)}% · +${RARITIES[r].statRange[0]}–${RARITIES[r].statRange[1]}% stats</span></div>`).join("");
+$("index").innerHTML = ORDER.map(r =>
+  `<details><summary style="color:${RARITIES[r].color}">${r} (${FAMILIES[r].length})</summary>
+   ${FAMILIES[r].map(f => `<div class="fam"><b style="color:var(--text)">${f.name}</b> ${f.kanji} — ${f.lore}</div>`).join("")}</details>`).join("");
+</script>
+</body>
+</html>
