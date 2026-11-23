@@ -7,7 +7,7 @@
 <style>
   :root {
     --bg: #0f0b08; --panel: #1a1410; --panel2: #241c15; --text: #f5ede4; --muted: #b0a08e; --line: #3b2e22;
-    --accent: #ff7a1a; --leaf: #6cc04a;
+    --accent: #ff7a1a; --leaf: #6cc04a; --common: #b8b8b8; --rare: #3fa0ff; --mythic: #ff4f6b;
   }
   * { box-sizing: border-box; }
   body { margin: 0; color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -38,8 +38,8 @@
   .tabs button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
   .badge { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; border: 1px solid currentColor; }
   .tag { font-size: 11px; color: var(--muted); font-weight: 600; margin-left: 6px; }
+  .rar { font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; padding: 1px 7px; border-radius: 999px; border: 1px solid currentColor; margin-left: 6px; }
 
-  /* tier table */
   .tiers { display: grid; gap: 6px; }
   .tier { display: grid; grid-template-columns: 70px 1fr 70px; gap: 8px; align-items: center; font-size: 14px; padding: 6px 8px; border-radius: 8px; background: var(--panel2); border-left: 4px solid var(--c); }
   .tier.hit { outline: 2px solid var(--c); background: #2e2419; }
@@ -47,14 +47,12 @@
   .tier .rng { font-family: ui-monospace, Menlo, monospace; color: var(--muted); }
   .tier .sm { font-size: 12px; color: var(--muted); }
 
-  /* dice log */
   .dice { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
   .die { display: inline-flex; align-items: center; gap: 6px; background: #0007; border: 1px solid var(--line); border-radius: 8px; padding: 4px 9px; font-size: 13px; }
   .die b { font-family: ui-monospace, Menlo, monospace; font-size: 15px; color: var(--accent); }
   .die s { color: var(--muted); }
   .bigroll { font-family: ui-monospace, Menlo, monospace; font-size: 54px; font-weight: 900; color: var(--accent); line-height: 1; min-width: 110px; text-align: center; }
 
-  /* result */
   .card { position: relative; overflow: hidden; }
   .card.g2 { box-shadow: 0 0 22px -6px var(--glow); }
   .card.g3 { box-shadow: 0 0 32px -4px var(--glow); border-color: var(--glow); }
@@ -66,6 +64,7 @@
   .tagline { color: var(--muted); font-style: italic; margin-bottom: 8px; }
   .box { background: var(--panel2); border-radius: 10px; padding: 10px 12px; border-left: 4px solid var(--c, #666); white-space: pre-wrap; line-height: 1.5; }
   .box.price { --c: #e0464a; }
+  .box.info { --c: var(--mythic); font-size: 14px; }
   .asi { display: flex; flex-wrap: wrap; gap: 8px; }
   .asi .slot { display: flex; align-items: center; gap: 6px; background: var(--panel2); border-radius: 10px; padding: 6px 10px; }
   .asi .slot b { color: var(--leaf); font-size: 16px; }
@@ -76,12 +75,15 @@
   .extra { background: var(--panel2); border-radius: 10px; padding: 10px 12px; margin-top: 8px; border-left: 4px solid var(--c, var(--accent)); }
   .extra .hd { display: flex; justify-content: space-between; gap: 8px; align-items: center; flex-wrap: wrap; }
   .extra .n { font-weight: 800; }
-  .extra .d { color: var(--muted); margin-top: 4px; font-size: 14px; }
-  .extra select { width: auto; max-width: 220px; padding: 3px 6px; font-size: 13px; }
+  .extra .d { color: var(--muted); margin-top: 4px; font-size: 14px; white-space: pre-wrap; }
+  .extra select { width: auto; max-width: 240px; padding: 3px 6px; font-size: 13px; }
+  .extra input { margin-top: 6px; font-size: 13px; }
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   @media (max-width: 700px) { .grid2 { grid-template-columns: 1fr; } }
   .kv { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .kv label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .budget { display: grid; grid-template-columns: 110px 1fr; gap: 6px 10px; align-items: center; font-size: 14px; }
+  .budget label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
   .choose { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); }
 
   .hist { display: grid; gap: 4px; max-height: 300px; overflow: auto; font-size: 14px; }
@@ -104,32 +106,27 @@
 <body>
 <div class="wrap">
   <h1>🍥 Shinobi <span>Clan Roll</span><small>木ノ葉</small></h1>
-  <p class="sub">Roll d100 for your tier, then roll within the tier for your clan. Your ability score increases, Heritage, Baseline, Price and creation extras (Discipline, Gifts or Genes) follow the Clan Master List. Every die is shown. You can also choose any clan directly, and reroll or pick any extra.</p>
+  <p class="sub">Roll d100 for your tier, then roll within the tier for your clan. Everything follows the Clan Master List: ability score increases, Heritage, Baseline, Price, and creation extras rolled on <b>your clan's own table</b> (d8 Minor Gifts, d12 Notable Gifts, d100 Legendary Genes). Every die is shown, and you can choose, reroll or pick anything.</p>
 
   <div class="tabs" id="tabs">
     <button data-tab="roll" class="on">🎲 Roll</button>
     <button data-tab="clans">📜 Clans</button>
-    <button data-tab="tables">🎁 Gifts &amp; Genes</button>
+    <button data-tab="tables">🎁 Gift &amp; Gene Tables</button>
     <button data-tab="history">🕑 History</button>
     <button data-tab="settings">⚙️ Tiers &amp; Save</button>
   </div>
 
-  <!-- ===== ROLL ===== -->
   <section id="tab-roll">
     <div class="top">
-      <div class="panel card" id="card">
-        <div id="result"><p class="empty">Press <b>🎲 Roll Clan</b> to roll d100 for your tier.</p></div>
-      </div>
+      <div class="panel card" id="card"><div id="result"></div></div>
       <div>
         <div class="panel">
           <div class="row" style="justify-content:space-between;align-items:flex-start">
-            <div><h3 style="margin-top:0">d100 Tier Table</h3></div>
+            <h3 style="margin-top:0">d100 Tier Table</h3>
             <div class="bigroll" id="bigroll">—</div>
           </div>
           <div class="tiers" id="tiers"></div>
-          <div class="row" style="margin-top:14px">
-            <button class="primary" id="rollBtn">🎲 Roll Clan</button>
-          </div>
+          <div class="row" style="margin-top:14px"><button class="primary" id="rollBtn">🎲 Roll Clan</button></div>
           <div class="row choose">
             <span class="note" style="width:100%">Or choose your clan directly (extras are still rolled, and you can change them):</span>
             <select class="auto" id="pickTier"></select>
@@ -137,47 +134,29 @@
             <button id="takeBtn">✅ Take this clan</button>
           </div>
         </div>
-        <div class="panel">
-          <h3 style="margin-top:0">Previous rolls</h3>
-          <div class="hist" id="mini-hist"></div>
-        </div>
+        <div class="panel"><h3 style="margin-top:0">Previous rolls</h3><div class="hist" id="mini-hist"></div></div>
       </div>
     </div>
   </section>
 
-  <!-- ===== CLANS ===== -->
   <section id="tab-clans" hidden>
     <div class="panel"><h2>Clan Codex</h2><div id="codex"></div></div>
     <div class="panel">
       <div class="row" style="justify-content:space-between"><h2 style="margin:0">Clan Editor</h2><button class="small" id="clan-add">+ Add clan</button></div>
-      <p class="note">The order within a tier is the die face (1st = rolls a 1). ASI format: <code>+2 Con, +1 Str</code>, with <code>choice</code> for a free pick. Variants are separated by <code>|</code>. “Overlays” lists the clans a Legendary heir sits on top of.</p>
+      <p class="note">The order within a tier is the die face. ASI format: <code>+2 Con, +1 Str</code>, with <code>choice</code> for a free pick. Variants and Overlays are separated by <code>|</code>. Each clan's Gift or Gene table is edited on the Gift &amp; Gene Tables tab.</p>
       <div class="ed-wrap"><table class="ed" id="clan-ed" style="min-width:1500px"></table></div>
     </div>
   </section>
 
-  <!-- ===== TABLES ===== -->
   <section id="tab-tables" hidden>
     <div class="panel">
-      <h2>Minor Clan Gifts (d8)</h2>
-      <p class="note">Rolled once by Minor clans. The row number is the die face.</p>
-      <div class="ed-wrap"><table class="ed" id="gm-ed"></table></div>
-      <button class="small" data-addrow="minor" style="margin-top:8px">+ Add gift</button>
-    </div>
-    <div class="panel">
-      <h2>Notable Clan Gifts (d12)</h2>
-      <p class="note">Rolled once by Notable clans. Tick “+ Gene” to also roll on the Gene table.</p>
-      <div class="ed-wrap"><table class="ed" id="gn-ed"></table></div>
-      <button class="small" data-addrow="notable" style="margin-top:8px">+ Add gift</button>
-    </div>
-    <div class="panel">
-      <h2>Genes (d20)</h2>
-      <p class="note">Great Clans roll 2, Legendary Lines roll 3. Duplicates are rerolled.</p>
-      <div class="ed-wrap"><table class="ed" id="gene-ed"></table></div>
-      <button class="small" data-addrow="genes" style="margin-top:8px">+ Add gene</button>
+      <div class="row"><h2 style="margin:0">Table</h2><select class="auto" id="tblPick" style="min-width:260px"></select></div>
+      <p class="note" id="tblNote"></p>
+      <div class="ed-wrap"><table class="ed" id="tbl-ed"></table></div>
+      <div class="row" style="margin-top:8px"><button class="small" id="tbl-add">+ Add row</button><span id="tbl-warn" class="warn"></span></div>
     </div>
   </section>
 
-  <!-- ===== HISTORY ===== -->
   <section id="tab-history" hidden>
     <div class="panel">
       <div class="row" style="justify-content:space-between"><h2 style="margin:0">🕑 Every Roll</h2><button class="small" id="h-clear">Clear history</button></div>
@@ -186,12 +165,11 @@
     </div>
   </section>
 
-  <!-- ===== SETTINGS ===== -->
   <section id="tab-settings" hidden>
     <div class="panel">
       <h2>Tier Table</h2>
-      <p class="note">d100 ranges, the within-tier die (rolls above the number of clans are rerolled, like the d12 on Notable), and what each tier gets at creation.</p>
-      <div class="ed-wrap"><table class="ed" id="tier-ed" style="min-width:900px"></table></div>
+      <p class="note">d100 ranges, the within-tier die (rolls above the number of clans are rerolled, like the d12 on Notable), and what each tier gets at creation. “Max genes” allows rank-up rolls.</p>
+      <div class="ed-wrap"><table class="ed" id="tier-ed" style="min-width:1000px"></table></div>
       <div id="tier-warn" class="warn"></div>
     </div>
     <div class="panel">
@@ -209,61 +187,81 @@
 const STORE_KEY = "shinobi-clan-roll-v1";
 const ABIL = ["Str", "Dex", "Con", "Int", "Wis", "Cha"];
 const ABIL_FULL = { Str: "Strength", Dex: "Dexterity", Con: "Constitution", Int: "Intelligence", Wis: "Wisdom", Cha: "Charisma" };
-const EXTRA_KINDS = { none: "Nothing", discipline: "Extra Discipline", minor: "Minor Gift (d8)", notable: "Notable Gift (d12)", genes: "Genes" };
+const EXTRA_KINDS = { none: "Nothing", discipline: "Extra Discipline", minor: "Gift (d8)", notable: "Gift (d12)", genes: "Gene Rolls" };
+const RARITY_COLOR = { Common: "var(--common)", Rare: "var(--rare)", Mythic: "var(--mythic)" };
 
 const C = (name, tier, asi, heritage, tagline, baseline, price, more) => ({ name, tier, asi, heritage, tagline, baseline, price, variantLabel: "", variants: [], overlay: [], ...(more || {}) });
+const GT = (...rows) => rows.map(([name, effect]) => ({ name, effect }));
+const GR = (min, max, rarity, name, effect, more) => ({ min, max, rarity, name, effect, ...(more || {}) });
 
 const DEFAULTS = {
-  version: 1,
+  version: 2,
   tiers: [
-    { key: "clanless", name: "Clanless", color: "#b8b8b8", min: 1, max: 40, die: 1, asiRule: "+1 and +1 to any two abilities", extra: "discipline", count: 1 },
-    { key: "minor", name: "Minor Clan", color: "#4fd06b", min: 41, max: 70, die: 6, asiRule: "+2 (+1 fixed, +1 your choice)", extra: "minor", count: 1 },
-    { key: "notable", name: "Notable Clan", color: "#3fa0ff", min: 71, max: 90, die: 12, asiRule: "+3 (+2/+1)", extra: "notable", count: 1 },
-    { key: "great", name: "Great Clan", color: "#ffb52e", min: 91, max: 98, die: 6, asiRule: "+4 (+2/+1/+1)", extra: "genes", count: 2 },
-    { key: "legendary", name: "Legendary Line", color: "#ff4f6b", min: 99, max: 100, die: 4, asiRule: "+5 (+2/+2/+1)", extra: "genes", count: 3 },
+    { key: "clanless", name: "Clanless", color: "#b8b8b8", min: 1, max: 40, die: 1, asiRule: "+1 and +1 to any two abilities", extra: "discipline", count: 1, maxGenes: 0, note: "" },
+    { key: "minor", name: "Minor Clan", color: "#4fd06b", min: 41, max: 70, die: 6, asiRule: "+2 (+1 fixed, +1 your choice)", extra: "minor", count: 1, maxGenes: 0, note: "" },
+    { key: "notable", name: "Notable Clan", color: "#3fa0ff", min: 71, max: 90, die: 12, asiRule: "+3 (+2/+1)", extra: "notable", count: 1, maxGenes: 0, note: "The Gift is added on top of your full baseline. Results of 12 are the rare ones." },
+    { key: "great", name: "Great Clan", color: "#ffb52e", min: 91, max: 98, die: 6, asiRule: "+4 (+2/+1/+1)", extra: "genes", count: 2, maxGenes: 2, note: "" },
+    { key: "legendary", name: "Legendary Line", color: "#ff4f6b", min: 99, max: 100, die: 4, asiRule: "+5 (+2/+2/+1)", extra: "genes", count: 3, maxGenes: 6,
+      note: "+20% Heritage. 3 Gene Rolls at creation (+1 at each rank-up, max 6) and a 10% Awakened Reserve to start.\nThe GM should allow only one Legendary Line per party.\nCosts: C 1,000 / B 3,000 / A 8,000 / S 25,000." },
   ],
   clans: [
     C("Clanless", "clanless", "+1 choice, +1 choice", "+0%", "The hard-working majority.",
-      "You get an extra Discipline at level 1, and you can follow a Clanless Path (Haruno, Lee or Gai).", "",
-      { variantLabel: "Clanless Path", variants: ["Not chosen yet", "Haruno Path", "Lee Path", "Gai Path"], variantChoose: true }),
-    // Minor (d6)
+      "You get an extra Discipline at level 1, and you can follow a Clanless Path (Haruno, Lee or Gai). None of them has a bloodline: their power comes from training.", "",
+      { variantLabel: "Clanless Path", variants: ["Not chosen yet", "Haruno Path (chakra control, healing and strength)", "Lee Path (taijutsu only, the Eight Gates)", "Gai Path (master of the Gates)"], variantChoose: true }),
+    // ───── Minor (d6) ─────
     C("Sarutobi", "minor", "+1 Wis, +1 choice", "+0%", "A line of steady, Fire-leaning protectors.",
-      "Will of Fire: advantage against fear.\nFire is your natural nature.\n+1 Initiative.\nAt Lv 11 you gain a second nature, and at Lv 16 you master all five.", "Legacy pressure."),
+      "Will of Fire: advantage against fear.\nFire is your natural nature.\n+1 Initiative.\nAt Lv 11 you gain a second nature, and at Lv 16 you master all five.", "Legacy pressure.",
+      { gifts: GT(["Will of Fire", "Advantage on saves against fear."], ["Flame Prodigy", "Your first Fire jutsu each round costs 250 less."], ["Staff Hand", "Staff proficiency, and +1 AC with a staff."], ["Nature Curiosity", "Learn a second nature at Lv 8."], ["Monkey Step", "Advantage on Acrobatics, and a Reaction hop of 10 ft for 250."], ["Old Teacher", "Gain one Discipline early."], ["Legacy Spark", "Once a day, an ally within 30 ft gets +2 on a save."], ["Master of Flame", "Fire jutsu ignore resistance."]) }),
     C("Yūhi", "minor", "+1 Wis, +1 choice", "+0%", "Genjutsu specialists.",
-      "Genjutsu Trap (C).\nAdvantage against genjutsu.", "A fragile mind: disadvantage against fear."),
+      "Genjutsu Trap (C).\nAdvantage against genjutsu.", "A fragile mind: disadvantage against fear.",
+      { gifts: GT(["Calm Eyes", "Advantage against genjutsu."], ["Illusion Eye", "See through minor illusions."], ["Whisper Weave", "Genjutsu Trap DC +1."], ["Sleep Mist (B)", "A sleep cloud."], ["Mind Shield", "+1 to Wis saves."], ["Dream Walker", "Enter a sleeping creature's dream (GM adjudicates)."], ["Tree Veil", "Advantage on Stealth in nature."], ["Genjutsu Veteran", "Your genjutsu cost 250 less."]) }),
     C("Kurama", "minor", "+1 Int, +1 choice", "+0%", "Illusion prodigies.",
-      "Mirage (B).", "Illusions bleed back to you."),
+      "Mirage (B).", "Illusions bleed back to you.",
+      { gifts: GT(["Mirage Weave", "Mirage lasts 1 extra round."], ["Phantom Step", "Reaction: leave an illusory double."], ["Illusion Memory", "Perfect recall of anything you've seen."], ["Dream Echo", "An illusion that mimics a creature's voice."], ["Reality Slip", "Advantage on saves against illusions you cast on yourself."], ["Lingering Vision", "Illusions persist 1 round after the caster stops."], ["Mind's Eye", "Advantage on Insight."], ["Mirage Domain (A)", "A 20-ft illusion room."]) }),
     C("Kamizuru", "minor", "+1 Dex, +1 choice", "+0%", "Bee-swarm users.",
-      "Stinger Barrage (C).", "The swarm turns on you if you fail a save."),
+      "Stinger Barrage (C).", "The swarm turns on you if you fail a save.",
+      { gifts: GT(["Bee Sting", "Stinger Barrage adds poison."], ["Hive Sense", "Detect creatures within 60 ft."], ["Swarm Cloak", "Reaction: reduce damage by your Level."], ["Honey Salve", "Craft a healing salve."], ["Queen's Call", "Allies gain +1 to attack for 1 round."], ["Buzzing Alarm", "You can't be surprised in your territory."], ["Venom Strain", "Poison lasts 2 extra rounds."], ["Swarm Tide", "Stinger Barrage hits 3 targets."]) }),
     C("Fuma", "minor", "+1 Dex, +1 choice", "+0%", "Giant-shuriken specialists.",
-      "Windmill Shuriken (B, 3,000).\nWeapon proficiency.", "Reliance on one weapon."),
+      "Windmill Shuriken (B, 3,000).\nWeapon proficiency.", "Reliance on one weapon.",
+      { gifts: GT(["Windmill Spin", "Windmill Shuriken can return."], ["Weighted Aim", "+1 to attack rolls with it."], ["Quick Draw", "Draw it as a free action."], ["Shuriken Rain (B)", "A volley across a 20-ft line."], ["Keen Edge", "Critical hits on 19–20."], ["Hidden Pouch", "Carry extra weapons undetected."], ["Master Windmill", "Your shuriken passes through the first target."], ["Whirl Guard", "Reaction: deflect an attack."]) }),
     C("Shimura", "minor", "+1 Con, +1 choice", "+0%", "Root-trained killers.",
-      "Silent Kill (C).\nAdvantage against unaware creatures.\nAdvantage against fear and charm.", "Emotionless: disadvantage on empathy checks."),
-    // Notable (d12, reroll 12)
+      "Silent Kill (C).\nAdvantage against unaware creatures.\nAdvantage against fear and charm.", "Emotionless: disadvantage on empathy checks.",
+      { gifts: GT(["Silent Step", "Advantage on Stealth."], ["Hidden Dart", "A ranged poison dart (C)."], ["Cold Mind", "Advantage against being intimidated."], ["Assassin's Eye", "Silent Kill crits on 19–20."], ["Shadow Cloak", "Reaction: vanish for 1 round."], ["Sealed Tongue", "You can't be forced to speak."], ["Root Resolve", "Resist mind control."], ["Ink Mark", "A seal you can use to hide a message."]) }),
+    // ───── Notable (d12, reroll 12) ─────
     C("Akimichi", "notable", "+2 Con, +1 Str", "+10%", "Expansion and calorie chakra.",
       "Expansion (Bonus Action, 500): grow Large for 1 minute with temp HP equal to 2 × Level.\nA full meal restores 10% of your pool.\nHuman Boulder (C).\nButterfly Mode (A, Lv 11).", "The Three Pills (the red one means death)."),
     C("Yamanaka", "notable", "+2 Wis, +1 Int", "+10%", "Mind-readers.",
-      "Mind Transfer (1,000).\nMind-Body Switch (B).\nSensory Link (C).", "Your body is defenseless while you're out."),
+      "Mind Transfer (1,000).\nMind-Body Switch (B).\nSensory Link (C).", "Your body is defenseless while you're out.",
+      { gifts: GT(["Flower Sense", "Detect poison and plants, with advantage on Nature."], ["Mind Echo", "Mind Transfer costs 250 less."], ["Quiet Mind", "Advantage against mind-affecting effects."], ["Sensory Link+", "Sensory Link range 240 ft."], ["Truth Reader", "Advantage on Insight, and read surface thoughts (Wis save)."], ["Anchor Line", "+2 AC to your body while you're out."], ["Swift Return", "End Mind Transfer as a free action."], ["Echoing Voice", "Reaction: send a message to an ally within 1 mile."], ["Memory Peek (B)", "View a memory of a captive or charmed target."], ["Split Mind", "Control two bodies at once for 1 round."], ["Interrogator's Gift", "Advantage on Intimidation and Persuasion against captives."], ["Ancestral Mind", "Mind-Body Switch lasts 1 hour and costs half."]) }),
     C("Nara", "notable", "+2 Int, +1 Wis", "+10%", "Shadow strategists.",
-      "Shadow Imitation (C).\nShadow Neck Bind (B).\nShadow Sewing (A).\nOnce a combat, an ally gains +2 on Initiative.", "Needs shadow or light, and costs 250 per round to maintain."),
+      "Shadow Imitation (C).\nShadow Neck Bind (B).\nShadow Sewing (A).\nOnce a combat, an ally gains +2 on Initiative.", "Needs shadow or light, and costs 250 per round to maintain.",
+      { gifts: GT(["Long Shadows", "Shadow Imitation range +15 ft."], ["Cool Head", "Advantage on Initiative."], ["Deer Whisperer", "A deer scout, with advantage on Survival."], ["Tactical Mind", "Once per combat, give an ally +2 on a save or attack."], ["Quiet Shadow", "Shadow techniques cost 250 less."], ["Genius IQ", "+2 to Investigation and Passive Investigation +2."], ["Shadow Tether", "Your binds last 1 extra round."], ["Medicine Craft", "Medicine proficiency, and you can craft antidotes."], ["Wide Stitch", "Shadow Sewing hits 2 more targets."], ["Shadow Pull", "Drag a bound target 10 ft."], ["Endless Plan", "After a 1-hour rest, swap one prepared tactic."], ["Born Strategist", "Allies within 30 ft have advantage on Initiative."]) }),
     C("Inuzuka", "notable", "+2 Dex, +1 Wis", "+10%", "Beast partners.",
-      "A ninken partner with HP equal to 5 × Level.\nScent tracking.\nFang Over Fang (C).\nMan-Beast Clone (B).\nPassing Fang (A, Lv 11).", "Your partner's injuries hit you."),
+      "A ninken partner with HP equal to 5 × Level.\nScent tracking.\nFang Over Fang (C).\nMan-Beast Clone (B).\nPassing Fang (A, Lv 11).", "Your partner's injuries hit you.",
+      { gifts: GT(["Keen Nose", "Passive Perception +2 by smell."], ["Twin Partners", "A second Small ninken with HP equal to 3 × Level."], ["Pack Link", "Share senses with your partner within 1 mile."], ["Fang Rush", "Fang Over Fang reach +10 ft."], ["Feral Instinct", "Advantage on Initiative."], ["Guard Bite", "Partner Reaction: impose disadvantage on an attack against you."], ["Hunting Pack", "Advantage on attacks when your partner is adjacent to the target."], ["Scent Memory", "Identify a person by scent."], ["Berserk Howl", "Bonus Action: allies +1 to attack for 1 round."], ["Man-Beast Fusion", "Man-Beast Clone lasts 1 minute at half cost."], ["Resilient Hound", "Partner HP doubled."], ["Alpha Blood", "Your partner acts on its own turn at B-rank."]) }),
     C("Aburame", "notable", "+2 Int, +1 Con", "+10%", "Insect hosts.",
-      "Your bugs hold 10% of your pool.\nSwarm tracking.\nInsect Jar (B).", "If you overcast, the bugs feed on you."),
+      "Your bugs hold 10% of your pool.\nSwarm tracking.\nInsect Jar (B).", "If you overcast, the bugs feed on you.",
+      { gifts: GT(["Insect Sense", "Detect creatures within 60 ft."], ["Colony Reserve", "Your bugs hold an extra 5% of your pool."], ["Swarm Shield", "Reaction: reduce damage by your Level."], ["Silent Scouts", "See through your bugs within 1 mile."], ["Poison Bite", "A hit poisons (Con save)."], ["Tracking Mark", "Advantage on tracking a marked target."], ["Cocoon Hive", "Bonus Action (500): temp HP equal to 3 × Level."], ["Parasite Drain", "Insect Jar also drains HP equal to your Level."], ["Quiet Colony", "Bugs don't consume you when you overcast, once a day."], ["Mutated Kikaichū", "Your bugs ignore resistance."], ["Hive Mind", "Share bug perceptions with allies."], ["Queen's Blood", "A Queen swarm acts independently once a day."]) }),
     C("Hatake", "notable", "+2 Dex, +1 Wis", "+10%", "Blade warriors.",
-      "White Light Chakra Sabre (B).\nAdvantage on Initiative while you hold a blade.", "Honor over the mission."),
+      "White Light Chakra Sabre (B).\nAdvantage on Initiative while you hold a blade.", "Honor over the mission.",
+      { gifts: GT(["Moon Edge", "Your Sabre has +5 ft reach."], ["Lightning Edge", "The Sabre arc adds lightning damage."], ["Silent Draw", "Draw as a free action, with advantage on the first strike."], ["Honor Bound", "Advantage on saves while you protect allies."], ["Sabre Mastery", "The Sabre costs 500 less."], ["Ninken Pact", "A free Small ninken."], ["Battlefield Read", "Advantage on Insight to read intent."], ["White Fang Steps", "+10 ft speed."], ["Cutting Aura", "The Sabre ignores resistance."], ["Duty's Edge", "A Reaction attack when an ally is hit."], ["Mimic Reflex", "After you see a taijutsu technique, you can copy it for 1 minute."], ["Legend's Edge", "The Sabre drains 10% of a target's chakra."]) }),
     C("Hōzuki", "notable", "+2 Con, +1 Dex", "+10%", "Water bodies.",
-      "Hydrification (Reaction, 500).\nWater Gun (C).\nYour Water jutsu cost 250 less.", "After 3 rounds of Hydrification, make a Con save or gain exhaustion."),
+      "Hydrification (Reaction, 500).\nWater Gun (C).\nYour Water jutsu cost 250 less.", "After 3 rounds of Hydrification, make a Con save or gain exhaustion.",
+      { gifts: GT(["Water Breath", "Breathe water, and your swim speed is doubled."], ["Rapid Rehydration", "Drinking restores HP equal to 2 × Level, once per rest."], ["Slick Skin", "Advantage on escaping grapples."], ["Hydro Shift", "Hydrification costs 250 less."], ["Blade of Water", "A water weapon that can't be disarmed."], ["Mist Veil", "A 20-ft fog, with advantage on Stealth."], ["Tidal Surge", "Water Gun pushes 15 ft."], ["Water Clone (C)", "A clone of water for 1 round."], ["Rain Bind", "Restrain creatures in a 10-ft radius in rain."], ["Wellspring", "Gather +5% while near water."], ["Fluid Body", "Resist physical damage while in water."], ["Hydro Core", "Hydrification lasts 3 rounds with no Con save."]) }),
     C("Hoshigaki", "notable", "+2 Str, +1 Con", "+10%", "Shark-blooded.",
-      "Pool +10%.\nYou breathe underwater.\nGreat Shark Bullet (B).\nYour weapon absorbs 500 chakra on a hit.", "The tool hungers."),
+      "Pool +10%.\nYou breathe underwater.\nGreat Shark Bullet (B).\nYour weapon absorbs 500 chakra on a hit.", "The tool hungers.",
+      { gifts: GT(["Gill Breath", "Breathe underwater."], ["Shark Hide", "Natural AC 13 + Dex."], ["Razor Teeth", "A bite attack for 1d8 + Str."], ["Tide Sense", "Sense water motion within 60 ft."], ["Hungry Blade", "Chakra Drain absorbs 250 more."], ["Chakra Gorge", "Absorb 1,000 chakra on a hit."], ["Water Prison", "Encase a target (Str save)."], ["Fin Rush", "Dash as a Bonus Action in water."], ["Blood Frenzy", "Advantage against wounded targets."], ["Great Cast", "Great Shark Bullet hits a 30-ft line."], ["Apex Reserve", "+10% max pool."], ["Living Blade", "Your weapon is sentient and regenerates."]) }),
     C("Sabaku", "notable", "+2 Wis, +1 Con", "+10%", "Sand lineage.",
-      "Sand Armor (Reaction, 500): reduces damage by Level + mod.\nSand Shuriken (C).\nSand Coffin (B).\nIron Sand (A, Lv 11).", "Isolation: disadvantage on Persuasion with strangers."),
+      "Sand Armor (Reaction, 500): reduces damage by Level + mod.\nSand Shuriken (C).\nSand Coffin (B).\nIron Sand (A, Lv 11).", "Isolation: disadvantage on Persuasion with strangers.",
+      { gifts: GT(["Sand Sense", "Tremorsense within 30 ft."], ["Gourd Reserve", "2 free Sand Armor uses per day."], ["Sand Eye", "Remote sight through sand within 1 mile."], ["Sand Step", "Reaction (250): slide 15 ft."], ["Desert Glide", "Ignore sand as difficult terrain."], ["Sand Burial", "Sand Coffin lasts 1 extra round."], ["Reinforced Armor", "Sand Armor reduces 2 extra damage."], ["Iron Grain", "Iron Sand unlocks at Lv 8."], ["Sand Bind (C)", "Restrain a target."], ["Magnet Flow", "Pull metal objects to you."], ["Sandstorm (B)", "A 20-ft blinding cloud."], ["Ancient Sand", "Summon a Large sand guardian."]) }),
     C("Terumi", "notable", "+2 Cha, +1 Con", "+10%", "Lava and Boil.",
       "You have both Fire and Earth (lava) or Fire and Water (boil) naturally.\nLava Monster (B).\nBoil Mist (B, 20-ft acid cloud).", "Molten pride: you can't be subtle.",
-      { variantLabel: "Kekkei Genkai", variants: ["Lava (Fire + Earth)", "Boil (Fire + Water)"] }),
+      { variantLabel: "Kekkei Genkai", variants: ["Lava (Fire + Earth)", "Boil (Fire + Water)"],
+        gifts: GT(["Heat Skin", "Resist fire."], ["Steam Eyes", "See through steam and fog."], ["Acid Mist", "Boil Mist corrodes armor."], ["Lava Pool (C)", "Make a 10-ft hazard."], ["Boil Skin", "Attackers take fire damage."], ["Molten Fist", "Unarmed hits burn."], ["Steam Step", "Vanish in steam as a Reaction."], ["Magma Armor", "Temp HP equal to 4 × Level."], ["Mist Walker", "Advantage on Stealth in mist or steam."], ["Volcano Heart", "Lava Monster is one size larger."], ["Crimson Water", "Boil Release adds acid on hit."], ["Tectonic Blood", "You have both Lava and Boil natures."]) }),
     C("Namikaze", "notable", "+2 Dex, +1 Int", "+10%", "The Yellow Flash line.",
-      "Flying Thunder God (A).\nMarks cost 500.\nSpiral Sphere (B).", "Using Flying Thunder God twice in a day requires a Con save."),
-    // Great (d6)
+      "Flying Thunder God (A).\nMarks cost 500.\nSpiral Sphere (B).", "Using Flying Thunder God twice in a day requires a Con save.",
+      { gifts: GT(["Marker Eye", "See your Marks within 1 mile."], ["Seal Memory", "Perfect recall of marked locations."], ["Flash Step", "Reaction (500): teleport 30 ft."], ["Spiral Mastery", "Spiral Sphere +1 die."], ["Quick Seal", "Marks cost 250."], ["Thunder Sense", "Advantage on Initiative."], ["Wind Spiral", "Spiral Sphere gains Wind."], ["Marked Ally", "Take one ally with you when you teleport."], ["Return Trip", "Return for free next turn after a teleport."], ["Dual Mark", "Two seals active at once."], ["Yellow Flash Blood", "Flying Thunder God costs 6,000."], ["Hiraishin Echo", "One free teleport per fight."]) }),
+    // ───── Great (d6) ─────
     C("Hyūga", "great", "+2 Dex, +1 Wis, +1 Con", "+10%", "The Gentle Fist clan with the chakra-seeing eyes.",
       "Byakugan Stage 1 at Lv 1: Perception +2 / Passive +4, with one blind spot above the neck.\nGentle Fist (C).\nNetwork Sense.\nSupple Frame.\nYour first jutsu each round costs 250 less.", "The House split: Main House, or Branch House with the Caged Bird Seal.",
       { variantLabel: "House", variants: ["Main House", "Branch House (Caged Bird Seal)"] }),
@@ -277,82 +275,79 @@ const DEFAULTS = {
       "Both Water and Wind natures.\nResistance to cold.\nIce Mirrors (B).", "Thermal weakness, and the purge."),
     C("Kaguya", "great", "+2 Str, +1 Con, +1 Dex", "+10%", "Bone Release.",
       "Bone Armor (Reaction, 500): reduces physical damage by your Level.\nDance of the Clematis (B).", "Wasting Frame."),
-    // Legendary (d4)
-    C("Ōtsutsuki Remnant", "legendary", "+2 Wis, +2 Int, +1 Con", "+20%", "Ancient chakra-fruit blood.",
-      "Pool +10%.\nAn Ancient Eye: Byakugan Stage 1 or a Rinnegan seed.\nHorn Sense.", "Hunger for the fruit; hunted by your heritage.",
-      { variantLabel: "Ancient Eye", variants: ["Byakugan Stage 1", "Rinnegan seed"] }),
-    C("Indra's Heir", "legendary", "+1 Dex, +1 Int", "+20%", "Overlays an Uchiha.",
-      "Awakened Reserve +10%.\nFire and Lightning natures.\nSusanoo stages cost 500 less.", "The Curse of Hatred.",
-      { overlay: ["Uchiha"] }),
-    C("Ashura's Heir", "legendary", "+1 Con, +1 Wis", "+20%", "Overlays a Senju, Uzumaki or Sage-linked character.",
-      "Awakened Reserve +10%.\nGather +5%.\nBond Link.\nSage Mode at Lv 8.", "The Burden.",
-      { overlay: ["Senju", "Uzumaki", "Sage-linked (no base clan)"] }),
-    C("Nameless Ancient", "legendary", "+2 choice, +1 choice, +1 choice", "+20%", "Your own blank slate.",
-      "Blood, Art, Path and Price are built from the Ancient Budget. Write your build in the Notes below.", "Built from the Ancient Budget."),
+    // ───── Legendary (d4) ─────
+    C("Ōtsutsuki Remnant", "legendary", "+2 Wis, +2 Int, +1 Con", "+20%", "Ancient chakra-fruit blood. Alien, and hunted for it.",
+      "Chakra-Fruit Blood: +10% max pool.\nAncient Eye: choose a Byakugan Stage 1 (Perception +2 / Passive +4, with the neck blind spot) or a dormant Rinnegan seed.\nHorn Sense: you sense chakra within 60 ft, and advantage on Perception against hidden creatures.",
+      "Hunger for the Fruit: Gather recovers only 5% unless you eat sealed chakra (a Pill).\nAlien Blood: Medicine checks to treat you are at disadvantage.\nYou're hunted by your own heritage.",
+      { variantLabel: "Ancient Eye", variants: ["Byakugan Stage 1", "Dormant Rinnegan seed"], variantChoose: true,
+        genes: [GR(1, 25, "Common", "Horn Growth", "Reaction (500): +2 AC and temp HP equal to 3 × Level."), GR(26, 50, "Common", "Fruit Metabolism", "Chakra Pills restore 25% instead of 15%."), GR(51, 65, "Common", "Dimension Slip", "Reaction (1,000): phase out of reality for 1 round."), GR(66, 80, "Common", "Ninjutsu Absorption", "Reaction (B, 3,000): absorb a jutsu up to B-rank and use it later."), GR(81, 90, "Rare", "Karma Seed", "A Karma mark grows on you, giving +10% Limit."), GR(91, 95, "Rare", "Divine Tree Roots (B)", "Roots erupt, restraining enemies in a 20-ft zone."), GR(96, 98, "Mythic", "Rinnegan Seed", "Your Rinnegan awakens at Lv 15 instead of Lv 20."), GR(99, 100, "Mythic", "Tenseigan Seed", "Chakra Mode and Truth-Seeking Orbs (A, 8,000), paid from your Awakened Reserve.")] }),
+    C("Indra's Heir", "legendary", "+1 Dex, +1 Int", "+20%", "The Sage's elder son's chakra. Genius, power and the pull of hatred. Overlays an Uchiha.",
+      "Indra's Chakra: +10% Awakened Reserve, as the Rinnegan path.\nDual Nature: Fire and Lightning are both natural to you.\nSusanoo Affinity: each Susanoo stage costs 500 less.",
+      "The Curse of Hatred: after you witness a loss, make a Wis save (DC 13) or take disadvantage on Persuasion until you act on it.\nThe Cycle: the GM may bring in an Ashura's Heir as a rival.",
+      { overlay: ["Uchiha", "Uchiha-adjacent (no base clan)"],
+        genes: [GR(1, 25, "Common", "Prodigy Eyes", "Your Sharingan advances at Pitch DC 13 instead of 15."), GR(26, 50, "Common", "Perfect Fire and Lightning", "Fire and Lightning jutsu cost 250 less."), GR(51, 65, "Common", "Chidori Blade (B)", "A lightning-infused blade strike."), GR(66, 80, "Common", "Early Susanoo", "Your Ribcage Susanoo unlocks at Lv 8."), GR(81, 90, "Rare", "Eternal Spark", "Spark restores 1,000 instead of 500."), GR(91, 95, "Rare", "Amenotejikara", "Reaction (1,000): swap places with any creature or object within 60 ft."), GR(96, 98, "Mythic", "Indra's Arrow (S, 25,000)", "A Perfect Susanoo arrow at 200 ft."), GR(99, 100, "Mythic", "Rinnegan Awakening", "Your Rinnegan awakens at Lv 15 (Eternal Mangekyō and a Sage-level source required), and your Awakened Reserve gets +10%.")] }),
+    C("Ashura's Heir", "legendary", "+1 Con, +1 Wis", "+20%", "The Sage's younger son's chakra. Love, bonds and the weight of carrying others.",
+      "Ashura's Chakra: +10% Awakened Reserve, and Gather +5%.\nBond Link: as an Action, transfer up to 10% of your pool to an ally within 30 ft.\nSage Aptitude: Sage Mode unlocks at Lv 8.",
+      "The Burden: if you abandon a bonded ally, you have disadvantage on all checks for 1 day.\nThe Cycle: an Indra's Heir may become your rival.",
+      { overlay: ["Senju", "Uzumaki", "Sage-linked (no base clan)"],
+        genes: [GR(1, 25, "Common", "Bond Strength", "Bond Link transfers 15% instead of 10%."), GR(26, 50, "Common", "Resolute Heart", "Advantage on Wis saves against fear and mind control."), GR(51, 65, "Common", "Sage Mastery", "Sage Mode unlocks at Lv 6 and takes 1 round to gather."), GR(66, 80, "Common", "Bond Sense", "You know the location and emotion of bonded allies within 1 mile."), GR(81, 90, "Rare", "Beast Link", "Partner with a Bijū. Gain Chakra Cloak (B, 3,000) and Awakened Reserve +10%."), GR(91, 95, "Rare", "Spiral Heart (B, 3,000)", "A spinning chakra sphere."), GR(96, 98, "Mythic", "Six Paths Sage Mode (S, 25,000)", "For 1 minute, pool +20% and you get Truth-Seeking Orbs (A)."), GR(99, 100, "Mythic", "Heart of the Sage", "Bonded allies can share your Chakra Limit with you.")] }),
+    C("Nameless Ancient", "legendary", "+2 choice, +1 choice, +1 choice", "+20%", "Your own blank slate, built from a budget so it stays balanced.",
+      "Ancient Budget (you and the GM spend it together):\nBlood: 1 always-on trait.\nArt: 1 signature jutsu, B-rank or lower.\nPath: 3 awakening stages, at Lv 6, 11 and 16.\nPrice: 1 canon-style drawback.\nHeritage: +20% Limit, and Awakened Reserve +10%.\nMosaic Blood: your Gene Rolls use the Mosaic table instead of a clan table.",
+      "One canon-style drawback of your choice (from the Ancient Budget).",
+      { budget: true,
+        genes: [GR(1, 50, "Common", "Borrowed Common Gene", "Borrow a Common Gene from any Great Clan. Write which one below.", { write: true, repeat: true }), GR(51, 90, "Rare", "Borrowed Uncommon or Rare Gene", "Borrow an Uncommon or Rare Gene from any Great Clan. Write which one below.", { write: true, repeat: true }), GR(91, 100, "Mythic", "Your Own Mythic", "Write your own Mythic gene, with GM approval.", { write: true, repeat: true })] }),
   ],
+  // Fallback tables, used by any clan that has no table of its own (e.g. Akimichi, the Great Clans).
   gifts: {
-    minor: [
-      { name: "Quick Seals", effect: "+1 Initiative. Once per long rest, cast a C-rank or lower jutsu as a Bonus Action." },
-      { name: "Sturdy", effect: "+1 HP per level." },
-      { name: "Keen Senses", effect: "Proficiency in Perception." },
-      { name: "Chakra Thrift", effect: "Your first jutsu each combat costs 250 less." },
-      { name: "Taijutsu Drills", effect: "+1 to unarmed attack rolls." },
-      { name: "Tool Savvy", effect: "Proficiency with ninja tools; +1 damage with thrown weapons." },
-      { name: "Scroll Scholar", effect: "Learn one extra E- or D-rank jutsu." },
-      { name: "Deep Pool", effect: "Pool +5%." },
-    ],
-    notable: [
-      { name: "Efficient Flow", effect: "Your first jutsu each round costs 250 less." },
-      { name: "Deep Reserves", effect: "Pool +10%." },
-      { name: "Second Nature", effect: "Gain a second chakra nature of your choice." },
-      { name: "Sensor", effect: "Sense chakra within 60 ft." },
-      { name: "Swift", effect: "+5 ft speed and +2 Initiative." },
-      { name: "Hardened", effect: "+1 HP per level, and advantage on saves against exhaustion." },
-      { name: "Clan Prodigy", effect: "Learn one level-gated clan jutsu 2 levels early." },
-      { name: "Genjutsu Ward", effect: "Advantage on saves against genjutsu." },
-      { name: "Fast Gather", effect: "Gather +5%." },
-      { name: "Weapon Mastery", effect: "+1 to attack rolls with one weapon type of your choice." },
-      { name: "Clan Secret", effect: "Learn one extra C-rank clan jutsu." },
-      { name: "Bloodline Spark", effect: "Roll once on the Gene table.", gene: true },
-    ],
+    minor: GT(["Quick Seals", "+1 Initiative. Once per long rest, cast a C-rank or lower jutsu as a Bonus Action."], ["Sturdy", "+1 HP per level."], ["Keen Senses", "Proficiency in Perception."], ["Chakra Thrift", "Your first jutsu each combat costs 250 less."], ["Taijutsu Drills", "+1 to unarmed attack rolls."], ["Tool Savvy", "Proficiency with ninja tools; +1 damage with thrown weapons."], ["Scroll Scholar", "Learn one extra E- or D-rank jutsu."], ["Deep Pool", "Pool +5%."]),
+    notable: GT(["Efficient Flow", "Your first jutsu each round costs 250 less."], ["Deep Reserves", "Pool +10%."], ["Second Nature", "Gain a second chakra nature of your choice."], ["Sensor", "Sense chakra within 60 ft."], ["Swift", "+5 ft speed and +2 Initiative."], ["Hardened", "+1 HP per level, and advantage on saves against exhaustion."], ["Clan Prodigy", "Learn one level-gated clan jutsu 2 levels early."], ["Genjutsu Ward", "Advantage on saves against genjutsu."], ["Fast Gather", "Gather +5%."], ["Weapon Mastery", "+1 to attack rolls with one weapon type of your choice."], ["Clan Secret", "Learn one extra C-rank clan jutsu."], ["Big Appetite Chakra", "A full meal restores an extra 5% of your pool."]),
   },
-  genes: [
-    { name: "Deep Reserves", effect: "+10% max chakra pool." },
-    { name: "Fine Control", effect: "Your first jutsu each round costs 250 less." },
-    { name: "Second Nature", effect: "Gain a second chakra nature of your choice." },
-    { name: "Sensor Blood", effect: "Sense chakra within 60 ft; advantage on checks to track a chakra signature." },
-    { name: "Yin-Touched", effect: "Advantage on saves against genjutsu, and +1 to your genjutsu DCs." },
-    { name: "Yang-Touched", effect: "+1 HP per level; your healing jutsu restore extra HP equal to your Level." },
-    { name: "Rapid Recovery", effect: "Gather +5%." },
-    { name: "Iron Constitution", effect: "Advantage on saves against poison and disease." },
-    { name: "Swift Blood", effect: "+5 ft speed and +1 Initiative." },
-    { name: "Hardened Body", effect: "+1 AC while you aren't wearing armor." },
-    { name: "Ancestral Memory", effect: "Learn one extra jutsu of C-rank or lower." },
-    { name: "Hidden Talent", effect: "Gain one extra Discipline." },
-    { name: "Chakra Absorption", effect: "Once per long rest, as a Reaction, absorb 500 chakra from a jutsu that hits you." },
-    { name: "Sage Affinity", effect: "Sage training takes half the time, and you can learn Sage Mode 2 levels earlier." },
-    { name: "Jinchūriki Vessel", effect: "You can host a Bijū (or a fragment) without your body rejecting it; advantage on saves against a Bijū's influence." },
-    { name: "Chakra Sight", effect: "Perception +2, and you can see chakra flowing through bodies within 30 ft." },
-    { name: "Longevity", effect: "You age at half speed. Once per long rest, reroll a failed Con save." },
-    { name: "Seal Affinity", effect: "Your sealing jutsu cost 250 less, and +1 to their DCs." },
-    { name: "Battle Instinct", effect: "You can't be surprised while conscious." },
-    { name: "Awakened Blood", effect: "Choose any gene on this table.", pickAny: true },
-  ],
+  genes: GT(["Deep Reserves", "+10% max chakra pool."], ["Fine Control", "Your first jutsu each round costs 250 less."], ["Second Nature", "Gain a second chakra nature of your choice."], ["Sensor Blood", "Sense chakra within 60 ft; advantage on checks to track a chakra signature."], ["Yin-Touched", "Advantage on saves against genjutsu, and +1 to your genjutsu DCs."], ["Yang-Touched", "+1 HP per level; your healing jutsu restore extra HP equal to your Level."], ["Rapid Recovery", "Gather +5%."], ["Iron Constitution", "Advantage on saves against poison and disease."], ["Swift Blood", "+5 ft speed and +1 Initiative."], ["Hardened Body", "+1 AC while you aren't wearing armor."], ["Ancestral Memory", "Learn one extra jutsu of C-rank or lower."], ["Hidden Talent", "Gain one extra Discipline."], ["Chakra Absorption", "Once per long rest, as a Reaction, absorb 500 chakra from a jutsu that hits you."], ["Sage Affinity", "Sage training takes half the time, and you can learn Sage Mode 2 levels earlier."], ["Jinchūriki Vessel", "You can host a Bijū (or a fragment) without your body rejecting it; advantage on saves against a Bijū's influence."], ["Chakra Sight", "Perception +2, and you can see chakra flowing through bodies within 30 ft."], ["Longevity", "You age at half speed. Once per long rest, reroll a failed Con save."], ["Seal Affinity", "Your sealing jutsu cost 250 less, and +1 to their DCs."], ["Battle Instinct", "You can't be surprised while conscious."], ["Awakened Blood", "Choose any gene on this table."]),
 };
 
 // ================= state =================
 let uid = 0;
 const newId = () => "i" + Date.now().toString(36) + (uid++);
+const withIds = l => (l || []).forEach(x => { if (!x.id) x.id = newId(); });
 function fromDefaults() {
   const s = JSON.parse(JSON.stringify(DEFAULTS));
-  for (const l of [s.clans, s.gifts.minor, s.gifts.notable, s.genes]) l.forEach(x => x.id = newId());
+  s.clans.forEach(c => { c.id = newId(); withIds(c.gifts); withIds(c.genes); });
+  withIds(s.gifts.minor); withIds(s.gifts.notable); withIds(s.genes);
   s.current = null; s.history = [];
   return s;
 }
 const valid = s => s && Array.isArray(s.tiers) && Array.isArray(s.clans) && s.gifts && Array.isArray(s.gifts.minor) && Array.isArray(s.gifts.notable) && Array.isArray(s.genes);
+
+// Version 1 saves: add the clan tables and the full Legendary Line text, and convert old extras.
+const V1_LEGENDARY_BASELINE = {
+  "Ōtsutsuki Remnant": "Pool +10%.\nAn Ancient Eye: Byakugan Stage 1 or a Rinnegan seed.\nHorn Sense.",
+  "Indra's Heir": "Awakened Reserve +10%.\nFire and Lightning natures.\nSusanoo stages cost 500 less.",
+  "Ashura's Heir": "Awakened Reserve +10%.\nGather +5%.\nBond Link.\nSage Mode at Lv 8.",
+  "Nameless Ancient": "Blood, Art, Path and Price are built from the Ancient Budget. Write your build in the Notes below.",
+};
+function upgrade(s) {
+  if ((s.version || 1) >= 2) return s;
+  const d = fromDefaults();
+  for (const dc of d.clans) {
+    const cur = s.clans.find(c => c.name === dc.name);
+    if (!cur) continue;
+    if (!cur.gifts && dc.gifts) cur.gifts = dc.gifts;
+    if (!cur.genes && dc.genes) cur.genes = dc.genes;
+    if (V1_LEGENDARY_BASELINE[dc.name] !== undefined && cur.baseline === V1_LEGENDARY_BASELINE[dc.name])
+      Object.assign(cur, { tagline: dc.tagline, baseline: dc.baseline, price: dc.price, variantLabel: dc.variantLabel, variants: dc.variants, variantChoose: dc.variantChoose, overlay: dc.overlay, budget: dc.budget });
+    if (dc.name === "Clanless" && cur.variants && cur.variants.includes("No Path yet")) Object.assign(cur, { baseline: dc.baseline, variants: dc.variants, variantChoose: true });
+  }
+  for (const dt of d.tiers) { const t = s.tiers.find(x => x.key === dt.key); if (t) { if (t.maxGenes === undefined) t.maxGenes = dt.maxGenes; if (!t.note) t.note = dt.note; } }
+  const convert = sh => { if (sh && sh.extras) sh.extras = sh.extras.map(e => e.table ? e : e.kind === "discipline" ? e : { kind: e.kind === "genes" ? "gene" : "gift", table: e.kind === "genes" ? "genes" : e.kind, id: e.id, roll: e.roll }); };
+  convert(s.current); (s.history || []).forEach(convert);
+  s.version = 2;
+  return s;
+}
 function normalize(s) {
-  for (const l of [s.clans, s.gifts.minor, s.gifts.notable, s.genes]) l.forEach(x => { if (!x.id) x.id = newId(); });
-  s.clans.forEach(c => { c.variants = c.variants || []; c.overlay = c.overlay || []; c.variantLabel = c.variantLabel || ""; });
+  s = upgrade(s);
+  s.clans.forEach(c => { withIds(c.gifts); withIds(c.genes); c.variants = c.variants || []; c.overlay = c.overlay || []; c.variantLabel = c.variantLabel || ""; });
+  withIds(s.gifts.minor); withIds(s.gifts.notable); withIds(s.genes);
+  s.tiers.forEach(t => { if (t.maxGenes === undefined) t.maxGenes = t.extra === "genes" ? t.count : 0; t.note = t.note || ""; });
   s.history = Array.isArray(s.history) ? s.history : [];
   return s;
 }
@@ -360,6 +355,7 @@ let state;
 try { state = JSON.parse(localStorage.getItem(STORE_KEY)); } catch (e) { state = null; }
 state = normalize(valid(state) ? state : fromDefaults());
 const save = () => { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} };
+save();
 
 // ================= helpers =================
 const $ = id => document.getElementById(id);
@@ -373,89 +369,82 @@ const clansIn = key => state.clans.filter(c => c.tier === key);
 const clanById = id => state.clans.find(c => c.id === id);
 const clanByName = n => state.clans.find(c => c.name === n);
 const show100 = r => r === 100 ? "00" : String(r).padStart(2, "0");
-const tableFor = kind => kind === "minor" ? state.gifts.minor : kind === "notable" ? state.gifts.notable : kind === "genes" ? state.genes : [];
+const rng = x => `${show100(x.min)}–${show100(x.max)}`;
 const when = t => { const x = new Date(t), now = new Date(); const tm = x.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); return x.toDateString() === now.toDateString() ? tm : x.toLocaleDateString([], { month: "short", day: "numeric" }) + " " + tm; };
 
-// "+2 Con, +1 choice" -> [{v:2,a:"Con"},{v:1,a:"choice"}]
+// ===== tables =====
+// Keys: "minor" / "notable" / "genes" (fallback tables) or "gifts:<clanId>" / "genes:<clanId>" (a clan's own table).
+function getTable(key) {
+  if (key === "minor" || key === "notable") return { key, list: state.gifts[key], ranged: false, title: `General ${key === "minor" ? "Minor" : "Notable"} Gifts`, kind: "gift" };
+  if (key === "genes") return { key, list: state.genes, ranged: false, title: "General Genes", kind: "gene" };
+  const [field, id] = key.split(":"), c = clanById(id);
+  if (!c || !c[field]) return { key, list: [], ranged: false, title: "(missing)", kind: field === "genes" ? "gene" : "gift" };
+  return { key, list: c[field], ranged: field === "genes" && c[field].some(x => x.min != null), title: `${c.name} ${field === "genes" ? "Gene Table" : "Gifts"}`, kind: field === "genes" ? "gene" : "gift", clan: c };
+}
+const giftKey = (clan, tier) => clan.gifts && clan.gifts.length ? `gifts:${clan.id}` : tier.extra;
+function geneKey(clan, base) {
+  if (clan.genes && clan.genes.length) return `genes:${clan.id}`;
+  if (base && base.genes && base.genes.length) return `genes:${base.id}`;
+  return "genes";
+}
+const dieLabel = t => t.ranged ? "d100" : `d${t.list.length}`;
+const entryById = (key, id) => getTable(key).list.find(x => x.id === id);
+
+// Roll on a table; rerolls entries already taken unless the entry may repeat.
+function rollOn(key, taken, log, why) {
+  const t = getTable(key); if (!t.list.length) return null;
+  const rollOnce = () => { if (t.ranged) { const r = d(100); return { r, e: t.list.find(x => r >= x.min && r <= x.max) }; } const r = d(t.list.length); return { r, e: t.list[r - 1] }; };
+  let { r, e } = rollOnce(), tries = 0; const rerolls = [];
+  while ((!e || (taken.has(e.id) && !e.repeat)) && tries++ < 60) { rerolls.push(t.ranged ? show100(r) : r); ({ r, e } = rollOnce()); }
+  if (!e) return null;
+  log.push({ die: dieLabel(t), value: t.ranged ? show100(r) : r, rerolls, note: `${t.kind === "gene" ? "Gene" : "Gift"}${why ? " (" + why + ")" : ""}: ${e.name}${e.rarity ? " · " + e.rarity : ""}` });
+  return { kind: t.kind, table: key, id: e.id, roll: t.ranged ? show100(r) : r, note: "" };
+}
+const takenIds = extras => new Set(extras.filter(e => e.id).map(e => e.id));
+function rollExtras(clan, base, log) {
+  const tier = tierOf(clan.tier), extras = [];
+  if (tier.extra === "discipline") for (let i = 0; i < (tier.count || 1); i++) extras.push({ kind: "discipline" });
+  if (tier.extra === "minor" || tier.extra === "notable") for (let i = 0; i < (tier.count || 1); i++) { const x = rollOn(giftKey(clan, tier), takenIds(extras), log); if (x) extras.push(x); }
+  if (tier.extra === "genes") for (let i = 0; i < (tier.count || 1); i++) { const x = rollOn(geneKey(clan, base), takenIds(extras), log); if (x) extras.push(x); }
+  return extras;
+}
+
+// ===== ASI =====
 function parseAsi(s) {
   const out = [], re = /([+-]\d+)\s*(str|dex|con|int|wis|cha|choice|any)/gi; let m;
   while ((m = re.exec(s || ""))) { const a = m[2].toLowerCase(); out.push({ v: Number(m[1]), a: a === "choice" || a === "any" ? "choice" : a[0].toUpperCase() + a.slice(1) }); }
   return out;
 }
-
-// ================= rolling =================
-// The within-tier die is the tier's die, or the number of clans if there are more. Rolls above the clan count are rerolled.
-function rollWithin(key, log) {
-  const list = clansIn(key); if (!list.length) return null;
-  if (list.length === 1) return list[0];
-  const t = tierOf(key), size = Math.max(t.die || 1, list.length);
-  let r = d(size), tries = 0;
-  const rerolls = [];
-  while (r > list.length && tries++ < 50) { rerolls.push(r); r = d(size); }
-  log.push({ die: `d${size}`, value: r, rerolls, note: list[r - 1].name });
-  return list[r - 1];
-}
-function rollExtras(tier, log) {
-  const extras = [];
-  if (tier.extra === "discipline") for (let i = 0; i < (tier.count || 1); i++) extras.push({ kind: "discipline" });
-  if (tier.extra === "minor" || tier.extra === "notable") for (let i = 0; i < (tier.count || 1); i++) {
-    const tbl = tableFor(tier.extra), r = d(tbl.length);
-    log.push({ die: `d${tbl.length}`, value: r, note: `Gift: ${tbl[r - 1].name}` });
-    extras.push({ kind: tier.extra, id: tbl[r - 1].id, roll: r });
-    if (tbl[r - 1].gene) extras.push(rollGene(extras, log, "Bloodline Spark"));
-  }
-  if (tier.extra === "genes") for (let i = 0; i < (tier.count || 1); i++) extras.push(rollGene(extras, log));
-  return extras;
-}
-function rollGene(existing, log, why) {
-  const tbl = state.genes, have = new Set(existing.filter(e => e.kind === "genes").map(e => e.id));
-  let r = d(tbl.length), tries = 0; const rerolls = [];
-  while (have.has(tbl[r - 1].id) && tries++ < 50) { rerolls.push(r); r = d(tbl.length); }
-  log.push({ die: `d${tbl.length}`, value: r, rerolls, note: `Gene${why ? " (" + why + ")" : ""}: ${tbl[r - 1].name}` });
-  return { kind: "genes", id: tbl[r - 1].id, roll: r };
-}
-function asiSlots(clan, base) {
-  return [...(base ? parseAsi(base.asi).map(s => ({ ...s, from: base.name })) : []), ...parseAsi(clan.asi).map(s => ({ ...s, from: clan.name }))];
-}
+const asiSlots = (clan, base) => [...(base ? parseAsi(base.asi).map(s => ({ ...s, from: base.name })) : []), ...parseAsi(clan.asi).map(s => ({ ...s, from: clan.name }))];
 function defaultPicks(slots) {
   const fixed = new Set(slots.filter(s => s.a !== "choice").map(s => s.a)), used = new Set();
-  return slots.map(s => {
-    if (s.a !== "choice") return null;
-    const a = ABIL.find(x => !fixed.has(x) && !used.has(x)) || ABIL[0]; used.add(a); return a;
-  });
-}
-function buildShinobi(clan, log, chosen) {
-  const tier = tierOf(clan.tier);
-  let base = null, baseName = "";
-  if (clan.overlay.length) {
-    baseName = pick(clan.overlay); base = clanByName(baseName) || null;
-    log.push({ die: "", value: "", note: `Overlays: ${baseName}` });
-  }
-  const variant = !clan.variants.length ? "" : clan.variantChoose ? clan.variants[0] : pick(clan.variants);
-  if (variant && !clan.variantChoose) log.push({ die: `d${clan.variants.length}`, value: clan.variants.indexOf(variant) + 1, note: `${clan.variantLabel || "Variant"}: ${variant}` });
-  const extras = rollExtras(tier, log);
-  const slots = asiSlots(clan, base);
-  return { clan: clan.id, baseName, variant, picks: defaultPicks(slots), extras, log, chosen, notes: "", at: Date.now() };
+  return slots.map(s => { if (s.a !== "choice") return null; const a = ABIL.find(x => !fixed.has(x) && !used.has(x)) || ABIL[0]; used.add(a); return a; });
 }
 
-// ================= render: tier table =================
+// ===== building a shinobi =====
+function buildShinobi(clan, log, chosen) {
+  let baseName = "", base = null;
+  if (clan.overlay.length) { baseName = pick(clan.overlay); base = clanByName(baseName) || null; log.push({ die: clan.overlay.length > 1 ? `d${clan.overlay.length}` : "", value: clan.overlay.length > 1 ? clan.overlay.indexOf(baseName) + 1 : "", note: `Overlays: ${baseName}` }); }
+  const variant = !clan.variants.length ? "" : clan.variantChoose ? clan.variants[0] : pick(clan.variants);
+  if (variant && !clan.variantChoose) log.push({ die: `d${clan.variants.length}`, value: clan.variants.indexOf(variant) + 1, note: `${clan.variantLabel || "Variant"}: ${variant}` });
+  const extras = rollExtras(clan, base, log);
+  return { clan: clan.id, baseName, variant, picks: defaultPicks(asiSlots(clan, base)), extras, log, chosen, notes: "", budget: {}, at: Date.now() };
+}
+
+// ================= tier table =================
 function renderTiers(hitKey) {
   const total = state.tiers.reduce((s, t) => s + (t.max - t.min + 1), 0) || 100;
   $("tiers").innerHTML = state.tiers.map(t => {
-    const n = clansIn(t.key).length, pct = (t.max - t.min + 1) / total * 100;
-    const each = n ? pct / n : 0;
+    const n = clansIn(t.key).length, pct = (t.max - t.min + 1) / total * 100, size = Math.max(t.die, n);
+    const extra = t.extra === "genes" ? `${t.count} Genes${t.maxGenes > t.count ? ` (max ${t.maxGenes})` : ""}` : EXTRA_KINDS[t.extra] || "";
     return `<div class="tier ${hitKey === t.key ? "hit" : ""}" style="--c:${t.color}"><span class="rng">${show100(t.min)}–${show100(t.max)}</span>
-      <span><b>${esc(t.name)}</b> <span class="sm">· ${n > 1 ? `d${Math.max(t.die, n)}${Math.max(t.die, n) > n ? `, reroll ${Math.max(t.die, n) === n + 1 ? "a " + (n + 1) : (n + 1) + "+"}` : ""} · ` : ""}${esc(EXTRA_KINDS[t.extra] || "")}${t.extra === "genes" ? " ×" + t.count : ""}</span></span>
-      <span style="text-align:right">${pct.toFixed(0)}%<div class="sm">${n > 1 ? `~${each.toFixed(1)}% each` : ""}</div></span></div>`;
+      <span><b>${esc(t.name)}</b> <span class="sm">· ${n > 1 ? `d${size}${size > n ? `, reroll ${size === n + 1 ? "a " + size : (n + 1) + "+"}` : ""} · ` : ""}${esc(extra)}</span></span>
+      <span style="text-align:right">${pct.toFixed(0)}%<div class="sm">${n > 1 ? `~${(pct / n).toFixed(1)}% each` : ""}</div></span></div>`;
   }).join("");
 }
 
-// ================= render: result =================
-function extraName(e) {
-  if (e.kind === "discipline") return { name: "Extra Discipline", effect: "Choose one extra Discipline at level 1 (Clanless bonus)." };
-  const x = tableFor(e.kind).find(y => y.id === e.id);
-  return x || { name: "(removed)", effect: "" };
-}
+// ================= result =================
+function rarityTag(e) { return e && e.rarity ? `<span class="rar" style="color:${RARITY_COLOR[e.rarity] || "var(--muted)"}">${esc(e.rarity)}</span>` : ""; }
 function renderResult() {
   const s = state.current;
   if (!s) { $("result").innerHTML = `<p class="empty">Press <b>🎲 Roll Clan</b> to roll d100 for your tier.</p>`; renderTiers(); return; }
@@ -464,25 +453,32 @@ function renderResult() {
   const tier = tierOf(clan.tier), base = s.baseName ? clanByName(s.baseName) : null;
   const slots = asiSlots(clan, base);
   if (!Array.isArray(s.picks) || s.picks.length !== slots.length) s.picks = defaultPicks(slots);
+  s.budget = s.budget || {};
   const totals = {};
   slots.forEach((sl, i) => { const a = sl.a === "choice" ? s.picks[i] : sl.a; totals[a] = (totals[a] || 0) + sl.v; });
-  const logHtml = s.log.map(l => `<span class="die">${l.die ? `${esc(l.die)} → ` : ""}${l.rerolls && l.rerolls.length ? l.rerolls.map(r => `<s>${r}</s> ↺ `).join("") : ""}${l.value !== "" ? `<b>${esc(l.value)}</b>` : ""} ${esc(l.note || "")}</span>`).join("");
+  const logHtml = s.log.map(l => `<span class="die">${l.die ? `${esc(l.die)} → ` : ""}${l.rerolls && l.rerolls.length ? l.rerolls.map(r => `<s>${r}</s> ↺ `).join("") : ""}${l.value !== "" && l.value !== undefined ? `<b>${esc(l.value)}</b>` : ""} ${esc(l.note || "")}</span>`).join("");
+  const geneCount = s.extras.filter(e => e.kind === "gene").length;
   const extraRows = s.extras.map((e, i) => {
-    const x = extraName(e), tbl = tableFor(e.kind);
-    const label = e.kind === "discipline" ? "Discipline" : e.kind === "genes" ? "Gene" : "Gift";
-    const sel = tbl.length ? `<select data-xpick="${i}">${tbl.map((y, j) => `<option value="${y.id}" ${y.id === e.id ? "selected" : ""}>${j + 1}. ${esc(y.name)}</option>`).join("")}</select> <button class="small" data-xroll="${i}" title="Reroll this ${label.toLowerCase()}">🎲</button>` : "";
-    return `<div class="extra" style="--c:${e.kind === "genes" ? "#ffb52e" : e.kind === "discipline" ? "#b8b8b8" : tier.color}">
-      <div class="hd"><span class="n">${label}: ${esc(x.name)}${e.roll ? ` <span class="tag">rolled ${e.roll}</span>` : ""}</span><span class="row">${sel}</span></div>
-      <div class="d">${esc(x.effect)}</div></div>`;
+    if (e.kind === "discipline") return `<div class="extra" style="--c:#b8b8b8"><div class="hd"><span class="n">Extra Discipline</span></div><div class="d">Choose one extra Discipline at level 1 ("hard worker").</div></div>`;
+    const t = getTable(e.table), x = t.list.find(y => y.id === e.id) || { name: "(removed from table)", effect: "" };
+    const opts = t.list.map((y, j) => `<option value="${y.id}" ${y.id === e.id ? "selected" : ""}>${t.ranged ? rng(y) : j + 1}. ${esc(y.name)}</option>`).join("");
+    const col = x.rarity ? RARITY_COLOR[x.rarity] : e.kind === "gene" ? "#ffb52e" : tier.color;
+    return `<div class="extra" style="--c:${col}">
+      <div class="hd"><span class="n">${e.kind === "gene" ? "Gene" : "Gift"}: ${esc(x.name)}${rarityTag(x)}${e.roll ? `<span class="tag">${esc(dieLabel(t))} ${esc(e.roll)}</span>` : ""}</span>
+        <span class="row"><select data-xpick="${i}">${opts}</select><button class="small" data-xroll="${i}" title="Reroll">🎲</button>${e.rank ? `<button class="small" data-xdel="${i}" title="Remove this rank-up roll">✕</button>` : ""}</span></div>
+      <div class="d">${esc(x.effect)}</div>
+      <div class="note" style="margin-top:2px">From the ${esc(t.title)}${e.rank ? " · rank-up roll" : ""}</div>
+      ${x.write ? `<input data-xnote="${i}" value="${esc(e.note)}" placeholder="Which gene? Describe it">` : ""}</div>`;
   }).join("");
   const heritage = base ? `${esc(base.name)} ${esc(base.heritage)} · ${esc(clan.name)} ${esc(clan.heritage)}` : esc(clan.heritage);
-  const block = (c, title) => `
-    ${title ? `<h3 style="color:${tierOf(c.tier).color}">${esc(title)}</h3>` : ""}
+  const block = (c, title) => `${title ? `<h3 style="color:${tierOf(c.tier).color}">${esc(title)}</h3>` : ""}
     <h3>Baseline</h3><div class="box" style="--c:${tierOf(c.tier).color}">${esc(c.baseline)}</div>
     ${c.price ? `<h3>Price</h3><div class="box price">⚠ ${esc(c.price)}</div>` : ""}`;
+  const canRank = tier.extra === "genes" && geneCount < (tier.maxGenes || 0);
+  const B = s.budget, bf = (k, label, ph) => `<label>${label}</label><input data-budget="${k}" value="${esc(B[k] || "")}" placeholder="${esc(ph)}">`;
   $("result").innerHTML = `
     <div class="row" style="justify-content:space-between"><span class="badge" style="color:${tier.color}">${esc(tier.name)}</span><span class="tag">${s.chosen ? "✅ Chosen" : "🎲 Rolled"} · ${when(s.at)}</span></div>
-    <div class="big" style="color:${tier.color}">${base ? `${esc(base.name)} <span style="font-size:22px">+</span> ` : s.baseName ? `<span style="font-size:22px">${esc(s.baseName)} +</span> ` : ""}${esc(clan.name)}</div>
+    <div class="big" style="color:${tier.color}">${s.baseName ? `<span style="font-size:24px">${esc(s.baseName)} +</span> ` : ""}${esc(clan.name)}</div>
     <div class="tagline">${esc(clan.tagline)}</div>
     <div class="dice">${logHtml}</div>
     <div class="grid2">
@@ -490,15 +486,20 @@ function renderResult() {
       ${clan.overlay.length ? `<div class="kv"><label>Base</label><select class="auto" id="basePick">${clan.overlay.map(o => `<option ${o === s.baseName ? "selected" : ""}>${esc(o)}</option>`).join("")}</select></div>` : ""}
       ${clan.variants.length ? `<div class="kv"><label>${esc(clan.variantLabel || "Variant")}</label><select class="auto" id="variantPick">${clan.variants.map(v => `<option ${v === s.variant ? "selected" : ""}>${esc(v)}</option>`).join("")}</select></div>` : ""}
     </div>
+    ${tier.note ? `<h3>${esc(tier.name)} rules</h3><div class="box info">${esc(tier.note)}</div>` : ""}
     <h3>Ability Score Increases <span class="tag">${esc(tier.asiRule)}${base ? " (stacked on " + esc(base.name) + ")" : ""} · cap 20</span></h3>
     <div class="asi">${slots.map((sl, i) => `<span class="slot"><b>+${sl.v}</b>${sl.a === "choice" ? `<select data-asi="${i}">${ABIL.map(a => `<option ${a === s.picks[i] ? "selected" : ""}>${a}</option>`).join("")}</select>` : esc(sl.a)}${base ? `<span class="tag">${esc(sl.from)}</span>` : ""}</span>`).join("")}</div>
     <div class="totals">${ABIL.filter(a => totals[a]).map(a => `<span>${ABIL_FULL[a]} <b>+${totals[a]}</b></span>`).join("")}</div>
     ${base ? block(base, base.name + " (base clan)") + block(clan, clan.name + " (overlay)") : block(clan)}
-    <h3>Creation Extras <span class="tag">${esc(EXTRA_KINDS[tier.extra] || "")}${tier.extra === "genes" ? " ×" + tier.count : ""}</span></h3>
+    ${clan.budget ? `<h3>Ancient Budget</h3><div class="budget">${bf("blood", "Blood", "1 always-on trait")}${bf("art", "Art", "1 signature jutsu, B-rank or lower")}${bf("path6", "Path · Lv 6", "Awakening stage 1")}${bf("path11", "Path · Lv 11", "Awakening stage 2")}${bf("path16", "Path · Lv 16", "Awakening stage 3")}${bf("price", "Price", "1 canon-style drawback")}${bf("twist", "Twist", "What ancient thing does your blood remember?")}</div>` : ""}
+    <h3>Creation Extras <span class="tag">${tier.extra === "genes" ? `${geneCount} of max ${tier.maxGenes} Gene Rolls` : esc(EXTRA_KINDS[tier.extra] || "")}</span></h3>
     ${extraRows || `<div class="note">None for this tier.</div>`}
-    ${tier.extra !== "none" && tier.extra !== "discipline" ? `<div class="row" style="margin-top:8px"><button class="small" id="rerollExtras">🎲 Reroll all extras</button></div>` : ""}
+    <div class="row" style="margin-top:8px">
+      ${tier.extra === "minor" || tier.extra === "notable" || tier.extra === "genes" ? `<button class="small" id="rerollExtras">🎲 Reroll all extras</button>` : ""}
+      ${canRank ? `<button class="small" id="rankUp">➕ Rank-up Gene Roll</button>` : ""}
+    </div>
     <h3>Notes</h3>
-    <textarea id="notes" rows="3" placeholder="${clan.name === "Nameless Ancient" ? "Your Ancient Budget build: Blood, Art, Path and Price" : "Anything else for this shinobi"}">${esc(s.notes)}</textarea>
+    <textarea id="notes" rows="3" placeholder="Anything else for this shinobi">${esc(s.notes)}</textarea>
     <div class="row" style="margin-top:10px"><button class="small" id="copyBtn">📋 Copy as text</button></div>`;
   const rank = state.tiers.findIndex(t => t.key === clan.tier), card = $("card");
   card.classList.remove("g2", "g3", "g4"); card.style.setProperty("--glow", tier.color);
@@ -506,34 +507,43 @@ function renderResult() {
   renderTiers(clan.tier);
 }
 function commit() { save(); renderResult(); }
+function syncHistory() { const s = state.current, i = state.history.findIndex(h => h.at === s.at); if (i >= 0) state.history[i] = JSON.parse(JSON.stringify(s)); }
 $("result").addEventListener("change", e => {
-  const s = state.current, t = e.target; if (!s) return;
+  const s = state.current, t = e.target; if (!s || t.tagName !== "SELECT") return;   // text boxes save on input; don't redraw under the cursor
   if (t.dataset.asi !== undefined) {
-    // Free picks must be different abilities: if another pick already has it, swap them.
     const i = +t.dataset.asi, old = s.picks[i], j = s.picks.findIndex((a, k) => k !== i && a === t.value);
-    if (j >= 0) s.picks[j] = old;
-    s.picks[i] = t.value; commit();
+    if (j >= 0) s.picks[j] = old;   // free picks are different abilities: swap
+    s.picks[i] = t.value;
   }
   if (t.dataset.xpick !== undefined) {
-    const ex = s.extras[+t.dataset.xpick], tbl = tableFor(ex.kind); ex.id = t.value; ex.roll = tbl.findIndex(y => y.id === t.value) + 1;
-    const x = tbl.find(y => y.id === t.value);
-    if (x && x.gene && !s.extras.some((y, j) => j > +t.dataset.xpick && y.kind === "genes")) s.extras.splice(+t.dataset.xpick + 1, 0, rollGene(s.extras, s.log, "Bloodline Spark"));
-    s.log.push({ die: "", value: "", note: `Picked: ${x ? x.name : "?"}` }); commit();
+    const ex = s.extras[+t.dataset.xpick], tb = getTable(ex.table), y = tb.list.find(z => z.id === t.value);
+    ex.id = t.value; ex.roll = ""; s.log.push({ die: "", value: "", note: `Picked: ${y ? y.name : "?"}` });
   }
-  if (t.id === "basePick") { s.baseName = t.value; s.picks = null; s.log.push({ die: "", value: "", note: `Base changed to ${t.value}` }); commit(); }
-  if (t.id === "variantPick") { s.variant = t.value; commit(); }
+  if (t.id === "basePick") {
+    s.baseName = t.value; s.picks = null; s.log.push({ die: "", value: "", note: `Base changed to ${t.value}` });
+  }
+  if (t.id === "variantPick") s.variant = t.value;
+  syncHistory(); commit();
 });
-$("result").addEventListener("input", e => { if (e.target.id === "notes" && state.current) { state.current.notes = e.target.value; save(); } });
+$("result").addEventListener("input", e => {
+  const s = state.current; if (!s) return;
+  if (e.target.id === "notes") s.notes = e.target.value;
+  if (e.target.dataset.budget) s.budget[e.target.dataset.budget] = e.target.value;
+  if (e.target.dataset.xnote !== undefined) s.extras[+e.target.dataset.xnote].note = e.target.value;
+  syncHistory(); save();
+});
 $("result").addEventListener("click", async e => {
   const s = state.current; if (!s) return;
-  const xr = e.target.closest("[data-xroll]");
+  const clan = clanById(s.clan), base = s.baseName ? clanByName(s.baseName) : null;
+  const xr = e.target.closest("[data-xroll]"), xd = e.target.closest("[data-xdel]");
   if (xr) {
-    const i = +xr.dataset.xroll, ex = s.extras[i];
-    if (ex.kind === "genes") { const others = s.extras.filter((_, j) => j !== i); s.extras[i] = rollGene(others, s.log, "reroll"); }
-    else { const tbl = tableFor(ex.kind), r = d(tbl.length); s.log.push({ die: `d${tbl.length}`, value: r, note: `Gift reroll: ${tbl[r - 1].name}` }); s.extras[i] = { kind: ex.kind, id: tbl[r - 1].id, roll: r }; }
-    commit();
+    const i = +xr.dataset.xroll, ex = s.extras[i], others = takenIds(s.extras.filter((_, j) => j !== i));
+    const n = rollOn(ex.table, others, s.log, "reroll"); if (n) { n.rank = ex.rank; s.extras[i] = n; }
+    syncHistory(); return commit();
   }
-  if (e.target.id === "rerollExtras") { s.extras = rollExtras(tierOf(clanById(s.clan).tier), s.log); commit(); }
+  if (xd) { s.extras.splice(+xd.dataset.xdel, 1); syncHistory(); return commit(); }
+  if (e.target.id === "rerollExtras") { s.extras = rollExtras(clan, base, s.log); syncHistory(); return commit(); }
+  if (e.target.id === "rankUp") { const n = rollOn(geneKey(clan, base), takenIds(s.extras), s.log, "rank-up"); if (n) { n.rank = true; s.extras.push(n); } syncHistory(); return commit(); }
   if (e.target.id === "copyBtn") {
     const text = shinobiText(s);
     try { await navigator.clipboard.writeText(text); e.target.textContent = "✅ Copied!"; } catch (err) { prompt("Copy:", text); }
@@ -544,12 +554,24 @@ function shinobiText(s) {
   const clan = clanById(s.clan), tier = tierOf(clan.tier), base = s.baseName ? clanByName(s.baseName) : null;
   const slots = asiSlots(clan, base), totals = {};
   slots.forEach((sl, i) => { const a = sl.a === "choice" ? s.picks[i] : sl.a; totals[a] = (totals[a] || 0) + sl.v; });
-  const out = [`${base ? base.name + " + " : s.baseName ? s.baseName + " + " : ""}${clan.name} (${tier.name})`, clan.tagline,
+  const out = [`${s.baseName ? s.baseName + " + " : ""}${clan.name} (${tier.name})`, clan.tagline,
     `ASI: ${ABIL.filter(a => totals[a]).map(a => `${a} +${totals[a]}`).join(", ")}`,
     `Heritage: ${base ? `${base.name} ${base.heritage}, ${clan.name} ${clan.heritage}` : clan.heritage}`];
   if (s.variant) out.push(`${clan.variantLabel || "Variant"}: ${s.variant}`);
+  if (tier.note) out.push("", tier.note);
   for (const c of base ? [base, clan] : [clan]) { out.push("", `BASELINE (${c.name})`, c.baseline); if (c.price) out.push(`PRICE: ${c.price}`); }
-  if (s.extras.length) { out.push("", "EXTRAS"); s.extras.forEach(e => { const x = extraName(e); out.push(`• ${x.name}: ${x.effect}`); }); }
+  if (clan.budget) {
+    const B = s.budget || {}; out.push("", "ANCIENT BUDGET");
+    [["blood", "Blood"], ["art", "Art"], ["path6", "Path Lv 6"], ["path11", "Path Lv 11"], ["path16", "Path Lv 16"], ["price", "Price"], ["twist", "Twist"]].forEach(([k, l]) => { if (B[k]) out.push(`${l}: ${B[k]}`); });
+  }
+  if (s.extras.length) {
+    out.push("", "EXTRAS");
+    s.extras.forEach(e => {
+      if (e.kind === "discipline") return out.push("• Extra Discipline");
+      const x = entryById(e.table, e.id) || { name: "?", effect: "" };
+      out.push(`• ${e.kind === "gene" ? "Gene" : "Gift"}: ${x.name}${x.rarity ? " (" + x.rarity + ")" : ""}: ${x.effect}${e.note ? " [" + e.note + "]" : ""}`);
+    });
+  }
   if (s.notes) out.push("", "NOTES", s.notes);
   return out.join("\n");
 }
@@ -559,17 +581,26 @@ async function animate100(final) {
   for (let t = 0; t < 14; t++) { const r = d(100); $("bigroll").textContent = show100(r); renderTiers((tierForRoll(r) || {}).key); await sleep(55 + t * 6); }
   $("bigroll").textContent = show100(final);
 }
+function rollWithin(key, log) {
+  const list = clansIn(key); if (!list.length) return null;
+  if (list.length === 1) return list[0];
+  const size = Math.max(tierOf(key).die || 1, list.length);
+  let r = d(size), tries = 0; const rerolls = [];
+  while (r > list.length && tries++ < 50) { rerolls.push(r); r = d(size); }
+  log.push({ die: `d${size}`, value: r, rerolls, note: list[r - 1].name });
+  return list[r - 1];
+}
 $("rollBtn").onclick = async () => {
   $("rollBtn").disabled = true; $("card").classList.add("shake");
   const r = d(100), tier = tierForRoll(r);
   await animate100(r);
-  if (!tier) { $("card").classList.remove("shake"); $("rollBtn").disabled = false; return alert(`No tier covers ${r}. Fix the ranges in Tiers & Save.`); }
+  $("card").classList.remove("shake"); $("rollBtn").disabled = false;
+  if (!tier) return alert(`No tier covers ${r}. Fix the ranges in Tiers & Save.`);
   const log = [{ die: "d100", value: show100(r), note: tier.name }];
   const clan = rollWithin(tier.key, log);
-  $("card").classList.remove("shake");
-  if (!clan) { $("rollBtn").disabled = false; return alert(`There are no clans in ${tier.name}.`); }
+  if (!clan) return alert(`There are no clans in ${tier.name}.`);
   state.current = buildShinobi(clan, log, false);
-  addHistory(); renderResult(); $("rollBtn").disabled = false;
+  addHistory(); renderResult();
 };
 function renderPick() {
   const tk = $("pickTier").value || state.tiers[0].key;
@@ -577,27 +608,16 @@ function renderPick() {
   $("pickClan").innerHTML = clansIn($("pickTier").value).map((c, i) => `<option value="${c.id}">${i + 1}. ${esc(c.name)}</option>`).join("");
 }
 $("pickTier").onchange = renderPick;
-$("takeBtn").onclick = () => {
-  const clan = clanById($("pickClan").value); if (!clan) return;
-  state.current = buildShinobi(clan, [{ die: "", value: "", note: `Chose ${clan.name}` }], true);
-  addHistory(); renderResult();
-};
+function takeClan(clan) { state.current = buildShinobi(clan, [{ die: "", value: "", note: `Chose ${clan.name}` }], true); addHistory(); renderResult(); }
+$("takeBtn").onclick = () => { const c = clanById($("pickClan").value); if (c) takeClan(c); };
 
 // ================= history =================
-function addHistory() {
-  state.history.unshift(JSON.parse(JSON.stringify(state.current)));
-  if (state.history.length > 200) state.history.length = 200;
-  save(); renderHistory();
-}
+function addHistory() { state.history.unshift(JSON.parse(JSON.stringify(state.current))); if (state.history.length > 200) state.history.length = 200; save(); renderHistory(); }
 function histRow(h, i) {
   const c = clanById(h.clan), t = c ? tierOf(c.tier) : state.tiers[0];
   return `<div data-hi="${i}"><span>${h.baseName ? esc(h.baseName) + " + " : ""}${esc(c ? c.name : "(removed)")}${h.chosen ? '<span class="tag">✅ chosen</span>' : `<span class="tag">d100 ${esc((h.log[0] || {}).value || "")}</span>`}<span class="tag">${when(h.at)}</span></span><b style="color:${t.color}">${esc(t.name)}</b></div>`;
 }
-function renderHistory() {
-  const rows = state.history.map(histRow);
-  $("mini-hist").innerHTML = rows.slice(0, 30).join("") || `<span class="empty">Nothing yet.</span>`;
-  $("h-list").innerHTML = rows.join("") || `<span class="empty">No rolls yet.</span>`;
-}
+function renderHistory() { const rows = state.history.map(histRow); $("mini-hist").innerHTML = rows.slice(0, 30).join("") || `<span class="empty">Nothing yet.</span>`; $("h-list").innerHTML = rows.join("") || `<span class="empty">No rolls yet.</span>`; }
 document.addEventListener("click", e => {
   const r = e.target.closest("[data-hi]"); if (!r) return;
   const h = state.history[+r.dataset.hi]; if (!h || !clanById(h.clan)) return;
@@ -615,6 +635,12 @@ function showTab(t) {
 $("tabs").onclick = e => { const b = e.target.closest("button"); if (b) showTab(b.dataset.tab); };
 
 // ================= codex & clan editor =================
+function tableSummary(c) {
+  const t = tierOf(c.tier);
+  if (t.extra === "minor" || t.extra === "notable") return c.gifts && c.gifts.length ? `Own Gift table (d${c.gifts.length})` : `Uses the General ${t.extra === "minor" ? "Minor" : "Notable"} Gifts`;
+  if (t.extra === "genes") return c.genes && c.genes.length ? `Own Gene table (${c.genes.some(x => x.min != null) ? "d100" : "d" + c.genes.length})` : c.overlay.length ? "Uses its base clan's Genes" : "Uses the General Genes";
+  return "";
+}
 function renderCodex() {
   $("codex").innerHTML = state.tiers.map(t => {
     const list = clansIn(t.key); if (!list.length) return "";
@@ -625,28 +651,23 @@ function renderCodex() {
         <div><b>ASI</b> ${esc(c.asi)}</div>
         <div class="d">${esc(c.baseline)}</div>
         ${c.price ? `<div class="d" style="color:#ff9a9a">⚠ ${esc(c.price)}</div>` : ""}
-        ${c.overlay.length ? `<div class="note">Overlays: ${esc(c.overlay.join(", "))}</div>` : ""}
-        <button class="small" data-takeclan="${c.id}">✅ Use this clan</button>
+        ${tableSummary(c) ? `<div class="note">🎁 ${esc(tableSummary(c))}</div>` : ""}
+        <div class="row"><button class="small" data-takeclan="${c.id}">✅ Use this clan</button>${(c.gifts && c.gifts.length) || (c.genes && c.genes.length) ? `<button class="small" data-opentbl="${c.gifts && c.gifts.length ? "gifts" : "genes"}:${c.id}">View table</button>` : ""}</div>
       </div>`).join("")}</div>`;
   }).join("");
 }
 $("codex").addEventListener("click", e => {
-  const b = e.target.closest("[data-takeclan]"); if (!b) return;
-  const clan = clanById(b.dataset.takeclan);
-  state.current = buildShinobi(clan, [{ die: "", value: "", note: `Chose ${clan.name}` }], true);
-  addHistory(); renderResult(); showTab("roll");
+  const b = e.target.closest("[data-takeclan]"); if (b) { takeClan(clanById(b.dataset.takeclan)); showTab("roll"); return; }
+  const o = e.target.closest("[data-opentbl]"); if (o) { renderTablePicker(o.dataset.opentbl); showTab("tables"); }
 });
 const CLAN_FIELDS = [["name", "Name", 150], ["tier", "Tier", 120], ["asi", "ASI", 150], ["heritage", "Heritage", 80], ["tagline", "Tagline", 180], ["baseline", "Baseline", 280], ["price", "Price", 200], ["variantLabel", "Variant label", 110], ["variants", "Variants (|)", 160], ["overlay", "Overlays (|)", 150]];
 function renderClanEditor() {
   const rows = state.tiers.flatMap(t => clansIn(t.key));
-  $("clan-ed").innerHTML = `<tr><th>#</th>${CLAN_FIELDS.map(f => `<th>${f[1]}</th>`).join("")}<th></th></tr>` + rows.map(c => {
-    const idx = clansIn(c.tier).indexOf(c) + 1;
-    return `<tr data-id="${c.id}"><td class="num">${idx}</td>${CLAN_FIELDS.map(([k, , w]) => {
-      if (k === "tier") return `<td style="width:${w}px"><select data-k="tier">${state.tiers.map(t => `<option value="${t.key}" ${t.key === c.tier ? "selected" : ""}>${esc(t.name)}</option>`).join("")}</select></td>`;
-      const v = Array.isArray(c[k]) ? c[k].join(" | ") : c[k];
-      return ["baseline", "price", "tagline"].includes(k) ? `<td style="min-width:${w}px"><textarea data-k="${k}" rows="3">${esc(v)}</textarea></td>` : `<td style="min-width:${w}px"><input data-k="${k}" value="${esc(v)}"></td>`;
-    }).join("")}<td><button class="small" data-up>↑</button><button class="small" data-del>✕</button></td></tr>`;
-  }).join("");
+  $("clan-ed").innerHTML = `<tr><th>#</th>${CLAN_FIELDS.map(f => `<th>${f[1]}</th>`).join("")}<th></th></tr>` + rows.map(c => `<tr data-id="${c.id}"><td class="num">${clansIn(c.tier).indexOf(c) + 1}</td>${CLAN_FIELDS.map(([k, , w]) => {
+    if (k === "tier") return `<td style="width:${w}px"><select data-k="tier">${state.tiers.map(t => `<option value="${t.key}" ${t.key === c.tier ? "selected" : ""}>${esc(t.name)}</option>`).join("")}</select></td>`;
+    const v = Array.isArray(c[k]) ? c[k].join(" | ") : c[k];
+    return ["baseline", "price", "tagline"].includes(k) ? `<td style="min-width:${w}px"><textarea data-k="${k}" rows="3">${esc(v)}</textarea></td>` : `<td style="min-width:${w}px"><input data-k="${k}" value="${esc(v)}"></td>`;
+  }).join("")}<td><button class="small" data-up>↑</button><button class="small" data-del>✕</button></td></tr>`).join("");
 }
 $("clan-ed").addEventListener("input", e => {
   const tr = e.target.closest("tr[data-id]"), k = e.target.dataset.k; if (!tr || !k || k === "tier") return;
@@ -654,17 +675,11 @@ $("clan-ed").addEventListener("input", e => {
   c[k] = (k === "variants" || k === "overlay") ? e.target.value.split("|").map(x => x.trim()).filter(Boolean) : e.target.value;
   save(); renderResult(); renderCodex(); renderPick();
 });
-$("clan-ed").addEventListener("change", e => {
-  if (e.target.dataset.k !== "tier") return;
-  clanById(e.target.closest("tr").dataset.id).tier = e.target.value; save(); renderAll();
-});
+$("clan-ed").addEventListener("change", e => { if (e.target.dataset.k !== "tier") return; clanById(e.target.closest("tr").dataset.id).tier = e.target.value; save(); renderAll(); });
 $("clan-ed").addEventListener("click", e => {
   const tr = e.target.closest("tr[data-id]"); if (!tr) return;
   const c = clanById(tr.dataset.id);
-  if (e.target.hasAttribute("data-del")) {
-    if (!confirm(`Remove ${c.name}?`)) return;
-    state.clans = state.clans.filter(x => x !== c); save(); renderAll();
-  }
+  if (e.target.hasAttribute("data-del")) { if (!confirm(`Remove ${c.name}?`)) return; state.clans = state.clans.filter(x => x !== c); save(); renderAll(); }
   if (e.target.hasAttribute("data-up")) {
     const same = clansIn(c.tier), i = same.indexOf(c); if (i <= 0) return;
     const a = state.clans.indexOf(same[i - 1]), b = state.clans.indexOf(c);
@@ -673,52 +688,87 @@ $("clan-ed").addEventListener("click", e => {
 });
 $("clan-add").onclick = () => { state.clans.push({ id: newId(), name: "New Clan", tier: "minor", asi: "+1 Con, +1 choice", heritage: "+0%", tagline: "", baseline: "", price: "", variantLabel: "", variants: [], overlay: [] }); save(); renderAll(); };
 
-// ================= gift & gene tables =================
-const TABLES = { minor: ["gm-ed", () => state.gifts.minor], notable: ["gn-ed", () => state.gifts.notable], genes: ["gene-ed", () => state.genes] };
-function renderTables() {
-  for (const [kind, [el, get]] of Object.entries(TABLES)) {
-    const list = get();
-    $(el).innerHTML = `<tr><th>d${list.length}</th><th>Name</th><th>Effect</th>${kind === "notable" ? "<th>+ Gene</th>" : ""}<th></th></tr>` + list.map((x, i) => `<tr data-kind="${kind}" data-id="${x.id}">
-      <td class="num">${i + 1}</td><td style="width:200px"><input data-k="name" value="${esc(x.name)}"></td><td><textarea data-k="effect" rows="1">${esc(x.effect)}</textarea></td>
-      ${kind === "notable" ? `<td style="width:70px;text-align:center"><input type="checkbox" data-k="gene" ${x.gene ? "checked" : ""} style="width:auto"></td>` : ""}
-      <td style="width:80px"><button class="small" data-up>↑</button><button class="small" data-del>✕</button></td></tr>`).join("");
-  }
+// ================= table editor =================
+function tableOptions() {
+  const by = (tierKey, field) => clansIn(tierKey).map(c => ({ key: `${field}:${c.id}`, label: `${c.name}${c[field] && c[field].length ? "" : " (no table yet)"}` }));
+  return [
+    ["Minor Clan Gifts (d8)", by("minor", "gifts")],
+    ["Notable Clan Gifts (d12)", by("notable", "gifts")],
+    ["Great Clan Genes", by("great", "genes")],
+    ["Legendary Gene Tables (d100)", by("legendary", "genes")],
+    ["General tables (used when a clan has none)", [{ key: "minor", label: "General Minor Gifts" }, { key: "notable", label: "General Notable Gifts" }, { key: "genes", label: "General Genes" }]],
+  ];
 }
-document.addEventListener("input", e => {
-  const tr = e.target.closest("tr[data-kind]"), k = e.target.dataset.k; if (!tr || !k) return;
-  const list = TABLES[tr.dataset.kind][1](), x = list.find(y => y.id === tr.dataset.id);
-  x[k] = e.target.type === "checkbox" ? e.target.checked : e.target.value; save(); renderResult();
+let curTable = "";
+function renderTablePicker(want) {
+  if (want) curTable = want;
+  const groups = tableOptions(), all = groups.flatMap(g => g[1]);
+  if (!all.some(o => o.key === curTable)) curTable = all.length ? all[0].key : "";
+  $("tblPick").innerHTML = groups.map(([g, opts]) => opts.length ? `<optgroup label="${esc(g)}">${opts.map(o => `<option value="${o.key}" ${o.key === curTable ? "selected" : ""}>${esc(o.label)}</option>`).join("")}</optgroup>` : "").join("");
+  renderTable();
+}
+$("tblPick").onchange = () => { curTable = $("tblPick").value; renderTable(); };
+function renderTable() {
+  if (!curTable) return;
+  const [field, id] = curTable.split(":");
+  if (id) { const c = clanById(id); if (c && !(c[field] && c[field].length)) { $("tblNote").innerHTML = `${esc(c.name)} has no table of its own yet, so it rolls on the General table. <button class="small" id="tbl-create">Create a ${field === "genes" ? "d100 Gene" : "Gift"} table for ${esc(c.name)}</button>`; $("tbl-ed").innerHTML = ""; $("tbl-warn").textContent = ""; return; } }
+  const t = getTable(curTable);
+  $("tblNote").textContent = t.ranged ? "d100 bands: set From and To for each row. Rarity is shown on the result (Common, Rare, Mythic). Tick ‘Write-in’ to give the player a box to describe it." : `The row number is the die face (d${t.list.length}).`;
+  $("tbl-ed").innerHTML = (t.ranged ? `<tr><th>From</th><th>To</th><th>Rarity</th><th>Name</th><th>Effect</th><th>Write-in</th><th></th></tr>` : `<tr><th>d${t.list.length}</th><th>Name</th><th>Effect</th><th></th></tr>`) +
+    t.list.map((x, i) => `<tr data-row="${x.id}">${t.ranged ? `<td style="width:70px"><input type="number" data-k="min" value="${x.min}"></td><td style="width:70px"><input type="number" data-k="max" value="${x.max}"></td><td style="width:110px"><select data-k="rarity">${["Common", "Rare", "Mythic"].map(r => `<option ${r === x.rarity ? "selected" : ""}>${r}</option>`).join("")}</select></td>` : `<td class="num">${i + 1}</td>`}
+      <td style="width:220px"><input data-k="name" value="${esc(x.name)}"></td><td><textarea data-k="effect" rows="1">${esc(x.effect)}</textarea></td>
+      ${t.ranged ? `<td style="width:70px;text-align:center"><input type="checkbox" data-k="write" ${x.write ? "checked" : ""} style="width:auto"></td>` : ""}
+      <td style="width:80px"><button class="small" data-up>↑</button><button class="small" data-del>✕</button></td></tr>`).join("");
+  checkBands(t);
+}
+function checkBands(t) {
+  if (!t.ranged) { $("tbl-warn").textContent = ""; return; }
+  const gaps = []; for (let r = 1; r <= 100; r++) if (!t.list.some(x => r >= x.min && r <= x.max)) gaps.push(r);
+  $("tbl-warn").textContent = gaps.length ? `⚠ No row covers: ${gaps.length > 8 ? gaps.slice(0, 8).join(", ") + "…" : gaps.join(", ")} (those rolls are rerolled)` : "";
+}
+$("tblNote").addEventListener("click", e => {
+  if (e.target.id !== "tbl-create") return;
+  const [field, id] = curTable.split(":"), c = clanById(id);
+  c[field] = field === "genes" ? [{ id: newId(), min: 1, max: 100, rarity: "Common", name: "New gene", effect: "" }] : [{ id: newId(), name: "New gift", effect: "" }];
+  save(); renderTablePicker(); renderCodex();
 });
-document.addEventListener("click", e => {
-  const add = e.target.closest("[data-addrow]");
-  if (add) { TABLES[add.dataset.addrow][1]().push({ id: newId(), name: "New entry", effect: "" }); save(); renderTables(); renderTiers(); return; }
-  const tr = e.target.closest("tr[data-kind]"); if (!tr) return;
-  const list = TABLES[tr.dataset.kind][1](), i = list.findIndex(y => y.id === tr.dataset.id);
-  if (e.target.hasAttribute("data-del")) { if (list.length <= 1) return alert("Keep at least one entry."); list.splice(i, 1); save(); renderTables(); renderResult(); }
-  if (e.target.hasAttribute("data-up") && i > 0) { [list[i - 1], list[i]] = [list[i], list[i - 1]]; save(); renderTables(); }
+$("tbl-ed").addEventListener("input", e => {
+  const tr = e.target.closest("tr[data-row]"), k = e.target.dataset.k; if (!tr || !k) return;
+  const t = getTable(curTable), x = t.list.find(y => y.id === tr.dataset.row);
+  x[k] = e.target.type === "checkbox" ? e.target.checked : (k === "min" || k === "max") ? Number(e.target.value) || 0 : e.target.value;
+  if (k === "write") x.repeat = x.write;
+  save(); checkBands(t); renderResult();
 });
+$("tbl-ed").addEventListener("change", e => { if (e.target.dataset.k === "rarity") { getTable(curTable).list.find(y => y.id === e.target.closest("tr").dataset.row).rarity = e.target.value; save(); renderResult(); } });
+$("tbl-ed").addEventListener("click", e => {
+  const tr = e.target.closest("tr[data-row]"); if (!tr) return;
+  const list = getTable(curTable).list, i = list.findIndex(y => y.id === tr.dataset.row);
+  if (e.target.hasAttribute("data-del")) { if (list.length <= 1) return alert("Keep at least one row."); list.splice(i, 1); save(); renderTable(); renderResult(); renderCodex(); }
+  if (e.target.hasAttribute("data-up") && i > 0) { [list[i - 1], list[i]] = [list[i], list[i - 1]]; save(); renderTable(); }
+});
+$("tbl-add").onclick = () => {
+  const t = getTable(curTable); if (!t.list.length && curTable.includes(":")) return;
+  t.list.push(t.ranged ? { id: newId(), min: 100, max: 100, rarity: "Common", name: "New entry", effect: "" } : { id: newId(), name: "New entry", effect: "" });
+  save(); renderTable(); renderCodex();
+};
 
 // ================= tiers & save =================
 function renderTierEditor() {
-  $("tier-ed").innerHTML = `<tr><th>Tier</th><th>d100 from</th><th>to</th><th>Within-tier die</th><th>ASI rule (shown)</th><th>Extra at creation</th><th>How many</th></tr>` + state.tiers.map((t, i) => `<tr data-ti="${i}">
-    <td><input data-k="name" value="${esc(t.name)}" style="color:${t.color};font-weight:700"></td>
-    <td style="width:90px"><input type="number" data-k="min" value="${t.min}" min="1" max="100"></td>
-    <td style="width:90px"><input type="number" data-k="max" value="${t.max}" min="1" max="100"></td>
-    <td style="width:110px"><input type="number" data-k="die" value="${t.die}" min="1"></td>
-    <td><input data-k="asiRule" value="${esc(t.asiRule)}"></td>
-    <td style="width:190px"><select data-k="extra">${Object.entries(EXTRA_KINDS).map(([k, v]) => `<option value="${k}" ${k === t.extra ? "selected" : ""}>${v}</option>`).join("")}</select></td>
-    <td style="width:90px"><input type="number" data-k="count" value="${t.count}" min="0" max="6"></td></tr>`).join("");
+  $("tier-ed").innerHTML = `<tr><th>Tier</th><th>d100 from</th><th>to</th><th>Within-tier die</th><th>ASI rule (shown)</th><th>Extra at creation</th><th>How many</th><th>Max genes</th><th>Tier rules (shown)</th></tr>` + state.tiers.map((t, i) => `<tr data-ti="${i}">
+    <td style="width:150px"><input data-k="name" value="${esc(t.name)}" style="color:${t.color};font-weight:700"></td>
+    <td style="width:80px"><input type="number" data-k="min" value="${t.min}"></td><td style="width:80px"><input type="number" data-k="max" value="${t.max}"></td>
+    <td style="width:90px"><input type="number" data-k="die" value="${t.die}"></td><td><input data-k="asiRule" value="${esc(t.asiRule)}"></td>
+    <td style="width:160px"><select data-k="extra">${Object.entries(EXTRA_KINDS).map(([k, v]) => `<option value="${k}" ${k === t.extra ? "selected" : ""}>${v}</option>`).join("")}</select></td>
+    <td style="width:80px"><input type="number" data-k="count" value="${t.count}"></td><td style="width:80px"><input type="number" data-k="maxGenes" value="${t.maxGenes}"></td>
+    <td style="min-width:220px"><textarea data-k="note" rows="2">${esc(t.note)}</textarea></td></tr>`).join("");
   checkTiers();
 }
-function checkTiers() {
-  const missing = []; for (let r = 1; r <= 100; r++) if (!tierForRoll(r)) missing.push(r);
-  $("tier-warn").textContent = missing.length ? `⚠ No tier covers: ${missing.length > 10 ? missing.slice(0, 10).join(", ") + "…" : missing.join(", ")}` : "";
-}
+function checkTiers() { const m = []; for (let r = 1; r <= 100; r++) if (!tierForRoll(r)) m.push(r); $("tier-warn").textContent = m.length ? `⚠ No tier covers: ${m.length > 10 ? m.slice(0, 10).join(", ") + "…" : m.join(", ")}` : ""; }
 $("tier-ed").addEventListener("input", e => {
   const tr = e.target.closest("tr[data-ti]"), k = e.target.dataset.k; if (!tr || !k) return;
   const t = state.tiers[+tr.dataset.ti];
-  t[k] = ["min", "max", "die", "count"].includes(k) ? Math.max(0, Number(e.target.value) || 0) : e.target.value;
-  save(); checkTiers(); renderTiers(); renderPick(); renderCodex();
+  t[k] = ["min", "max", "die", "count", "maxGenes"].includes(k) ? Math.max(0, Number(e.target.value) || 0) : e.target.value;
+  save(); checkTiers(); renderTiers(); renderPick(); renderCodex(); renderResult();
 });
 $("exportBtn").onclick = () => {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
@@ -732,11 +782,11 @@ $("importFile").onchange = async e => {
   e.target.value = "";
 };
 $("resetBtn").onclick = () => {
-  if (!confirm("Reset the tier table, clans, gifts and genes to the defaults? (History is kept.)")) return;
+  if (!confirm("Reset the tier table, clans and all Gift and Gene tables to the defaults? (History is kept.)")) return;
   const h = state.history; state = fromDefaults(); state.history = h; save(); renderAll();
 };
 
-function renderAll() { renderTiers(); renderPick(); renderResult(); renderHistory(); renderCodex(); renderClanEditor(); renderTables(); renderTierEditor(); }
+function renderAll() { renderTiers(); renderPick(); renderResult(); renderHistory(); renderCodex(); renderClanEditor(); renderTablePicker(); renderTierEditor(); }
 renderAll();
 let startTab = "roll"; try { startTab = localStorage.getItem(STORE_KEY + ":tab") || "roll"; } catch (e) {}
 showTab(startTab);
