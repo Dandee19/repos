@@ -188,14 +188,15 @@ const STORE_KEY = "shinobi-clan-roll-v1";
 const ABIL = ["Str", "Dex", "Con", "Int", "Wis", "Cha"];
 const ABIL_FULL = { Str: "Strength", Dex: "Dexterity", Con: "Constitution", Int: "Intelligence", Wis: "Wisdom", Cha: "Charisma" };
 const EXTRA_KINDS = { none: "Nothing", discipline: "Extra Discipline", minor: "Gift (d8)", notable: "Gift (d12)", genes: "Gene Rolls" };
-const RARITY_COLOR = { Common: "var(--common)", Rare: "var(--rare)", Mythic: "var(--mythic)" };
+const RARITY_COLOR = { Common: "var(--common)", Uncommon: "#4fd06b", Rare: "var(--rare)", Mythic: "var(--mythic)" };
+const RARITIES = ["Common", "Uncommon", "Rare", "Mythic"];
 
 const C = (name, tier, asi, heritage, tagline, baseline, price, more) => ({ name, tier, asi, heritage, tagline, baseline, price, variantLabel: "", variants: [], overlay: [], ...(more || {}) });
 const GT = (...rows) => rows.map(([name, effect]) => ({ name, effect }));
 const GR = (min, max, rarity, name, effect, more) => ({ min, max, rarity, name, effect, ...(more || {}) });
 
 const DEFAULTS = {
-  version: 2,
+  version: 3,
   tiers: [
     { key: "clanless", name: "Clanless", color: "#b8b8b8", min: 1, max: 40, die: 1, asiRule: "+1 and +1 to any two abilities", extra: "discipline", count: 1, maxGenes: 0, note: "" },
     { key: "minor", name: "Minor Clan", color: "#4fd06b", min: 41, max: 70, die: 6, asiRule: "+2 (+1 fixed, +1 your choice)", extra: "minor", count: 1, maxGenes: 0, note: "" },
@@ -229,7 +230,8 @@ const DEFAULTS = {
       { gifts: GT(["Silent Step", "Advantage on Stealth."], ["Hidden Dart", "A ranged poison dart (C)."], ["Cold Mind", "Advantage against being intimidated."], ["Assassin's Eye", "Silent Kill crits on 19–20."], ["Shadow Cloak", "Reaction: vanish for 1 round."], ["Sealed Tongue", "You can't be forced to speak."], ["Root Resolve", "Resist mind control."], ["Ink Mark", "A seal you can use to hide a message."]) }),
     // ───── Notable (d12, reroll 12) ─────
     C("Akimichi", "notable", "+2 Con, +1 Str", "+10%", "Expansion and calorie chakra.",
-      "Expansion (Bonus Action, 500): grow Large for 1 minute with temp HP equal to 2 × Level.\nA full meal restores 10% of your pool.\nHuman Boulder (C).\nButterfly Mode (A, Lv 11).", "The Three Pills (the red one means death)."),
+      "Expansion (Bonus Action, 500): grow Large for 1 minute with temp HP equal to 2 × Level.\nA full meal restores 10% of your pool.\nHuman Boulder (C).\nButterfly Mode (A, Lv 11).", "The Three Pills (the red one means death).",
+      { gifts: GT(["Big Appetite", "A full meal restores an extra 5% of your pool."], ["Partial Expansion (C)", "Enlarge one limb: +5 ft reach and +1d6 damage on that strike."], ["Heavy Frame", "Advantage on saves against being shoved or knocked prone."], ["Rolling Momentum", "Human Boulder moves 10 ft farther."], ["Calorie Store", "Once a day, as a Bonus Action, burn a stored meal to restore 10% of your pool."], ["Iron Belly", "Advantage on saves against poison."], ["Expansion Mastery", "Expansion costs 250 less."], ["Early Wings", "Butterfly Mode unlocks at Lv 9."], ["Super Expansion", "Expansion can make you Huge instead of Large."], ["Pill Lore", "You can identify chakra pills, and once ever you can take the Green Pill without its side effect."], ["Loyal Heart", "When an ally drops to 0 HP within 30 ft, you get +2 to attack rolls until the end of your next turn."], ["Red Pill Survivor", "If the Red Pill would kill you, you drop to 1 HP instead (once ever)."]) }),
     C("Yamanaka", "notable", "+2 Wis, +1 Int", "+10%", "Mind-readers.",
       "Mind Transfer (1,000).\nMind-Body Switch (B).\nSensory Link (C).", "Your body is defenseless while you're out.",
       { gifts: GT(["Flower Sense", "Detect poison and plants, with advantage on Nature."], ["Mind Echo", "Mind Transfer costs 250 less."], ["Quiet Mind", "Advantage against mind-affecting effects."], ["Sensory Link+", "Sensory Link range 240 ft."], ["Truth Reader", "Advantage on Insight, and read surface thoughts (Wis save)."], ["Anchor Line", "+2 AC to your body while you're out."], ["Swift Return", "End Mind Transfer as a free action."], ["Echoing Voice", "Reaction: send a message to an ally within 1 mile."], ["Memory Peek (B)", "View a memory of a captive or charmed target."], ["Split Mind", "Control two bodies at once for 1 round."], ["Interrogator's Gift", "Advantage on Intimidation and Persuasion against captives."], ["Ancestral Mind", "Mind-Body Switch lasts 1 hour and costs half."]) }),
@@ -264,17 +266,22 @@ const DEFAULTS = {
     // ───── Great (d6) ─────
     C("Hyūga", "great", "+2 Dex, +1 Wis, +1 Con", "+10%", "The Gentle Fist clan with the chakra-seeing eyes.",
       "Byakugan Stage 1 at Lv 1: Perception +2 / Passive +4, with one blind spot above the neck.\nGentle Fist (C).\nNetwork Sense.\nSupple Frame.\nYour first jutsu each round costs 250 less.", "The House split: Main House, or Branch House with the Caged Bird Seal.",
-      { variantLabel: "House", variants: ["Main House", "Branch House (Caged Bird Seal)"] }),
+      { variantLabel: "House", variants: ["Main House", "Branch House (Caged Bird Seal)"] , genes: [GR(1, 20, "Common", "Wide Sight", "Your Byakugan range increases by 60 ft."), GR(21, 40, "Common", "Eight Trigrams Stance", "+1 AC while you're unarmed and not wearing armor."), GR(41, 55, "Common", "Tenketsu Precision", "Gentle Fist hits drain an extra 250 chakra."), GR(56, 70, "Uncommon", "Air Palm (C)", "A ranged Gentle Fist strike at 30 ft."), GR(71, 82, "Uncommon", "Rotation (B)", "Reaction (1,000): spin and repel every attack within 5 ft."), GR(83, 91, "Rare", "Blind Spot Sealed", "Your Byakugan has no blind spot."), GR(92, 97, "Rare", "Sixty-Four Palms (A)", "Strike 64 tenketsu: the target's jutsu cost double for 1 minute (Con save)."), GR(98, 100, "Rare", "Twin Lion Fists (A, 8,000)", "Two chakra lions; each hit drains 10% of the target's chakra.")] }),
     C("Uchiha", "great", "+2 Dex, +1 Int, +1 Cha", "+10%", "Fire and the Sharingan.",
-      "Fire affinity with the Fireball Technique (C).\nSpark.\nHeart-Bound.\nSharingan potential: awakens by the Wound, or by any huge emotion once the truth is discovered.", "Eye Strain, and the pull of hatred."),
+      "Fire affinity with the Fireball Technique (C).\nSpark.\nHeart-Bound.\nSharingan potential: awakens by the Wound, or by any huge emotion once the truth is discovered.", "Eye Strain, and the pull of hatred.",
+      { genes: [GR(1, 20, "Common", "Fire Lungs", "Your Fire jutsu cost 250 less."), GR(21, 40, "Common", "Sharp Eyes", "+2 Perception, and advantage on Insight against lies while your Sharingan is active."), GR(41, 55, "Common", "Clan Shurikenjutsu", "+1 to attack with thrown weapons, and you can bend one throw around cover."), GR(56, 70, "Uncommon", "Early Awakening", "Your Sharingan awakens at Lv 3, with or without the Wound."), GR(71, 82, "Uncommon", "Phoenix Flower (C)", "Three fire projectiles that can each target a different creature."), GR(83, 91, "Rare", "Genjutsu Eye", "+2 to the DC of genjutsu cast through your Sharingan."), GR(92, 97, "Rare", "Mangekyō Seed", "Your Mangekyō can awaken one stage earlier (GM's call)."), GR(98, 100, "Rare", "Izanagi Fragment", "Once ever, rewrite your own death into a near miss. That eye loses its light.")] }),
     C("Uzumaki", "great", "+2 Con, +1 Wis, +1 Int", "+20%", "Sealing masters.",
-      "+20% max pool.\nGather +5%.\n2 extra HP per level.\nMalice sense within 120 ft.\nAdamantine Chains (B).\nSeal Savant.", "Hunted, and a prime Bijū host."),
+      "+20% max pool.\nGather +5%.\n2 extra HP per level.\nMalice sense within 120 ft.\nAdamantine Chains (B).\nSeal Savant.", "Hunted, and a prime Bijū host.",
+      { genes: [GR(1, 20, "Common", "Whirlpool Vitality", "+1 more HP per level."), GR(21, 40, "Common", "Seal Script", "Your seals cost 250 less."), GR(41, 55, "Common", "Red-Haired Stamina", "Advantage on saves against exhaustion."), GR(56, 70, "Uncommon", "Twin Chains", "Adamantine Chains can restrain 2 targets."), GR(71, 82, "Uncommon", "Healing Bite", "An ally can bite you to regain HP equal to 2 × your Level (costs you 500)."), GR(83, 91, "Rare", "Wide Malice Sense", "Your malice sense reaches 1 mile."), GR(92, 97, "Rare", "Bijū Tamer", "Advantage on checks to suppress a Bijū, and your chains can bind one."), GR(98, 100, "Rare", "Whirlpool Longevity", "You age at half speed, and once per long rest you drop to 1 HP instead of 0.")] }),
     C("Senju", "great", "+2 Con, +1 Str, +1 Wis", "+20%", "Vitality and strength. No Wood Release, which comes only from Hashirama Cells.",
-      "Life Force: below half HP, regain your Level in HP each turn.\nSenju Stamina.\nGather +5%.\nChakra Fist (C).", "Coveted."),
+      "Life Force: below half HP, regain your Level in HP each turn.\nSenju Stamina.\nGather +5%.\nChakra Fist (C).", "Coveted.",
+      { genes: [GR(1, 20, "Common", "Iron Body", "+1 more HP per level."), GR(21, 40, "Common", "Swift Recovery", "A short rest restores extra HP equal to your Level."), GR(41, 55, "Common", "Strong Grip", "Advantage on Strength checks to grapple."), GR(56, 70, "Uncommon", "Deep Life Force", "Life Force triggers below three-quarters HP instead of half."), GR(71, 82, "Uncommon", "Earth or Water", "Gain Earth or Water as a second natural nature."), GR(83, 91, "Rare", "Sage Blood", "Sage Mode unlocks 2 levels earlier."), GR(92, 97, "Rare", "Hundred Healings (A)", "Store chakra in a seal and release it as a burst of healing."), GR(98, 100, "Rare", "Cell Resonance", "Hashirama Cells graft onto you without rejection, if you ever obtain them (Wood Release with the GM).")] }),
     C("Yuki", "great", "+2 Dex, +1 Int, +1 Con", "+10%", "Ice from Water and Wind.",
-      "Both Water and Wind natures.\nResistance to cold.\nIce Mirrors (B).", "Thermal weakness, and the purge."),
+      "Both Water and Wind natures.\nResistance to cold.\nIce Mirrors (B).", "Thermal weakness, and the purge.",
+      { genes: [GR(1, 20, "Common", "Cold Blood", "Advantage on saves against exhaustion from cold."), GR(21, 40, "Common", "Ice Needles (C)", "A spray of ice needles in a 15-ft cone."), GR(41, 55, "Common", "Snow Step", "Ice and snow aren't difficult terrain for you, and you have advantage on Stealth there."), GR(56, 70, "Uncommon", "Mirror Speed", "Move between your Ice Mirrors as a Bonus Action."), GR(71, 82, "Uncommon", "Frost Armor", "Reaction (500): reduce damage by your Level."), GR(83, 91, "Rare", "Ice Prison (B)", "Encase a target in ice (Str save)."), GR(92, 97, "Rare", "Glacial Domain (A)", "A 30-ft field of ice that's difficult terrain for your enemies."), GR(98, 100, "Rare", "Crystal Ice", "Your ice ignores resistance and can't be melted by C-rank fire.")] }),
     C("Kaguya", "great", "+2 Str, +1 Con, +1 Dex", "+10%", "Bone Release.",
-      "Bone Armor (Reaction, 500): reduces physical damage by your Level.\nDance of the Clematis (B).", "Wasting Frame."),
+      "Bone Armor (Reaction, 500): reduces physical damage by your Level.\nDance of the Clematis (B).", "Wasting Frame.",
+      { genes: [GR(1, 20, "Common", "Bone Density", "+1 AC while you aren't wearing armor."), GR(21, 40, "Common", "Finger Bullets (C)", "Ranged shots of bone at 60 ft."), GR(41, 55, "Common", "Pain Tolerance", "Advantage on Con saves against pain and bleeding."), GR(56, 70, "Uncommon", "Willow Dance (C)", "Bone blades grow from your body: +1d6 to unarmed strikes for 1 minute."), GR(71, 82, "Uncommon", "Larch Dance", "Reaction: spikes erupt, and creatures that hit you in melee take 1d8 damage."), GR(83, 91, "Rare", "Bone Drill (B)", "A piercing strike that ignores armor."), GR(92, 97, "Rare", "Slowed Wasting", "+2 to saves against your Wasting Frame."), GR(98, 100, "Rare", "Dance of the Seedling Fern (A, 8,000)", "A forest of bone spikes erupts in a 30-ft radius.")] }),
     // ───── Legendary (d4) ─────
     C("Ōtsutsuki Remnant", "legendary", "+2 Wis, +2 Int, +1 Con", "+20%", "Ancient chakra-fruit blood. Alien, and hunted for it.",
       "Chakra-Fruit Blood: +10% max pool.\nAncient Eye: choose a Byakugan Stage 1 (Perception +2 / Passive +4, with the neck blind spot) or a dormant Rinnegan seed.\nHorn Sense: you sense chakra within 60 ft, and advantage on Perception against hidden creatures.",
@@ -295,7 +302,7 @@ const DEFAULTS = {
       "Ancient Budget (you and the GM spend it together):\nBlood: 1 always-on trait.\nArt: 1 signature jutsu, B-rank or lower.\nPath: 3 awakening stages, at Lv 6, 11 and 16.\nPrice: 1 canon-style drawback.\nHeritage: +20% Limit, and Awakened Reserve +10%.\nMosaic Blood: your Gene Rolls use the Mosaic table instead of a clan table.",
       "One canon-style drawback of your choice (from the Ancient Budget).",
       { budget: true,
-        genes: [GR(1, 50, "Common", "Borrowed Common Gene", "Borrow a Common Gene from any Great Clan. Write which one below.", { write: true, repeat: true }), GR(51, 90, "Rare", "Borrowed Uncommon or Rare Gene", "Borrow an Uncommon or Rare Gene from any Great Clan. Write which one below.", { write: true, repeat: true }), GR(91, 100, "Mythic", "Your Own Mythic", "Write your own Mythic gene, with GM approval.", { write: true, repeat: true })] }),
+        genes: [GR(1, 50, "Common", "Borrowed Common Gene", "Borrow a Common Gene from any Great Clan.", { borrow: ["Common"], repeat: true }), GR(51, 90, "Rare", "Borrowed Uncommon or Rare Gene", "Borrow an Uncommon or Rare Gene from any Great Clan.", { borrow: ["Uncommon", "Rare"], repeat: true }), GR(91, 100, "Mythic", "Your Own Mythic", "Write your own Mythic gene, with GM approval.", { write: true, repeat: true })] }),
   ],
   // Fallback tables, used by any clan that has no table of its own (e.g. Akimichi, the Great Clans).
   gifts: {
@@ -326,7 +333,7 @@ const V1_LEGENDARY_BASELINE = {
   "Nameless Ancient": "Blood, Art, Path and Price are built from the Ancient Budget. Write your build in the Notes below.",
 };
 function upgrade(s) {
-  if ((s.version || 1) >= 2) return s;
+  if ((s.version || 1) >= 2) return s;   // v1 -> v2
   const d = fromDefaults();
   for (const dc of d.clans) {
     const cur = s.clans.find(c => c.name === dc.name);
@@ -343,8 +350,23 @@ function upgrade(s) {
   s.version = 2;
   return s;
 }
+function upgrade3(s) {
+  if ((s.version || 1) >= 3) return s;
+  const d = fromDefaults();
+  for (const dc of d.clans) {
+    const cur = s.clans.find(c => c.name === dc.name); if (!cur) continue;
+    if (!(cur.gifts && cur.gifts.length) && dc.gifts) cur.gifts = dc.gifts;
+    if (!(cur.genes && cur.genes.length) && dc.genes) cur.genes = dc.genes;
+    if (dc.name === "Nameless Ancient" && cur.genes) cur.genes.forEach(g => {
+      const nd = dc.genes.find(x => x.min === g.min && x.max === g.max);
+      if (nd && nd.borrow && /Write which one below\.$/.test(g.effect || "")) { g.effect = nd.effect; g.borrow = nd.borrow; delete g.write; }
+    });
+  }
+  s.version = 3;
+  return s;
+}
 function normalize(s) {
-  s = upgrade(s);
+  s = upgrade3(upgrade(s));
   s.clans.forEach(c => { withIds(c.gifts); withIds(c.genes); c.variants = c.variants || []; c.overlay = c.overlay || []; c.variantLabel = c.variantLabel || ""; });
   withIds(s.gifts.minor); withIds(s.gifts.notable); withIds(s.genes);
   s.tiers.forEach(t => { if (t.maxGenes === undefined) t.maxGenes = t.extra === "genes" ? t.count : 0; t.note = t.note || ""; });
@@ -391,21 +413,35 @@ const dieLabel = t => t.ranged ? "d100" : `d${t.list.length}`;
 const entryById = (key, id) => getTable(key).list.find(x => x.id === id);
 
 // Roll on a table; rerolls entries already taken unless the entry may repeat.
-function rollOn(key, taken, log, why) {
+function rollOn(key, taken, log, why, avoidBorrow) {
   const t = getTable(key); if (!t.list.length) return null;
   const rollOnce = () => { if (t.ranged) { const r = d(100); return { r, e: t.list.find(x => r >= x.min && r <= x.max) }; } const r = d(t.list.length); return { r, e: t.list[r - 1] }; };
   let { r, e } = rollOnce(), tries = 0; const rerolls = [];
   while ((!e || (taken.has(e.id) && !e.repeat)) && tries++ < 60) { rerolls.push(t.ranged ? show100(r) : r); ({ r, e } = rollOnce()); }
   if (!e) return null;
   log.push({ die: dieLabel(t), value: t.ranged ? show100(r) : r, rerolls, note: `${t.kind === "gene" ? "Gene" : "Gift"}${why ? " (" + why + ")" : ""}: ${e.name}${e.rarity ? " · " + e.rarity : ""}` });
-  return { kind: t.kind, table: key, id: e.id, roll: t.ranged ? show100(r) : r, note: "" };
+  const out = { kind: t.kind, table: key, id: e.id, roll: t.ranged ? show100(r) : r, note: "" };
+  if (e.borrow && e.borrow.length) out.borrowed = borrowGene(e.borrow, log, avoidBorrow || new Set());
+  return out;
 }
+// Mosaic Blood: borrow a gene of the right rarity from a random Great Clan's table.
+function borrowOptions(rarities) {
+  return clansIn("great").filter(c => c.genes && c.genes.length).flatMap(c => c.genes.filter(g => rarities.includes(g.rarity)).map(g => ({ table: `genes:${c.id}`, id: g.id, clan: c, g })));
+}
+function borrowGene(rarities, log, avoid) {
+  const all = borrowOptions(rarities), opts = all.filter(o => !avoid.has(o.id));
+  const pool = opts.length ? opts : all; if (!pool.length) return null;
+  const greats = [...new Set(pool.map(o => o.clan))], c = pick(greats), o = pick(pool.filter(x => x.clan === c));
+  log.push({ die: greats.length > 1 ? `d${greats.length}` : "", value: greats.length > 1 ? greats.indexOf(c) + 1 : "", note: `Borrowed from ${c.name}: ${o.g.name} · ${o.g.rarity}` });
+  return { table: o.table, id: o.id };
+}
+const borrowedIds = extras => new Set(extras.filter(e => e.borrowed).map(e => e.borrowed.id));
 const takenIds = extras => new Set(extras.filter(e => e.id).map(e => e.id));
 function rollExtras(clan, base, log) {
   const tier = tierOf(clan.tier), extras = [];
   if (tier.extra === "discipline") for (let i = 0; i < (tier.count || 1); i++) extras.push({ kind: "discipline" });
   if (tier.extra === "minor" || tier.extra === "notable") for (let i = 0; i < (tier.count || 1); i++) { const x = rollOn(giftKey(clan, tier), takenIds(extras), log); if (x) extras.push(x); }
-  if (tier.extra === "genes") for (let i = 0; i < (tier.count || 1); i++) { const x = rollOn(geneKey(clan, base), takenIds(extras), log); if (x) extras.push(x); }
+  if (tier.extra === "genes") for (let i = 0; i < (tier.count || 1); i++) { const x = rollOn(geneKey(clan, base), takenIds(extras), log, "", borrowedIds(extras)); if (x) extras.push(x); }
   return extras;
 }
 
@@ -444,6 +480,16 @@ function renderTiers(hitKey) {
 }
 
 // ================= result =================
+function borrowHtml(e, i, x) {
+  const opts = borrowOptions(x.borrow);
+  if (!opts.length) return `<div class="note" style="margin-top:6px">No Great Clan has a ${esc(x.borrow.join(" or "))} gene yet. Add some on the Gift &amp; Gene Tables tab.</div>`;
+  const cur = e.borrowed && opts.find(o => o.id === e.borrowed.id);
+  const groups = [...new Set(opts.map(o => o.clan))].map(c => `<optgroup label="${esc(c.name)}">${opts.filter(o => o.clan === c).map(o => `<option value="${o.table}|${o.id}" ${cur && cur.id === o.id ? "selected" : ""}>${esc(o.g.name)} (${esc(o.g.rarity)})</option>`).join("")}</optgroup>`).join("");
+  return `<div class="extra" style="--c:${cur ? RARITY_COLOR[cur.g.rarity] : "var(--muted)"};margin-top:8px;background:#0004">
+    <div class="hd"><span class="n">↳ ${cur ? `${esc(cur.clan.name)}: ${esc(cur.g.name)}${rarityTag(cur.g)}` : "Choose a gene to borrow"}</span>
+      <span class="row"><select data-bpick="${i}">${cur ? "" : `<option value="">Choose…</option>`}${groups}</select><button class="small" data-broll="${i}" title="Borrow a different one">🎲</button></span></div>
+    ${cur ? `<div class="d">${esc(cur.g.effect)}</div>` : ""}</div>`;
+}
 function rarityTag(e) { return e && e.rarity ? `<span class="rar" style="color:${RARITY_COLOR[e.rarity] || "var(--muted)"}">${esc(e.rarity)}</span>` : ""; }
 function renderResult() {
   const s = state.current;
@@ -468,7 +514,8 @@ function renderResult() {
         <span class="row"><select data-xpick="${i}">${opts}</select><button class="small" data-xroll="${i}" title="Reroll">🎲</button>${e.rank ? `<button class="small" data-xdel="${i}" title="Remove this rank-up roll">✕</button>` : ""}</span></div>
       <div class="d">${esc(x.effect)}</div>
       <div class="note" style="margin-top:2px">From the ${esc(t.title)}${e.rank ? " · rank-up roll" : ""}</div>
-      ${x.write ? `<input data-xnote="${i}" value="${esc(e.note)}" placeholder="Which gene? Describe it">` : ""}</div>`;
+      ${x.borrow ? borrowHtml(e, i, x) : ""}
+      ${x.write ? `<input data-xnote="${i}" value="${esc(e.note)}" placeholder="Describe your gene">` : ""}</div>`;
   }).join("");
   const heritage = base ? `${esc(base.name)} ${esc(base.heritage)} · ${esc(clan.name)} ${esc(clan.heritage)}` : esc(clan.heritage);
   const block = (c, title) => `${title ? `<h3 style="color:${tierOf(c.tier).color}">${esc(title)}</h3>` : ""}
@@ -523,6 +570,10 @@ $("result").addEventListener("change", e => {
     s.baseName = t.value; s.picks = null; s.log.push({ die: "", value: "", note: `Base changed to ${t.value}` });
   }
   if (t.id === "variantPick") s.variant = t.value;
+  if (t.dataset.bpick !== undefined && t.value) {
+    const [table, id] = t.value.split("|"), ex = s.extras[+t.dataset.bpick]; ex.borrowed = { table, id };
+    const g = entryById(table, id); s.log.push({ die: "", value: "", note: `Borrowed: ${g ? g.name : "?"}` });
+  }
   syncHistory(); commit();
 });
 $("result").addEventListener("input", e => {
@@ -538,12 +589,18 @@ $("result").addEventListener("click", async e => {
   const xr = e.target.closest("[data-xroll]"), xd = e.target.closest("[data-xdel]");
   if (xr) {
     const i = +xr.dataset.xroll, ex = s.extras[i], others = takenIds(s.extras.filter((_, j) => j !== i));
-    const n = rollOn(ex.table, others, s.log, "reroll"); if (n) { n.rank = ex.rank; s.extras[i] = n; }
+    const n = rollOn(ex.table, others, s.log, "reroll", borrowedIds(s.extras.filter((_, j) => j !== i))); if (n) { n.rank = ex.rank; s.extras[i] = n; }
     syncHistory(); return commit();
   }
   if (xd) { s.extras.splice(+xd.dataset.xdel, 1); syncHistory(); return commit(); }
+  const br = e.target.closest("[data-broll]");
+  if (br) {
+    const i = +br.dataset.broll, ex = s.extras[i], x = entryById(ex.table, ex.id);
+    if (x && x.borrow) ex.borrowed = borrowGene(x.borrow, s.log, borrowedIds(s.extras.filter((_, j) => j !== i)));
+    syncHistory(); return commit();
+  }
   if (e.target.id === "rerollExtras") { s.extras = rollExtras(clan, base, s.log); syncHistory(); return commit(); }
-  if (e.target.id === "rankUp") { const n = rollOn(geneKey(clan, base), takenIds(s.extras), s.log, "rank-up"); if (n) { n.rank = true; s.extras.push(n); } syncHistory(); return commit(); }
+  if (e.target.id === "rankUp") { const n = rollOn(geneKey(clan, base), takenIds(s.extras), s.log, "rank-up", borrowedIds(s.extras)); if (n) { n.rank = true; s.extras.push(n); } syncHistory(); return commit(); }
   if (e.target.id === "copyBtn") {
     const text = shinobiText(s);
     try { await navigator.clipboard.writeText(text); e.target.textContent = "✅ Copied!"; } catch (err) { prompt("Copy:", text); }
@@ -569,7 +626,8 @@ function shinobiText(s) {
     s.extras.forEach(e => {
       if (e.kind === "discipline") return out.push("• Extra Discipline");
       const x = entryById(e.table, e.id) || { name: "?", effect: "" };
-      out.push(`• ${e.kind === "gene" ? "Gene" : "Gift"}: ${x.name}${x.rarity ? " (" + x.rarity + ")" : ""}: ${x.effect}${e.note ? " [" + e.note + "]" : ""}`);
+      const bg = e.borrowed && entryById(e.borrowed.table, e.borrowed.id), bc = e.borrowed && clanById(e.borrowed.table.split(":")[1]);
+      out.push(bg ? `• Gene: ${x.name} → ${bc ? bc.name + ": " : ""}${bg.name} (${bg.rarity}): ${bg.effect}` : `• ${e.kind === "gene" ? "Gene" : "Gift"}: ${x.name}${x.rarity ? " (" + x.rarity + ")" : ""}: ${x.effect}${e.note ? " [" + e.note + "]" : ""}`);
     });
   }
   if (s.notes) out.push("", "NOTES", s.notes);
@@ -713,9 +771,9 @@ function renderTable() {
   const [field, id] = curTable.split(":");
   if (id) { const c = clanById(id); if (c && !(c[field] && c[field].length)) { $("tblNote").innerHTML = `${esc(c.name)} has no table of its own yet, so it rolls on the General table. <button class="small" id="tbl-create">Create a ${field === "genes" ? "d100 Gene" : "Gift"} table for ${esc(c.name)}</button>`; $("tbl-ed").innerHTML = ""; $("tbl-warn").textContent = ""; return; } }
   const t = getTable(curTable);
-  $("tblNote").textContent = t.ranged ? "d100 bands: set From and To for each row. Rarity is shown on the result (Common, Rare, Mythic). Tick ‘Write-in’ to give the player a box to describe it." : `The row number is the die face (d${t.list.length}).`;
+  $("tblNote").textContent = t.ranged ? "d100 bands: set From and To for each row. Rarity is shown on the result (Common, Uncommon, Rare, Mythic). Tick ‘Write-in’ to give the player a box to describe it." : `The row number is the die face (d${t.list.length}).`;
   $("tbl-ed").innerHTML = (t.ranged ? `<tr><th>From</th><th>To</th><th>Rarity</th><th>Name</th><th>Effect</th><th>Write-in</th><th></th></tr>` : `<tr><th>d${t.list.length}</th><th>Name</th><th>Effect</th><th></th></tr>`) +
-    t.list.map((x, i) => `<tr data-row="${x.id}">${t.ranged ? `<td style="width:70px"><input type="number" data-k="min" value="${x.min}"></td><td style="width:70px"><input type="number" data-k="max" value="${x.max}"></td><td style="width:110px"><select data-k="rarity">${["Common", "Rare", "Mythic"].map(r => `<option ${r === x.rarity ? "selected" : ""}>${r}</option>`).join("")}</select></td>` : `<td class="num">${i + 1}</td>`}
+    t.list.map((x, i) => `<tr data-row="${x.id}">${t.ranged ? `<td style="width:70px"><input type="number" data-k="min" value="${x.min}"></td><td style="width:70px"><input type="number" data-k="max" value="${x.max}"></td><td style="width:110px"><select data-k="rarity">${RARITIES.map(r => `<option ${r === x.rarity ? "selected" : ""}>${r}</option>`).join("")}</select></td>` : `<td class="num">${i + 1}</td>`}
       <td style="width:220px"><input data-k="name" value="${esc(x.name)}"></td><td><textarea data-k="effect" rows="1">${esc(x.effect)}</textarea></td>
       ${t.ranged ? `<td style="width:70px;text-align:center"><input type="checkbox" data-k="write" ${x.write ? "checked" : ""} style="width:auto"></td>` : ""}
       <td style="width:80px"><button class="small" data-up>↑</button><button class="small" data-del>✕</button></td></tr>`).join("");
